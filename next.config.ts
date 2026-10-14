@@ -19,6 +19,7 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   typedRoutes: true,
   poweredByHeader: false,
+  experimental: { authInterrupts: true },
   async headers() {
     return [
       {

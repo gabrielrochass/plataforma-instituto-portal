@@ -1,7 +1,8 @@
-# Contadinho
+# Portal
 
-Controle de gastos em pt-BR: lance gastos em poucos toques, veja quanto vai para cada categoria e acompanhe
-cofrinhos com previsão de quando você chega na meta. Grátis, sem anúncios.
+Sistema interno do Instituto Portal (Recife, unidades Recife Antigo e Boa Viagem) em pt-BR: cursos e turmas, alunos e
+matrículas com histórico, chamada pelo celular, notas, acompanhamento social e indicadores de impacto para
+patrocinadores. Só entra quem recebe convite da coordenação.
 
 ## Rodando localmente
 
@@ -19,8 +20,8 @@ Preencha `.env.local` com as chaves que `supabase status` mostra (`PUBLISHABLE_K
 npm run dev
 ```
 
-Abra <http://localhost:3000>. Localmente, `DEV_AUTH=1` cria uma sessão de teste automaticamente, sem cadastro. Em
-produção cada pessoa cria a conta com e-mail e senha, sem confirmação por e-mail.
+Abra <http://localhost:3000>. Localmente, `DEV_AUTH=1` cria uma sessão de teste automaticamente. A API local do
+Supabase fica na porta 56451.
 
 ## Qualidade
 
@@ -42,6 +43,7 @@ Configure nesta ordem. `<ref>` é o ID do projeto no Supabase e `<domínio>` é 
    gerenciador de senhas.
 2. **Auth no painel do Supabase**:
    - provedor Email ligado, com "Confirm email" desligado e senha mínima de 8 caracteres, sem regras de composição;
+   - "Allow new users to sign up" desligado: a equipe entra só por convite;
    - nenhum outro provedor ligado;
    - Site URL `https://<domínio>`;
    - JWT expiry `900` e chaves de assinatura assimétricas;

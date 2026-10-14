@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
-import { localToday, todayInSaoPaulo } from "@/lib/dates";
+import { localToday, todayInRecife } from "@/lib/dates";
 
 const subscribe = () => () => {};
 
 export function useToday() {
-  return useSyncExternalStore(subscribe, localToday, todayInSaoPaulo);
+  return useSyncExternalStore(subscribe, localToday, todayInRecife);
 }

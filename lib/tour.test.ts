@@ -3,11 +3,10 @@ import { availableSteps, popupPlacement } from "./tour";
 
 describe("availableSteps", () => {
   it("keeps the tour order and skips steps without a target", () => {
-    expect(availableSteps((step) => step !== "saldo")).toEqual([
-      "novo",
-      "transacoes",
-      "cofrinhos",
-      "analises",
+    expect(availableSteps((step) => step !== "mais")).toEqual([
+      "acao",
+      "turmas",
+      "alunos",
       "ajustes",
     ]);
   });

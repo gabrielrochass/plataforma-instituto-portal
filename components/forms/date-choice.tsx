@@ -24,7 +24,7 @@ export function DateChoice({
   return (
     <div className="flex flex-col gap-3">
       <ChoiceChips
-        legend={m.entry.date}
+        legend={m.dates.date}
         name="date-preset"
         disabled={disabled}
         value={preset}
@@ -34,15 +34,15 @@ export function DateChoice({
           if (choice === "yesterday") onChange(yesterday);
         }}
         options={[
-          { value: "today", label: m.transactions.today },
-          { value: "yesterday", label: m.transactions.yesterday },
-          { value: "other", label: m.entry.otherDate },
+          { value: "today", label: m.dates.today },
+          { value: "yesterday", label: m.dates.yesterday },
+          { value: "other", label: m.dates.otherDate },
         ]}
       />
       {custom && (
         <Input
           type="date"
-          aria-label={m.entry.date}
+          aria-label={m.dates.date}
           disabled={disabled}
           value={value}
           min="2000-01-01"

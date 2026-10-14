@@ -1,9 +1,8 @@
 export const tourSteps = [
-  "novo",
-  "saldo",
-  "transacoes",
-  "cofrinhos",
-  "analises",
+  "acao",
+  "turmas",
+  "alunos",
+  "mais",
   "ajustes",
 ] as const;
 

@@ -1,20 +1,18 @@
 import { ChevronLeftIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { settingsNav } from "./nav-items";
 
 export function PageHeader({
   title,
+  subtitle,
   back,
   action,
 }: {
   title: string;
+  subtitle?: string;
   back?: { href: Route; label: string };
   action?: React.ReactNode;
 }) {
-  const SettingsIcon = settingsNav.icon;
   return (
     <header className="flex flex-col gap-1 pb-6">
       {back && (
@@ -27,24 +25,14 @@ export function PageHeader({
         </Link>
       )}
       <div className="flex items-center justify-between gap-4">
-        <h1 className="min-w-0 text-large-title font-bold tracking-tight">
+        <h1 className="min-w-0 text-large-title font-bold tracking-tight text-balance">
           {title}
         </h1>
         {action}
-        {!back && !action && (
-          <Link
-            href={settingsNav.href}
-            aria-label={settingsNav.label}
-            data-tour="ajustes"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-lg" }),
-              "md:hidden",
-            )}
-          >
-            <SettingsIcon aria-hidden="true" className="size-6" />
-          </Link>
-        )}
       </div>
+      {subtitle && (
+        <p className="text-subhead text-muted-foreground">{subtitle}</p>
+      )}
     </header>
   );
 }

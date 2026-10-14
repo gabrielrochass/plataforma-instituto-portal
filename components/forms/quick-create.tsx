@@ -5,7 +5,7 @@ import { useId, useRef, useState, useTransition } from "react";
 import { flushSync } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { ActionResult } from "@/lib/actions";
+import type { ActionResult } from "@/lib/action-result";
 import { attempt, failed } from "@/lib/attempt";
 import { m } from "@/lib/i18n";
 import { cn } from "@/lib/utils";

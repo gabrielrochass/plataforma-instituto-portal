@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { isPublicPath, safeNext, signInPath, withNext } from "./auth-paths";
 
 describe("isPublicPath", () => {
-  it("opens the sign-in, sign-up and legal pages", () => {
+  it("opens sign-in and legal pages but no public sign-up", () => {
     expect(isPublicPath("/entrar")).toBe(true);
-    expect(isPublicPath("/cadastro")).toBe(true);
+    expect(isPublicPath("/cadastro")).toBe(false);
     expect(isPublicPath("/termos")).toBe(true);
     expect(isPublicPath("/privacidade")).toBe(true);
   });
@@ -17,7 +17,7 @@ describe("isPublicPath", () => {
   it("keeps the app private", () => {
     expect(isPublicPath("/")).toBe(false);
     expect(isPublicPath("/ajustes/conta")).toBe(false);
-    expect(isPublicPath("/cofrinhos")).toBe(false);
+    expect(isPublicPath("/turmas")).toBe(false);
   });
 });
 
@@ -42,7 +42,7 @@ describe("signInPath", () => {
 
 describe("safeNext", () => {
   it("keeps paths inside the app", () => {
-    expect(safeNext("/cofrinhos")).toBe("/cofrinhos");
+    expect(safeNext("/turmas")).toBe("/turmas");
     expect(safeNext("/transacoes?mes=2026-10")).toBe("/transacoes?mes=2026-10");
   });
 
@@ -66,9 +66,9 @@ describe("safeNext", () => {
 
 describe("withNext", () => {
   it("carries the return path only when it is not the home page", () => {
-    expect(withNext("/cadastro", "/")).toBe("/cadastro");
-    expect(withNext("/cadastro", "/transacoes?mes=2026-10")).toBe(
-      "/cadastro?next=%2Ftransacoes%3Fmes%3D2026-10",
+    expect(withNext("/dev/entrar", "/")).toBe("/dev/entrar");
+    expect(withNext("/dev/entrar", "/turmas?unidade=bv")).toBe(
+      "/dev/entrar?next=%2Fturmas%3Funidade%3Dbv",
     );
   });
 });

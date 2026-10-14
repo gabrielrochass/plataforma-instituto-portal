@@ -1,30 +1,35 @@
-import { PlusIcon } from "lucide-react";
-import { NewEntryLink } from "@/components/app-shell/new-entry-link";
 import { m } from "@/lib/i18n";
-import { type NavItem, primaryNav } from "./nav-items";
+import { cn } from "@/lib/utils";
+import { type NavItem, tabNav } from "./nav-items";
 import { NavLink } from "./nav-link";
+import { type PrimaryAction, PrimaryActionLink } from "./primary-action-link";
 
-export function TabBar() {
-  const [first, second, ...rest] = primaryNav;
+export function TabBar({ action }: { action?: PrimaryAction }) {
+  const [first, second, ...rest] = tabNav;
 
   return (
     <nav
       aria-label={m.nav.label}
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden [@media(prefers-reduced-transparency:reduce)]:bg-card"
     >
-      <ul className="mx-auto grid h-(--tabbar-h) max-w-md grid-cols-5 items-center">
+      <ul
+        className={cn(
+          "mx-auto grid h-(--tabbar-h) max-w-md items-center",
+          action ? "grid-cols-5" : "grid-cols-4",
+        )}
+      >
         <TabItem item={first} />
         <TabItem item={second} />
-        <li className="flex justify-center">
-          <NewEntryLink
-            size="icon-lg"
-            aria-label={m.nav.add}
-            data-tour="novo"
-            className="rounded-full shadow-sm"
-          >
-            <PlusIcon aria-hidden="true" className="size-6" />
-          </NewEntryLink>
-        </li>
+        {action && (
+          <li className="flex justify-center">
+            <PrimaryActionLink
+              action={action}
+              compact
+              size="icon-lg"
+              className="rounded-full shadow-sm ring-1 ring-black/10"
+            />
+          </li>
+        )}
         {rest.map((item) => (
           <TabItem key={item.href} item={item} />
         ))}

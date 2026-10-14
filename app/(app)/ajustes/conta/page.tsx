@@ -1,22 +1,17 @@
 import {
-  DownloadIcon,
   FileTextIcon,
   KeyRoundIcon,
   LogOutIcon,
   ShieldCheckIcon,
-  Trash2Icon,
 } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LinkList } from "@/components/app-shell/link-list";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { SubmitButton } from "@/components/forms/submit-button";
-import { SettingsLinks } from "@/components/settings/settings-links";
 import { SignOutEverywhereForm } from "@/components/settings/sign-out-everywhere-form";
-import { buttonVariants } from "@/components/ui/button";
-import { signOut } from "@/lib/account-actions";
+import { signOut } from "@/lib/actions/account";
 import { m } from "@/lib/i18n";
 import { requireUser } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: m.account.title };
 
@@ -48,19 +43,13 @@ export default async function AccountPage() {
           </p>
         </section>
 
-        <SettingsLinks
+        <LinkList
           links={[
             {
               href: "/ajustes/conta/senha",
               title: m.account.changePassword,
               hint: m.account.changePasswordHint,
               icon: KeyRoundIcon,
-            },
-            {
-              href: "/ajustes/conta/exportar",
-              title: m.account.export,
-              hint: m.account.exportHint,
-              icon: DownloadIcon,
             },
             { href: "/termos", title: m.account.terms, icon: FileTextIcon },
             {
@@ -80,14 +69,6 @@ export default async function AccountPage() {
           </form>
           <SignOutEverywhereForm />
         </div>
-
-        <Link
-          href="/ajustes/conta/excluir"
-          className={cn(buttonVariants({ variant: "destructive", size: "lg" }))}
-        >
-          <Trash2Icon aria-hidden="true" />
-          {m.account.delete}
-        </Link>
       </div>
     </>
   );

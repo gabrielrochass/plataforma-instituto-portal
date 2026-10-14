@@ -1,8 +1,8 @@
 import { m } from "@/lib/i18n";
 
-const TIME_ZONE = "America/Sao_Paulo";
+const TIME_ZONE = "America/Recife";
 
-const isoDateInSaoPaulo = new Intl.DateTimeFormat("en-CA", {
+const isoDateInRecife = new Intl.DateTimeFormat("en-CA", {
   timeZone: TIME_ZONE,
 });
 
@@ -75,8 +75,8 @@ function fromUtc(time: number) {
   return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
 }
 
-export function todayInSaoPaulo(now = new Date()) {
-  return isoDateInSaoPaulo.format(now);
+export function todayInRecife(now = new Date()) {
+  return isoDateInRecife.format(now);
 }
 
 export function localToday(now = new Date()) {
@@ -144,8 +144,8 @@ export function formatShortDate(isoDate: string) {
 }
 
 export function formatDayHeading(isoDate: string, today: string) {
-  if (isoDate === today) return m.transactions.today;
-  if (isoDate === addDays(today, -1)) return m.transactions.yesterday;
+  if (isoDate === today) return m.dates.today;
+  if (isoDate === addDays(today, -1)) return m.dates.yesterday;
   const format =
     isoDate.slice(0, 4) === today.slice(0, 4) ? dayHeading : dayHeadingWithYear;
   return format.format(toUtc(isoDate));

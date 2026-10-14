@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { signOutEverywhere } from "@/lib/account-actions";
+import { signOutEverywhere } from "@/lib/actions/account";
 import { m } from "@/lib/i18n";
 
 export function SignOutEverywhereForm() {

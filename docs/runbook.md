@@ -1,7 +1,6 @@
 # Runbook de incidentes
 
-Roteiro curto para incidentes de segurança com dados pessoais. O Contadinho é mantido por um agente de
-tratamento de pequeno porte (Res. CD/ANPD 2/2022), por isso os prazos abaixo já estão em dobro.
+Roteiro curto para incidentes de segurança com dados pessoais no Portal, o sistema interno do Instituto Portal.
 
 ## 1. Conter
 
@@ -19,20 +18,19 @@ Anote no registro (passo 4):
 - quais dados e quantos titulares foram afetados;
 - se há risco ou dano relevante para eles.
 
-Os lançamentos são dados financeiros, um dos critérios de risco relevante da Res. CD/ANPD 15/2024. Na dúvida,
-comunique.
+O Portal guarda dados de alunos, incluindo menores de idade e, com consentimento, dados sensíveis. São critérios de
+risco relevante da Res. CD/ANPD 15/2024. Na dúvida, comunique.
 
 ## 3. Comunicar
 
-Se houver risco ou dano relevante, comunique em até 6 dias úteis, contados de quando você soube que dados pessoais
+Se houver risco ou dano relevante, comunique em até 3 dias úteis, contados de quando você soube que dados pessoais
 foram afetados:
 
 - ANPD: pelo formulário eletrônico de comunicação de incidente de segurança, no site da ANPD (gov.br/anpd).
 - Titulares afetados: por e-mail, em linguagem simples, dizendo o que aconteceu, quais dados, os riscos, o que foi
   feito, o que eles podem fazer e como falar com você.
 
-Se o incidente puder comprometer a integridade física ou moral dos titulares, o prazo cai para 3 dias úteis. O que
-faltar na comunicação à ANPD pode ser complementado em até 40 dias úteis.
+O que faltar na comunicação à ANPD pode ser complementado em até 20 dias úteis.
 
 ## 4. Registrar
 
@@ -42,10 +40,9 @@ medidas tomadas e as comunicações feitas, ou por que não comunicou.
 
 ## Redefinir a senha de alguém
 
-Não há envio de e-mail, então quem esquece a senha escreve para o canal de privacidade.
+Não há envio de e-mail, então quem esquece a senha pede à coordenação da unidade.
 
-1. Confira que o pedido veio do e-mail da conta. Mesmo assim, responda sempre para o e-mail da conta, nunca para outro
-   endereço indicado na mensagem.
+1. Confirme a identidade da pessoa com a coordenação antes de qualquer troca.
 2. Gere uma senha provisória longa e aleatória, por exemplo com o gerador do gerenciador de senhas.
 3. Ache o id no SQL Editor (`select id from auth.users where email = '<e-mail>';`) e, na raiz do repositório, rode
    com a secret key de produção:
@@ -59,8 +56,8 @@ Não há envio de e-mail, então quem esquece a senha escreve para o canal de pr
    ```
 
 4. Encerre as sessões antigas: no SQL Editor, `delete from auth.sessions where user_id = '<id>';`.
-5. Responda para o e-mail da conta com a senha provisória e peça que a pessoa troque em Ajustes, Conta,
-   "Alterar senha".
+5. Entregue a senha provisória pessoalmente ou por um canal já conhecido da pessoa e peça que ela troque em Ajustes,
+   Conta, "Alterar senha".
 
 ## Restaurar o backup
 

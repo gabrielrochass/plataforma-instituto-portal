@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { isPublicPath, safeNext, signInPath } from "@/lib/auth-paths";
 
 const sessionHeaders = ["cache-control", "expires", "pragma"];
-const authPages = ["/entrar", "/cadastro"];
+const authPages = ["/entrar"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

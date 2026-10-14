@@ -1,32 +1,33 @@
-import { PlusIcon } from "lucide-react";
-import { NewEntryLink } from "@/components/app-shell/new-entry-link";
+import { PortalMark } from "@/components/brand/portal-logo";
 import { m } from "@/lib/i18n";
-import { type NavItem, primaryNav, settingsNav } from "./nav-items";
+import { type NavItem, settingsNav, sideNav } from "./nav-items";
 import { NavLink } from "./nav-link";
+import { type PrimaryAction, PrimaryActionLink } from "./primary-action-link";
 
-export function SideNav() {
+export function SideNav({ action }: { action?: PrimaryAction }) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 px-3 py-6 md:flex">
-      <p
-        className="px-3 text-headline font-semibold tracking-tight"
-        translate="no"
-      >
-        {m.app.name}
+      <p className="flex items-center gap-3 px-3">
+        <PortalMark className="size-9" />
+        <span
+          className="text-headline font-semibold tracking-tight"
+          translate="no"
+        >
+          {m.app.name}
+        </span>
       </p>
-      <NewEntryLink
-        size="lg"
-        className="mx-1 justify-start px-3"
-        data-tour="novo"
-      >
-        <PlusIcon aria-hidden="true" />
-        {m.nav.newTransaction}
-      </NewEntryLink>
+      {action && (
+        <PrimaryActionLink
+          action={action}
+          className="mx-1 justify-start px-3"
+        />
+      )}
       <nav
         aria-label={m.nav.label}
         className="flex flex-1 flex-col justify-between"
       >
         <ul className="flex flex-col gap-0.5">
-          {primaryNav.map((item) => (
+          {sideNav.map((item) => (
             <SideNavItem key={item.href} item={item} />
           ))}
         </ul>

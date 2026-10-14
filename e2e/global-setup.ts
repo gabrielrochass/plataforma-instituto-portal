@@ -5,7 +5,7 @@ const options = { auth: { persistSession: false, autoRefreshToken: false } };
 const password = "dev-only-local-password";
 
 function isTestUser(email = "") {
-  return email.startsWith("e2e") && email.endsWith("@financial-tracker.local");
+  return email.startsWith("e2e") && email.endsWith("@portal.local");
 }
 
 export default async function globalSetup() {
@@ -22,7 +22,7 @@ export default async function globalSetup() {
     if (deleteError) throw deleteError;
   }
 
-  const warmup = { email: "e2e-warmup@financial-tracker.local", password };
+  const warmup = { email: "e2e-warmup@portal.local", password };
   await admin.auth.admin.createUser({ ...warmup, email_confirm: true });
   const client = createClient(
     url,

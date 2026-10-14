@@ -2,21 +2,13 @@ import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
 
 const tabs = [
-  { name: "Início", path: "/" },
-  { name: "Transações", path: "/transacoes" },
-  { name: "Cofrinhos", path: "/cofrinhos" },
-  { name: "Análises", path: "/analises" },
+  { name: "Início", path: "/", heading: /^Olá/ },
+  { name: "Turmas", path: "/turmas", heading: "Turmas" },
+  { name: "Alunos", path: "/alunos", heading: "Alunos" },
+  { name: "Mais", path: "/mais", heading: "Mais" },
 ];
 
-const settingsPaths = [
-  "/ajustes",
-  "/ajustes/categorias",
-  "/ajustes/cartoes",
-  "/ajustes/cartoes/novo",
-  "/ajustes/conta",
-  "/ajustes/conta/exportar",
-  "/ajustes/conta/excluir",
-];
+const settingsPaths = ["/ajustes", "/ajustes/conta", "/ajustes/conta/senha"];
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} theme`, () => {
@@ -31,7 +23,7 @@ for (const colorScheme of ["light", "dark"] as const) {
         await nav.getByRole("link", { name: tab.name }).click();
         await expect(page).toHaveURL(tab.path);
         await expect(
-          page.getByRole("heading", { level: 1, name: tab.name }),
+          page.getByRole("heading", { level: 1, name: tab.heading }),
         ).toBeVisible();
         await expect(nav.getByRole("link", { name: tab.name })).toHaveAttribute(
           "aria-current",
@@ -41,8 +33,8 @@ for (const colorScheme of ["light", "dark"] as const) {
       }
     });
 
-    test("settings opens from the header", async ({ page }) => {
-      await page.goto("/");
+    test("settings open from Mais", async ({ page }) => {
+      await page.goto("/mais");
       await page.getByRole("link", { name: "Ajustes" }).click();
       await expect(
         page.getByRole("heading", { level: 1, name: "Ajustes" }),
@@ -50,19 +42,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expectNoAxeViolations(page);
     });
 
-    test("new entry opens full screen and goes back", async ({ page }) => {
-      await page.goto("/");
-      await page.getByRole("link", { name: "Adicionar lançamento" }).click();
-      await expect(
-        page.getByRole("heading", { level: 1, name: "Novo lançamento" }),
-      ).toBeVisible();
-      await expectNoAxeViolations(page);
-      await page.getByRole("button", { name: "Voltar" }).click();
-      await expect(page).toHaveURL("/");
-    });
-
     test("settings screens meet WCAG", async ({ page }) => {
-      test.slow();
       for (const path of settingsPaths) {
         await page.goto(path);
         await expectNoAxeViolations(page);
@@ -76,14 +56,27 @@ for (const colorScheme of ["light", "dark"] as const) {
   });
 }
 
+test("the tour shows each section once", async ({ page }) => {
+  await page.goto("/?tour=1");
+  const dialog = page.getByRole("dialog", { name: "Boas-vindas ao Portal" });
+  await expect(dialog).toBeVisible();
+  await expectNoAxeViolations(page);
+  await dialog.getByRole("button", { name: "Começar" }).click();
+  for (const title of ["Turmas", "Alunos", "Mais"]) {
+    await expect(page.getByRole("dialog", { name: title })).toBeVisible();
+    await page.getByRole("button", { name: "Próximo" }).click();
+  }
+  await expect(
+    page.getByRole("dialog", { name: "Pronto. Bom trabalho!" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Fechar" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL("/");
+});
+
 test("no horizontal scroll at 320px", async ({ page }) => {
-  test.slow();
   await page.setViewportSize({ width: 320, height: 640 });
-  for (const path of [
-    ...tabs.map((tab) => tab.path),
-    ...settingsPaths,
-    "/lancamentos/novo",
-  ]) {
+  for (const path of [...tabs.map((tab) => tab.path), ...settingsPaths]) {
     await page.goto(path);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

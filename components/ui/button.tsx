@@ -17,10 +17,6 @@ const buttonVariants = cva(
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "border-destructive/50 bg-transparent text-destructive hover:bg-destructive/10",
-        expense:
-          "bg-expense text-expense-foreground hover:bg-[color-mix(in_oklab,var(--expense),black_10%)]",
-        income:
-          "bg-income text-income-foreground hover:bg-[color-mix(in_oklab,var(--income),black_10%)]",
         link: "text-link underline-offset-4 hover:underline",
       },
       size: {

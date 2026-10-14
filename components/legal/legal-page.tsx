@@ -6,7 +6,9 @@ import { type LegalDocument, legal } from "@/lib/i18n";
 function fill(text: string) {
   return text
     .replaceAll("{nome}", legal.controller.name)
+    .replaceAll("{cnpj}", legal.controller.cnpj)
     .replaceAll("{email}", legal.controller.email)
+    .replaceAll("{endereco}", legal.controller.address)
     .replaceAll("{data}", formatFullDate(legal.effectiveDate))
     .replaceAll("{versao}", legal.version)
     .replaceAll("{backupDias}", String(legal.backupDays));

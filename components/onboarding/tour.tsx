@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
@@ -12,9 +11,9 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Tally } from "@/components/brand/tally";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { finishOnboarding } from "@/lib/actions";
+import { PortalMark } from "@/components/brand/portal-logo";
+import { Button } from "@/components/ui/button";
+import { finishOnboarding } from "@/lib/actions/account";
 import { m } from "@/lib/i18n";
 import {
   availableSteps,
@@ -44,13 +43,7 @@ function boxOf(element: HTMLElement): Box {
   };
 }
 
-export function Tour({
-  autoStart,
-  hasEntries,
-}: {
-  autoStart: boolean;
-  hasEntries: boolean;
-}) {
+export function Tour({ autoStart }: { autoStart: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -210,7 +203,7 @@ export function Tour({
       >
         {phase === "welcome" && (
           <>
-            <Tally className="h-10 w-12" />
+            <PortalMark className="size-12" />
             <h2 id={titleId} className="text-title3 font-semibold">
               {m.tour.welcomeTitle}
             </h2>
@@ -270,33 +263,21 @@ export function Tour({
 
         {phase === "done" && (
           <>
-            <Tally className="h-10 w-12" />
+            <PortalMark className="size-12" />
             <h2 id={titleId} className="text-title3 font-semibold">
               {m.tour.doneTitle}
             </h2>
             <p id={textId} className="text-body text-muted-foreground">
               {m.tour.doneText}
             </p>
-            <div className="mt-2 flex flex-col gap-2">
-              {!hasEntries && (
-                <Link
-                  ref={primaryRef}
-                  href="/lancamentos/novo"
-                  onClick={finish}
-                  className={buttonVariants({ size: "lg" })}
-                >
-                  {m.tour.firstEntry}
-                </Link>
-              )}
-              <Button
-                ref={hasEntries ? primaryRef : undefined}
-                variant={hasEntries ? "default" : "ghost"}
-                size="lg"
-                onClick={finish}
-              >
-                {m.tour.close}
-              </Button>
-            </div>
+            <Button
+              ref={primaryRef}
+              size="lg"
+              className="mt-2"
+              onClick={finish}
+            >
+              {m.tour.close}
+            </Button>
           </>
         )}
       </div>

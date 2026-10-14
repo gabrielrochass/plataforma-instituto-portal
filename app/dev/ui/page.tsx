@@ -1,22 +1,28 @@
-import { PlusIcon } from "lucide-react";
+import {
+  CircleAlertIcon,
+  CircleCheckIcon,
+  PlusIcon,
+  UserRoundIcon,
+  UsersRoundIcon,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Balance } from "@/components/analytics/balance";
-import { CategoryBreakdown } from "@/components/analytics/category-breakdown";
-import { CategoryDonut } from "@/components/analytics/category-donut";
-import { UnusualSpending } from "@/components/analytics/insights";
-import { LimitList } from "@/components/analytics/limit-list";
-import { MonthSummary } from "@/components/analytics/month-summary";
-import { TrendChart } from "@/components/analytics/trend-chart";
-import { JarEntries } from "@/components/jars/jar-entries";
-import { JarForecast } from "@/components/jars/jar-forecast";
-import { JarProgress, JarStatusLabel } from "@/components/jars/jar-summary";
-import { TransactionSearch } from "@/components/transactions/transaction-search";
+import { EmptyState } from "@/components/app-shell/empty-state";
+import { LinkList } from "@/components/app-shell/link-list";
+import { PortalMark } from "@/components/brand/portal-logo";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { monthBars } from "@/lib/analytics";
-import type { Category, JarSnapshot } from "@/lib/data";
-import { noFilters } from "@/lib/filters";
-import { forecastJar } from "@/lib/goals";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 export const metadata: Metadata = {
   title: "Galeria de componentes",
@@ -29,201 +35,28 @@ const variants = [
   "outline",
   "ghost",
   "destructive",
-  "expense",
-  "income",
   "link",
+] as const;
+
+const badgeVariants = [
+  "default",
+  "secondary",
+  "outline",
+  "success",
+  "warning",
+  "destructive",
 ] as const;
 
 const textTokens = [
   ["text-foreground", "Texto principal"],
   ["text-muted-foreground", "Texto secundário"],
   ["text-link", "Link"],
-  ["text-income", "Receita +R$ 120,00"],
-  ["text-expense", "Despesa R$ 45,90"],
-  ["text-warning", "Perto do limite"],
-  ["text-destructive", "Acima do limite"],
+  ["text-success", "Presente"],
+  ["text-warning", "3 faltas seguidas"],
+  ["text-destructive", "Falta"],
 ] as const;
 
-const sampleCategory = (
-  id: string,
-  name: string,
-  icon: string,
-  color: string,
-): Category => ({
-  id,
-  kind: "expense",
-  name,
-  icon,
-  color,
-  monthly_limit_cents: null,
-  archived_at: null,
-});
-
-const market = sampleCategory("1", "Mercado", "shopping-cart", "chart-3");
-const food = sampleCategory("2", "Restaurantes", "utensils", "chart-2");
-const rides = sampleCategory("3", "Transporte", "car", "chart-1");
-const home = sampleCategory("4", "Casa", "house", "chart-4");
-const fun = sampleCategory("5", "Lazer", "music", "chart-5");
-const pets = sampleCategory("6", "Pets", "paw-print", "chart-1");
-
-const sampleBars = monthBars(
-  new Map([
-    ["2026-05", 98000],
-    ["2026-06", 121000],
-    ["2026-07", 87000],
-    ["2026-08", 143000],
-    ["2026-09", 112000],
-    ["2026-10", 64000],
-  ]),
-  "2026-10",
-  "2026-05-01",
-);
-
-function AnalyticsSamples() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Balance
-        id="saldo-negativo"
-        title="Saldo de outubro"
-        income={300000}
-        expenses={424000}
-        comparison={{
-          current: 424000,
-          previous: 454000,
-          reference: "no mesmo período de setembro",
-        }}
-      />
-      <Balance
-        id="saldo-positivo"
-        title="Saldo de setembro"
-        income={540000}
-        expenses={412000}
-      />
-      <MonthSummary
-        title="Gastos em outubro"
-        cents={64000}
-        comparison={{
-          current: 64000,
-          previous: 71000,
-          reference: "no mesmo período de setembro",
-        }}
-        income={540000}
-      />
-      <TrendChart
-        bars={sampleBars}
-        average={112200}
-        selected="2026-09"
-        current="2026-10"
-        hrefFor={() => "/dev/ui"}
-      />
-      <CategoryDonut
-        rows={[
-          { category: market, cents: 31245 },
-          { category: home, cents: 22000 },
-          { category: food, cents: 18900 },
-          { category: rides, cents: 9600 },
-          { category: fun, cents: 6400 },
-          { category: pets, cents: 3100 },
-        ]}
-        total={91245}
-        hrefFor={() => "/dev/ui"}
-        othersHref="/dev/ui"
-      />
-      <CategoryBreakdown
-        rows={[
-          { category: market, cents: 31245 },
-          { category: food, cents: 18900 },
-          { category: rides, cents: 4590 },
-        ]}
-        total={64000}
-        hrefFor={() => "/dev/ui"}
-      />
-      <LimitList
-        rows={[
-          { category: market, spent: 31245, limit: 80000, href: "/dev/ui" },
-          { category: food, spent: 45000, limit: 40000, href: "/dev/ui" },
-        ]}
-      />
-      <UnusualSpending
-        items={[
-          { category: food, spent: 75000, usual: 41000, href: "/dev/ui" },
-        ]}
-        monthName="setembro"
-      />
-    </div>
-  );
-}
-
-const sampleJar: JarSnapshot = {
-  jar: {
-    id: "00000000-0000-4000-8000-000000000001",
-    name: "Viagem ao Japão",
-    icon: "plane",
-    color: "chart-1",
-    target_cents: 1_500_000,
-    target_date: "2027-04-30",
-    planned_monthly_cents: null,
-    archived_at: null,
-    created_at: "2026-05-01T12:00:00Z",
-  },
-  balance: 745_000,
-  forecast: forecastJar({
-    target: 1_500_000,
-    targetDate: "2027-04-30",
-    planned: null,
-    start: { on: "2026-05-01", cents: 300_000 },
-    balance: 745_000,
-    nets: new Map([
-      ["2026-05", 80_000],
-      ["2026-06", 90_000],
-      ["2026-07", 70_000],
-      ["2026-08", 70_000],
-      ["2026-09", 85_000],
-    ]),
-    firstMonth: "2026-05",
-    today: "2026-10-05",
-  }),
-};
-
-function JarSamples() {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 rounded-2xl bg-card p-5">
-        <JarProgress snapshot={sampleJar} />
-        <div className="flex flex-wrap gap-4">
-          <JarStatusLabel status="done" />
-          <JarStatusLabel status="on-track" />
-          <JarStatusLabel status="behind" />
-        </div>
-      </div>
-      <JarForecast snapshot={sampleJar} />
-      <JarEntries
-        jarId={sampleJar.jar.id}
-        today="2026-10-05"
-        entries={[
-          {
-            id: "00000000-0000-4000-8000-000000000002",
-            kind: "deposit",
-            amount_cents: 50_000,
-            occurred_on: "2026-10-03",
-            note: null,
-            is_opening: false,
-          },
-          {
-            id: "00000000-0000-4000-8000-000000000003",
-            kind: "withdrawal",
-            amount_cents: 30_000,
-            occurred_on: "2026-08-20",
-            note: "Passaporte",
-            is_opening: false,
-          },
-        ]}
-      />
-    </div>
-  );
-}
-
-function Samples() {
+function Samples({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-4">
       <ul className="flex flex-col gap-1">
@@ -248,6 +81,35 @@ function Samples() {
           </Button>
         ))}
       </div>
+      <div className="flex flex-wrap gap-2">
+        {badgeVariants.map((variant) => (
+          <Badge key={variant} variant={variant}>
+            {variant === "success" && <CircleCheckIcon aria-hidden="true" />}
+            {variant === "warning" && <CircleAlertIcon aria-hidden="true" />}
+            {variant}
+          </Badge>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="flex min-h-11 items-center gap-3">
+          <Checkbox id={`${id}-termo`} defaultChecked />
+          <label htmlFor={`${id}-termo`} className="text-body">
+            Termo assinado
+          </label>
+        </div>
+        <div className="flex min-h-11 items-center gap-3">
+          <Switch id={`${id}-horarios`} defaultChecked />
+          <label htmlFor={`${id}-horarios`} className="text-body">
+            Horários diferentes por dia
+          </label>
+        </div>
+      </div>
+      <label htmlFor={`${id}-nota`} className="flex flex-col gap-2">
+        <span className="text-footnote font-medium text-muted-foreground">
+          O que foi trabalhado na aula
+        </span>
+        <Textarea id={`${id}-nota`} defaultValue="Laços de repetição" />
+      </label>
     </div>
   );
 }
@@ -257,32 +119,39 @@ export default function DevUiPage() {
 
   return (
     <main id="conteudo" className="mx-auto flex max-w-3xl flex-col gap-6 p-4">
-      <h1 className="text-title1 font-bold tracking-tight">
-        Galeria de componentes
-      </h1>
+      <div className="flex items-center gap-3">
+        <PortalMark className="size-12" />
+        <h1 className="text-title1 font-bold tracking-tight">
+          Galeria de componentes
+        </h1>
+      </div>
       <section aria-labelledby="sobre-fundo" className="flex flex-col gap-3">
         <h2 id="sobre-fundo" className="text-headline font-semibold">
           Sobre o fundo
         </h2>
-        <Samples />
-        <TransactionSearch
-          filters={{ ...noFilters, categoryId: market.id }}
-          month="2026-10"
-          categories={[market, food, rides]}
-          cards={[]}
+        <Samples id="fundo" />
+        <LinkList
+          links={[
+            {
+              href: "/dev/ui",
+              title: "Python Manhã",
+              hint: "Boa Viagem, terça e quinta",
+              icon: UsersRoundIcon,
+              color: "chart-1",
+            },
+            {
+              href: "/dev/ui",
+              title: "Maria Souza",
+              hint: "16 anos",
+              icon: UserRoundIcon,
+            },
+          ]}
         />
-      </section>
-      <section aria-labelledby="analises" className="flex flex-col gap-3">
-        <h2 id="analises" className="text-headline font-semibold">
-          Análises
-        </h2>
-        <AnalyticsSamples />
-      </section>
-      <section aria-labelledby="cofrinhos" className="flex flex-col gap-3">
-        <h2 id="cofrinhos" className="text-headline font-semibold">
-          Cofrinhos
-        </h2>
-        <JarSamples />
+        <EmptyState
+          icon={UsersRoundIcon}
+          title="Nenhuma turma ainda"
+          description="As turmas da sua unidade aparecem aqui."
+        />
       </section>
       <section
         aria-labelledby="sobre-card"
@@ -291,7 +160,25 @@ export default function DevUiPage() {
         <h2 id="sobre-card" className="text-headline font-semibold">
           Sobre o card
         </h2>
-        <Samples />
+        <Samples id="card" />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Aluno</TableHead>
+              <TableHead className="text-right">Frequência</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>Maria Souza</TableCell>
+              <TableCell className="text-right tabular-nums">92%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>João Lima</TableCell>
+              <TableCell className="text-right tabular-nums">68%</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </section>
       <section
         aria-labelledby="sobre-popover"
@@ -300,7 +187,7 @@ export default function DevUiPage() {
         <h2 id="sobre-popover" className="text-headline font-semibold">
           Sobre avisos
         </h2>
-        <Samples />
+        <Samples id="popover" />
       </section>
     </main>
   );

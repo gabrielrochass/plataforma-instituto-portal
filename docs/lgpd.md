@@ -1,34 +1,36 @@
 # Registro das operações de tratamento
 
-Registro simplificado de agente de tratamento de pequeno porte (LGPD, art. 37, e Res. CD/ANPD 2/2022, art. 9º).
-Revisado em 6 de outubro de 2026.
+Versão provisória, revisada em 14 de outubro de 2026. Precisa de revisão jurídica e de um Relatório de Impacto à
+Proteção de Dados (RIPD) antes de entrar qualquer dado real de aluno.
 
-- Controlador: Gabriel Rocha, pessoa natural, sem receita com o app.
-- Contato do titular: gabrielrsilva203@gmail.com, o canal publicado na Política de Privacidade.
-- Titulares: pessoas com 18 anos ou mais que criam conta com e-mail e senha.
+- Controlador: Instituto Portal Social da Ponte, associação privada, CNPJ 39.821.813/0001-88, Rua José da Silva
+  Lucena, Imbiribeira, Recife, PE, CEP 51150-430. Presidente: Igor Sacha Florentino Cruz (fonte: Mapa das OSCs,
+  Ipea).
+- Contato do titular: assistenciasocial@oportal.org. Encarregado (DPO) a nomear.
+- Titulares hoje: pessoas da equipe (coordenação e professores), convidadas pela coordenação.
+- Titulares a partir das próximas fases: alunos, incluindo menores de idade, e seus responsáveis.
 - Operadores: Supabase (banco e login), Vercel (hospedagem) e GitHub (backup), pelos termos e DPAs de cada um.
 
 | Dados | Finalidade | Base legal | Retenção | Compartilhamento | Transferência internacional |
 | --- | --- | --- | --- | --- | --- |
-| Conta: e-mail e hash bcrypt da senha | Criar a conta e entrar | Execução de contrato (art. 7º, V) | Até a exclusão da conta, que apaga tudo na hora; backup por mais 14 dias | Supabase (Auth) | Conta guardada no Brasil (sa-east-1); cópia nos EUA pelo backup |
-| Lançamentos, cofrinhos, categorias e cartões digitados pelo usuário | Registrar gastos e mostrar análises e previsões | Execução de contrato (art. 7º, V) | Até o usuário apagar ou excluir a conta; lançamento apagado fica até 2 dias na lixeira e sai na limpeza diária; backup por mais 14 dias | Supabase (banco), Vercel (hospedagem) | Banco no Brasil (sa-east-1 e gru1); cópia nos EUA pelo backup (linha abaixo) |
-| Sessão: cookies essenciais com token de acesso de 15 minutos e token de renovação; IP e navegador da sessão | Manter o login seguro | Legítimo interesse (art. 7º, IX) | Token de acesso: 15 minutos; sessão: até sair ou excluir a conta; fora do backup | Supabase (Auth) | Não |
-| Backup cifrado da conta, dos dados financeiros e da lixeira, sem sessões | Recuperar o serviço depois de falha ou incidente | Execução de contrato (art. 7º, V) e dever de segurança (art. 46) | 14 dias | GitHub (artefato do Actions) | Sim, EUA: gerado e testado sem cifra num servidor temporário do GitHub, guardado cifrado com chave offline |
-| Registros técnicos de acesso: IP, navegador, data e hora | Segurança e diagnóstico | Execução de contrato (art. 7º, V) | Padrão de cada fornecedor (1 dia no plano gratuito do Supabase) | Vercel, Supabase | Sim, EUA (art. 33, IX, com o art. 7º, V) |
+| Equipe: nome, e-mail e hash bcrypt da senha | Dar acesso ao sistema | Legítimo interesse (art. 7º, IX) | Enquanto a pessoa fizer parte da equipe; backup por mais 14 dias | Supabase (Auth) | Banco no Brasil (sa-east-1); cópia nos EUA pelo backup |
+| Sessão: cookies essenciais com token de acesso de 15 minutos e token de renovação; IP e navegador da sessão | Manter o login seguro | Legítimo interesse (art. 7º, IX) | Token de acesso: 15 minutos; sessão: até sair | Supabase (Auth) | Não |
+| Backup cifrado, sem sessões | Recuperar o serviço depois de falha ou incidente | Dever de segurança (art. 46) | 14 dias | GitHub (artefato do Actions) | Sim, EUA: gerado e testado num servidor temporário do GitHub, guardado cifrado com chave offline |
+| Registros técnicos de acesso: IP, navegador, data e hora | Segurança e diagnóstico | Legítimo interesse (art. 7º, IX) | Padrão de cada fornecedor | Vercel, Supabase | Sim, EUA |
 | Registro de incidentes ([runbook](runbook.md)) | Cumprir a Res. CD/ANPD 15/2024 | Obrigação legal (art. 7º, II) | 5 anos | ANPD, quando o incidente for comunicado | Não |
 
-Segurança: RLS em todas as tabelas expostas, senha só como hash bcrypt, limite de tentativas de login do Supabase, só
-cookies essenciais, token de acesso de 15 minutos, backup cifrado com chave offline e segredos só no GitHub e na
-Vercel.
+Segurança: RLS em todas as tabelas expostas, cadastro público desligado (só entra quem recebe convite), senha só como
+hash bcrypt, limite de tentativas de login do Supabase, só cookies essenciais, token de acesso de 15 minutos, backup
+cifrado com chave offline e segredos só no GitHub e na Vercel.
 
-## Por que não é alto risco (Res. CD/ANPD 2/2022, art. 4º)
+## Antes de registrar alunos
 
-1. Alto risco exige ao menos um critério geral e um critério específico do art. 4º.
-2. Gerais: a base de usuários ainda é pequena, sem larga escala; afetar interesses e direitos fundamentais é tratado
-   como possível, porque um vazamento de gastos poderia prejudicar o titular.
-3. Específicos: nenhum se aplica. Não há tecnologia emergente, vigilância de área pública, dado sensível nem tratamento
-   voltado a crianças, adolescentes ou idosos (a idade nem é coletada).
-4. As sugestões de categoria e os avisos de gasto são cálculos simples mostrados só ao próprio usuário, sem decisão
-   automatizada que o afete.
-5. Conclusão: não é alto risco e o regime de pequeno porte se aplica. Reavaliar quando a base crescer ou se surgir
-   perfilamento, dado sensível ou público menor de idade.
+O tratamento passa a ser de alto risco (Res. CD/ANPD 2/2022, art. 4º): dados de crianças e adolescentes e dados
+sensíveis (cor ou raça, saúde, deficiência) são critérios específicos. Por isso:
+
+1. Elaborar o RIPD e nomear o encarregado.
+2. Coletar consentimento específico de um dos pais ou responsável para menores (LGPD, art. 14) e consentimento
+   específico para dados sensíveis (art. 11).
+3. Limitar dados sensíveis à coordenação; professores veem só o necessário para a sala de aula.
+4. Divulgar a patrocinadores apenas números agregados, escondendo grupos com menos de 5 pessoas.
+5. Atualizar esta tabela, a Política de Privacidade e o runbook.

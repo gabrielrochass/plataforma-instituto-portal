@@ -10,17 +10,13 @@ import {
   formatShortMonth,
   localToday,
   monthRange,
-  todayInSaoPaulo,
+  todayInRecife,
 } from "./dates";
 
-describe("todayInSaoPaulo", () => {
-  it("uses Brasília time, not UTC, near midnight", () => {
-    expect(todayInSaoPaulo(new Date("2026-10-01T02:30:00Z"))).toBe(
-      "2026-09-30",
-    );
-    expect(todayInSaoPaulo(new Date("2026-10-01T03:00:00Z"))).toBe(
-      "2026-10-01",
-    );
+describe("todayInRecife", () => {
+  it("uses Recife time, not UTC, near midnight", () => {
+    expect(todayInRecife(new Date("2026-10-01T02:30:00Z"))).toBe("2026-09-30");
+    expect(todayInRecife(new Date("2026-10-01T03:00:00Z"))).toBe("2026-10-01");
   });
 });
 

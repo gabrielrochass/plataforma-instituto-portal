@@ -68,6 +68,3 @@ jobs:
           path: ${{ steps.encrypt.outputs.name }}.tar.gz.age
           retention-days: 14
           if-no-files-found: error
-      - name: Purge the undo trash
-        if: ${{ !cancelled() }}
-        run: psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from private.deleted_transactions where deleted_at < now() - interval '1 day'"

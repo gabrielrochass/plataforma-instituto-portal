@@ -2,4 +2,4 @@ try {
   process.loadEnvFile(".env.local");
 } catch {}
 
-export const e2eEmail = "e2e@financial-tracker.local";
+export const e2eEmail = "e2e@portal.local";

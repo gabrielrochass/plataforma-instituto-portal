@@ -59,16 +59,14 @@ export async function submitRequest(
 
 export async function openOffer(input: {
   id: string;
-  courseId: string;
-  unitId: string;
+  classId: string;
   description: string;
   closesOn: string;
 }): Promise<ActionResult> {
   const parsed = z
     .object({
       id: z.uuid(),
-      courseId: z.uuid(m.requests.course),
-      unitId: z.uuid(m.requests.unit),
+      classId: z.uuid(m.requests.course),
       description: z.string().trim().max(1000),
       closesOn: z.union([
         z.literal(""),
@@ -79,20 +77,25 @@ export async function openOffer(input: {
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   const value = parsed.data;
   const viewer = await getViewer();
-  if (!isAdminOf(viewer, value.unitId)) return forbidden;
   const supabase = await createClient();
+  const { data: row } = await supabase
+    .from("classes")
+    .select("unit_id")
+    .eq("id", value.classId)
+    .maybeSingle();
+  if (!row || !isAdminOf(viewer, row.unit_id)) return forbidden;
   const { error } = await supabase.from("enrollment_offers").upsert(
     {
       id: value.id,
-      course_id: value.courseId,
-      unit_id: value.unitId,
+      class_id: value.classId,
+      unit_id: row.unit_id,
       description: value.description || null,
       closes_on: value.closesOn || null,
     },
     { onConflict: "id", ignoreDuplicates: true },
   );
   if (error?.code === "23505") {
-    return { ok: false, errors: { courseId: [m.requests.alreadyOpen] } };
+    return { ok: false, errors: { classId: [m.requests.alreadyOpen] } };
   }
   if (error) return failureFor(error);
   refresh();

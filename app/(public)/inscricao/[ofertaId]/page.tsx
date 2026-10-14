@@ -19,7 +19,7 @@ export default async function RequestPage({
       {offer ? (
         <>
           <PublicHeader
-            title={m.requests.applyFor(offer.course_name, offer.unit_name)}
+            title={m.requests.applyFor(offer.class_name, offer.unit_name)}
           />
           <RequestForm offerId={offer.id} />
         </>

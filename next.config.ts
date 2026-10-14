@@ -7,7 +7,8 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${development ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob: ${supabase}`,
+  "media-src 'self' blob:",
   "font-src 'self'",
   `connect-src 'self' ${supabase}${development ? " ws:" : ""}`,
   "object-src 'none'",
@@ -32,7 +33,7 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value:
-              "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+              "camera=(self), microphone=(), geolocation=(), browsing-topics=()",
           },
         ],
       },

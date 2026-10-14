@@ -40,7 +40,7 @@ create function public.impact_report(
   p_from date,
   p_to date,
   p_unit_id uuid default null,
-  p_course_id uuid default null
+  p_class_id uuid default null
 )
 returns jsonb
 language plpgsql
@@ -61,15 +61,15 @@ begin
 
   return (
     with scope as (
-      select c.id, c.course_id, c.unit_id
+      select c.id, c.name, c.unit_id, c.workload_hours
       from public.classes c
       where c.status <> 'cancelled'
         and c.unit_id in (select private.admin_unit_ids())
         and (p_unit_id is null or c.unit_id = p_unit_id)
-        and (p_course_id is null or c.course_id = p_course_id)
+        and (p_class_id is null or c.id = p_class_id)
     ),
     enr as (
-      select e.id, e.student_id, e.status, e.enrolled_on, e.ended_on, e.exit_reason, s.course_id, s.unit_id,
+      select e.id, e.student_id, e.status, e.enrolled_on, e.ended_on, e.exit_reason, e.class_id, s.unit_id,
         exists (select 1 from public.enrollments t where t.transferred_to_id = e.id) as is_transfer_in
       from public.enrollments e
       join scope s on s.id = e.class_id
@@ -83,14 +83,13 @@ begin
       where ended_on >= p_from and ended_on < p_to and status in ('completed', 'failed', 'dropped_out')
     ),
     att as (
-      select a.status, cs.held_on, extract(epoch from cs.ends_at - cs.starts_at) / 60 as minutes,
-        s.course_id, s.unit_id
+      select a.status, cs.held_on, a.class_id, s.unit_id
       from public.attendance_records a
       join scope s on s.id = a.class_id
       join public.class_sessions cs on cs.id = a.session_id
       join public.enrollments e on e.id = a.enrollment_id
       where cs.held_on >= p_from and cs.held_on < p_to
-        and cs.cancelled_at is null and e.status <> 'cancelled'
+        and e.status <> 'cancelled'
     ),
     served as (
       select distinct cur.student_id, st.birth_date from current_enr cur
@@ -108,7 +107,7 @@ begin
       join public.enrollment_offers o on o.id = r.offer_id
       where o.unit_id in (select private.admin_unit_ids())
         and (p_unit_id is null or o.unit_id = p_unit_id)
-        and (p_course_id is null or o.course_id = p_course_id)
+        and (p_class_id is null or o.class_id = p_class_id)
         and (r.created_at at time zone 'America/Recife')::date >= p_from
         and (r.created_at at time zone 'America/Recife')::date < p_to
     ),
@@ -129,9 +128,12 @@ begin
       'completed', (select count(*) from ended where status = 'completed'),
       'failed', (select count(*) from ended where status = 'failed'),
       'dropped_out', (select count(*) from ended where status = 'dropped_out'),
-      'attended', (select count(*) from att where status in ('present', 'late')),
+      'attended', (select count(*) from att where status = 'present'),
       'recorded', (select count(*) from att),
-      'minutes', (select coalesce(round(sum(minutes)), 0) from att where status in ('present', 'late')),
+      'hours', (
+        select coalesce(sum(sc.workload_hours), 0) from ended join scope sc on sc.id = ended.class_id
+        where ended.status = 'completed'
+      ),
       'requests', (select count(*) from requests),
       'requests_converted', (select count(*) from requests where status = 'converted'),
       'requests_completed', (
@@ -148,7 +150,7 @@ begin
           ),
           'attended', (
             select count(*) from att a
-            where a.held_on >= m.month and a.held_on < (m.month + interval '1 month')::date and a.status in ('present', 'late')
+            where a.held_on >= m.month and a.held_on < (m.month + interval '1 month')::date and a.status = 'present'
           ),
           'recorded', (
             select count(*) from att a where a.held_on >= m.month and a.held_on < (m.month + interval '1 month')::date
@@ -156,19 +158,19 @@ begin
         ) order by m.month), '[]')
         from months m
       ),
-      'by_course', (
+      'by_class', (
         select coalesce(jsonb_agg(item order by item->>'name'), '[]') from (
           select jsonb_build_object(
-            'id', co.id,
-            'name', co.name,
-            'served', (select count(distinct student_id) from current_enr cur where cur.course_id = co.id),
-            'completed', (select count(*) from ended where ended.course_id = co.id and status = 'completed'),
-            'finished', (select count(*) from ended where ended.course_id = co.id),
-            'attended', (select count(*) from att where att.course_id = co.id and status in ('present', 'late')),
-            'recorded', (select count(*) from att where att.course_id = co.id)
+            'id', sc.id,
+            'name', sc.name,
+            'served', (select count(distinct student_id) from current_enr cur where cur.class_id = sc.id),
+            'completed', (select count(*) from ended where ended.class_id = sc.id and status = 'completed'),
+            'finished', (select count(*) from ended where ended.class_id = sc.id),
+            'attended', (select count(*) from att where att.class_id = sc.id and status = 'present'),
+            'recorded', (select count(*) from att where att.class_id = sc.id)
           ) as item
-          from public.courses co
-          where co.id in (select course_id from current_enr)
+          from scope sc
+          where sc.id in (select class_id from current_enr)
         ) items
       ),
       'by_unit', (
@@ -180,7 +182,7 @@ begin
             'served', (select count(distinct student_id) from current_enr cur where cur.unit_id = u.id),
             'completed', (select count(*) from ended where ended.unit_id = u.id and status = 'completed'),
             'finished', (select count(*) from ended where ended.unit_id = u.id),
-            'attended', (select count(*) from att where att.unit_id = u.id and status in ('present', 'late')),
+            'attended', (select count(*) from att where att.unit_id = u.id and status = 'present'),
             'recorded', (select count(*) from att where att.unit_id = u.id)
           ) as item
           from public.units u

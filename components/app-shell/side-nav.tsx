@@ -1,10 +1,16 @@
 import { PortalMark } from "@/components/brand/portal-logo";
 import { m } from "@/lib/i18n";
-import { type NavItem, settingsNav, sideNav } from "./nav-items";
+import { AddMenu } from "./add-menu";
+import { type AddOption, accountNav, type NavItem } from "./nav-items";
 import { NavLink } from "./nav-link";
-import { type PrimaryAction, PrimaryActionLink } from "./primary-action-link";
 
-export function SideNav({ action }: { action?: PrimaryAction }) {
+export function SideNav({
+  items,
+  add,
+}: {
+  items: readonly NavItem[];
+  add: readonly AddOption[];
+}) {
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 px-3 py-6 md:flex">
       <p className="flex items-center gap-3 px-3">
@@ -16,23 +22,18 @@ export function SideNav({ action }: { action?: PrimaryAction }) {
           {m.app.name}
         </span>
       </p>
-      {action && (
-        <PrimaryActionLink
-          action={action}
-          className="mx-1 justify-start px-3"
-        />
-      )}
+      <AddMenu items={add} className="mx-1 justify-start px-3" />
       <nav
         aria-label={m.nav.label}
         className="flex flex-1 flex-col justify-between"
       >
         <ul className="flex flex-col gap-0.5">
-          {sideNav.map((item) => (
+          {items.map((item) => (
             <SideNavItem key={item.href} item={item} />
           ))}
         </ul>
         <ul>
-          <SideNavItem item={settingsNav} />
+          <SideNavItem item={accountNav} />
         </ul>
       </nav>
     </aside>

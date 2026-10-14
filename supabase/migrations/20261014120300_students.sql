@@ -494,7 +494,6 @@ begin
   update public.enrollments
   set status = 'cancelled', ended_on = greatest(private.today(), enrolled_on), exit_reason = 'class_cancelled'
   where class_id = p_class_id and status = 'active';
-  delete from public.class_sessions where class_id = p_class_id and held_on >= private.today();
   update public.classes set status = 'cancelled' where id = p_class_id;
 end;
 $$;
@@ -504,7 +503,6 @@ returns table (
   enrollment_id uuid,
   class_id uuid,
   class_name text,
-  course_name text,
   unit_code text,
   status public.enrollment_status,
   enrolled_on date,
@@ -518,11 +516,10 @@ stable
 security definer
 set search_path = ''
 as $$
-  select e.id, c.id, c.name, co.name, u.code, e.status, e.enrolled_on, e.ended_on, e.exit_reason,
+  select e.id, c.id, c.name, u.code, e.status, e.enrolled_on, e.ended_on, e.exit_reason,
     tc.name, private.can_operate_class(c.id)
   from public.enrollments e
   join public.classes c on c.id = e.class_id
-  join public.courses co on co.id = c.course_id
   join public.units u on u.id = c.unit_id
   left join public.enrollments t on t.id = e.transferred_to_id
   left join public.classes tc on tc.id = t.class_id
@@ -643,15 +640,13 @@ create function public.class_list(p_class_id uuid default null)
 returns table (
   id uuid,
   name text,
-  course_id uuid,
-  course_name text,
   workload_hours smallint,
   unit_id uuid,
   unit_code text,
   unit_name text,
   starts_on date,
   ends_on date,
-  schedule jsonb,
+  weekdays smallint[],
   capacity smallint,
   status public.class_status,
   grading_scheme public.grading_scheme,
@@ -670,7 +665,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select c.id, c.name, co.id, co.name, co.workload_hours, u.id, u.code, u.name, c.starts_on, c.ends_on, c.schedule,
+  select c.id, c.name, c.workload_hours, u.id, u.code, u.name, c.starts_on, c.ends_on, c.weekdays,
     c.capacity, c.status, c.grading_scheme, c.passing_score, c.concept_labels, c.concept_passing, c.min_attendance,
     (select count(*)::integer from public.enrollments e where e.class_id = c.id and e.status = 'active'),
     coalesce((select array_agg(t.user_id order by p.display_name) from public.class_teachers t
@@ -680,7 +675,6 @@ as $$
     private.can_operate_class(c.id),
     c.unit_id in (select private.admin_unit_ids())
   from public.classes c
-  join public.courses co on co.id = c.course_id
   join public.units u on u.id = c.unit_id
   where c.unit_id in (select private.member_unit_ids())
     and (p_class_id is null or c.id = p_class_id)
@@ -697,6 +691,7 @@ returns table (
   full_name text,
   social_name text,
   birth_date date,
+  photo_path text,
   unit_code text,
   active_count integer,
   social_pending boolean,
@@ -711,7 +706,7 @@ as $$
     select s.* from public.students s
     where (select private.is_admin_geral()) or s.id in (select private.visible_student_ids())
   )
-  select s.id, s.full_name, s.social_name, s.birth_date, u.code,
+  select s.id, s.full_name, s.social_name, s.birth_date, null::text, u.code,
     (select count(*)::integer from public.enrollments e where e.student_id = s.id and e.status = 'active'),
     s.last_assessed_on is null,
     exists (select 1 from public.student_care c where c.student_id = s.id and cardinality(c.accessibility) > 0)

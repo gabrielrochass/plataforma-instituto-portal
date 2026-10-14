@@ -19,7 +19,7 @@ export function TeacherPicker({
   if (staff.length === 0) {
     return (
       <p className="rounded-2xl bg-card p-4 text-subhead text-muted-foreground">
-        {m.wizard.noTeachersToPick}
+        {m.classForm.noTeachersToPick}
       </p>
     );
   }
@@ -37,7 +37,7 @@ export function TeacherPicker({
         error={error}
       />
       <p className="text-footnote text-muted-foreground">
-        {m.wizard.teachersHint}
+        {m.classForm.teachersHint}
       </p>
     </div>
   );

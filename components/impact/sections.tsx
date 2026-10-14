@@ -11,7 +11,6 @@ import { formatMonth, formatShortMonth } from "@/lib/dates";
 import { m } from "@/lib/i18n";
 import {
   type Counts,
-  hoursOf,
   type ImpactReport,
   orderedCounts,
   percent,
@@ -95,9 +94,9 @@ export function ImpactStats({
       />
       <StatTile
         label={i.stats.hours}
-        value={hoursOf(report.minutes).toLocaleString("pt-BR")}
+        value={report.hours.toLocaleString("pt-BR")}
         detail={i.hoursDetail}
-        comparison={compare((r) => hoursOf(r.minutes))}
+        comparison={compare((r) => r.hours)}
       />
       <StatTile
         label={i.stats.dropouts}
@@ -225,9 +224,9 @@ export function GroupTables({
   return (
     <div className="grid gap-3 md:grid-cols-2 print:grid-cols-1">
       <GroupTable
-        title={i.byCourse}
-        nameHeader={i.columns.course}
-        groups={report.by_course}
+        title={i.byClass}
+        nameHeader={i.columns.class}
+        groups={report.by_class}
       />
       {showUnits && (
         <GroupTable

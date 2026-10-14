@@ -1,10 +1,4 @@
-export const tourSteps = [
-  "acao",
-  "turmas",
-  "alunos",
-  "mais",
-  "ajustes",
-] as const;
+export const tourSteps = ["acao", "turmas", "alunos", "mais", "conta"] as const;
 
 export type TourStep = (typeof tourSteps)[number];
 

@@ -157,7 +157,7 @@ as $$
   attendance as (
     select r.id,
       case when count(a.*) = 0 then null
-        else round(100.0 * count(*) filter (where a.status in ('present', 'late')) / count(a.*), 2)
+        else round(100.0 * count(*) filter (where a.status = 'present') / count(a.*), 2)
       end as pct
     from roster r
     left join public.attendance_records a on a.enrollment_id = r.id
@@ -323,7 +323,6 @@ returns table (
   enrollment_id uuid,
   class_id uuid,
   class_name text,
-  course_name text,
   unit_code text,
   status public.enrollment_status,
   enrolled_on date,
@@ -341,14 +340,13 @@ stable
 security definer
 set search_path = ''
 as $$
-  select e.id, c.id, c.name, co.name, u.code, e.status, e.enrolled_on, e.ended_on, e.exit_reason,
+  select e.id, c.id, c.name, u.code, e.status, e.enrolled_on, e.ended_on, e.exit_reason,
     tc.name, private.can_operate_class(c.id),
-    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status in ('present', 'late')),
-    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status in ('absent', 'excused')),
+    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status = 'present'),
+    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status = 'absent'),
     e.final_score, e.final_concept
   from public.enrollments e
   join public.classes c on c.id = e.class_id
-  join public.courses co on co.id = c.course_id
   join public.units u on u.id = c.unit_id
   left join public.enrollments t on t.id = e.transferred_to_id
   left join public.classes tc on tc.id = t.class_id

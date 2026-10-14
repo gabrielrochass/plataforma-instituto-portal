@@ -18,10 +18,10 @@ test("a unit admin invites a teacher who joins from the link", async ({
   page,
   browser,
 }) => {
-  await signIn(page, unique("admin-ra"), "/ajustes/equipe");
+  await signIn(page, unique("admin-ra"), "/equipe");
   await page.getByRole("link", { name: "Convidar" }).click();
   await expect(
-    page.getByRole("heading", { level: 1, name: "Convidar para a equipe" }),
+    page.getByRole("heading", { level: 1, name: "Convidar professor" }),
   ).toBeVisible();
   await expect(page.getByRole("radio", { name: "Coordenação" })).toHaveCount(0);
   await page.getByRole("button", { name: "Gerar link de convite" }).click();
@@ -62,7 +62,7 @@ test("a unit admin invites a teacher who joins from the link", async ({
     guest.getByRole("heading", { name: "Este convite não vale mais" }),
   ).toBeVisible();
 
-  await page.goto("/ajustes/equipe");
+  await page.goto("/equipe");
   await expect(
     page.getByRole("link", {
       name: /Clara Mendes.*Professor em Recife Antigo/,
@@ -72,7 +72,7 @@ test("a unit admin invites a teacher who joins from the link", async ({
 });
 
 test("a pending invite can be cancelled", async ({ page }) => {
-  await signIn(page, unique("admin-bv"), "/ajustes/equipe/convidar");
+  await signIn(page, unique("admin-bv"), "/equipe/convidar");
   const name = `Pessoa ${Date.now()}`;
   await page.getByLabel("Nome").fill(name);
   await page.getByRole("button", { name: "Gerar link de convite" }).click();
@@ -89,9 +89,9 @@ test("a pending invite can be cancelled", async ({ page }) => {
 test("teachers and unit admins only see what their role allows", async ({
   page,
 }) => {
-  await signIn(page, unique("prof-ra"), "/ajustes");
+  await signIn(page, unique("prof-ra"), "/mais");
   await expect(page.getByRole("link", { name: /Equipe/ })).toHaveCount(0);
-  for (const path of ["/ajustes/equipe", "/ajustes/unidades"]) {
+  for (const path of ["/equipe", "/unidades"]) {
     await page.goto(path);
     await expect(
       page.getByRole("heading", { name: "Você não tem acesso a esta página" }),
@@ -99,10 +99,10 @@ test("teachers and unit admins only see what their role allows", async ({
   }
   await expectNoAxeViolations(page);
 
-  await signIn(page, unique("admin-ra"), "/ajustes");
+  await signIn(page, unique("admin-ra"), "/mais");
   await expect(page.getByRole("link", { name: /Equipe/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Unidades/ })).toHaveCount(0);
-  await page.goto("/ajustes/unidades");
+  await page.goto("/unidades");
   await expect(
     page.getByRole("heading", { name: "Você não tem acesso a esta página" }),
   ).toBeVisible();
@@ -128,7 +128,7 @@ test("a unit admin sends a new password link and deactivates a teacher", async (
   await signIn(teacher, teacherAlias, "/");
   await expect(teacher.getByRole("heading", { level: 1 })).toBeVisible();
 
-  await signIn(page, unique("admin-ra"), "/ajustes/equipe");
+  await signIn(page, unique("admin-ra"), "/equipe");
   await page
     .getByRole("link", { name: new RegExp(`Teste ${teacherAlias}`) })
     .click();
@@ -169,7 +169,7 @@ test("a unit admin sends a new password link and deactivates a teacher", async (
 });
 
 test("admin geral adds a unit", async ({ page }) => {
-  await signIn(page, unique("admin-geral"), "/ajustes/unidades");
+  await signIn(page, unique("admin-geral"), "/unidades");
   const code = `Z${Array.from({ length: 3 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("")}`;
   await page.getByLabel("Sigla").fill("1");
   await page.getByRole("button", { name: "Criar unidade" }).click();

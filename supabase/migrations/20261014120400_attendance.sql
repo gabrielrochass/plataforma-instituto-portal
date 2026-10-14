@@ -1,22 +1,17 @@
-create type public.attendance_status as enum ('present', 'absent', 'excused', 'late');
+create type public.attendance_status as enum ('present', 'absent');
 create type public.case_note_kind as enum (
   'family_contact', 'pedagogical', 'incident', 'achievement', 'service', 'home_visit', 'referral'
 );
-
-alter table public.class_sessions
-  add column attendance_taken_at timestamptz,
-  add column taken_by uuid references public.profiles on delete set null;
 
 create table public.attendance_records (
   session_id uuid not null,
   enrollment_id uuid not null,
   class_id uuid not null,
   status public.attendance_status not null,
-  note text check (private.valid_text(note, 200)),
   recorded_by uuid references public.profiles on delete set null,
   recorded_at timestamptz not null default now(),
   primary key (session_id, enrollment_id),
-  foreign key (session_id, class_id) references public.class_sessions (id, class_id),
+  foreign key (session_id, class_id) references public.class_sessions (id, class_id) on delete cascade,
   foreign key (enrollment_id, class_id) references public.enrollments (id, class_id)
 );
 
@@ -54,9 +49,6 @@ begin
   if (select status from public.classes where id = new.class_id) <> 'open' then
     raise exception 'class closed' using errcode = '55000';
   end if;
-  if session_row.cancelled_at is not null then
-    raise exception 'session cancelled' using errcode = '55000';
-  end if;
   if session_row.held_on > private.today() then
     raise exception 'session in the future' using errcode = '22023';
   end if;
@@ -70,43 +62,61 @@ begin
 end;
 $$;
 
-create trigger attendance_before_write before insert or update on public.attendance_records
+create trigger attendance_before_write before insert or update of status on public.attendance_records
   for each row execute function private.attendance_before_write();
 
-create function public.take_attendance(p_session_id uuid, p_marks jsonb, p_topic text default null)
-returns void
+create function public.take_attendance(
+  p_class_id uuid,
+  p_held_on date,
+  p_present uuid[],
+  p_note text default null
+)
+returns uuid
 language plpgsql
 security definer
 set search_path = ''
 as $$
 declare
-  session_row public.class_sessions;
+  class_row public.classes;
+  day_id uuid;
 begin
-  select * into session_row from public.class_sessions where id = p_session_id for update;
-  if not found or not private.can_operate_class(session_row.class_id) then
+  select * into class_row from public.classes where id = p_class_id;
+  if not found or not private.can_operate_class(p_class_id) then
     raise exception 'not allowed' using errcode = '42501';
   end if;
-  if jsonb_typeof(p_marks) <> 'array' or jsonb_array_length(p_marks) > 300 then
+  if class_row.status <> 'open' then
+    raise exception 'class closed' using errcode = '55000';
+  end if;
+  if p_held_on is null or p_held_on > private.today()
+    or p_held_on not between class_row.starts_on and class_row.ends_on then
+    raise exception 'invalid day' using errcode = '22023';
+  end if;
+  if cardinality(p_present) > 500 then
     raise exception 'invalid marks' using errcode = '22023';
   end if;
 
-  insert into public.attendance_records (session_id, enrollment_id, class_id, status, note)
-  select p_session_id, mark.enrollment_id, session_row.class_id, mark.status, nullif(btrim(mark.note), '')
-  from jsonb_to_recordset(p_marks) as mark (enrollment_id uuid, status public.attendance_status, note text)
+  insert into public.class_sessions (class_id, held_on, note, taken_by)
+  values (p_class_id, p_held_on, nullif(btrim(p_note), ''), (select auth.uid()))
+  on conflict (class_id, held_on) do update set note = excluded.note
+  returning id into day_id;
+
+  insert into public.attendance_records (session_id, enrollment_id, class_id, status)
+  select day_id, e.id, p_class_id,
+    case when e.id = any (coalesce(p_present, '{}')) then 'present' else 'absent' end::public.attendance_status
+  from public.enrollments e
+  where e.class_id = p_class_id
+    and e.status <> 'cancelled'
+    and e.enrolled_on <= p_held_on
+    and coalesce(e.ended_on, p_held_on) >= p_held_on
   on conflict (session_id, enrollment_id) do update
-    set status = excluded.status, note = excluded.note
-    where (public.attendance_records.status, public.attendance_records.note)
-      is distinct from (excluded.status, excluded.note);
+    set status = excluded.status
+    where public.attendance_records.status is distinct from excluded.status;
 
-  update public.class_sessions
-  set topic = nullif(btrim(p_topic), ''),
-      attendance_taken_at = coalesce(attendance_taken_at, now()),
-      taken_by = coalesce(taken_by, (select auth.uid()))
-  where id = p_session_id;
+  return day_id;
 end;
 $$;
 
-create function public.cancel_session(p_session_id uuid, p_reason text)
+create function public.delete_attendance(p_session_id uuid)
 returns void
 language plpgsql
 security definer
@@ -119,29 +129,10 @@ begin
   if not found or not private.can_operate_class(session_row.class_id) then
     raise exception 'not allowed' using errcode = '42501';
   end if;
-  if exists (select 1 from public.attendance_records where session_id = p_session_id) then
-    raise exception 'session has attendance' using errcode = '55000';
+  if (select status from public.classes where id = session_row.class_id) <> 'open' then
+    raise exception 'class closed' using errcode = '55000';
   end if;
-  update public.class_sessions
-  set cancelled_at = now(), cancel_reason = btrim(p_reason)
-  where id = p_session_id;
-end;
-$$;
-
-create function public.restore_session(p_session_id uuid)
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  session_row public.class_sessions;
-begin
-  select * into session_row from public.class_sessions where id = p_session_id for update;
-  if not found or not private.can_operate_class(session_row.class_id) then
-    raise exception 'not allowed' using errcode = '42501';
-  end if;
-  update public.class_sessions set cancelled_at = null, cancel_reason = null where id = p_session_id;
+  delete from public.class_sessions where id = p_session_id;
 end;
 $$;
 
@@ -152,19 +143,19 @@ stable
 set search_path = ''
 as $$
   with marks as (
-    select a.status, s.held_on, s.starts_at
+    select a.status, s.held_on
     from public.attendance_records a
     join public.class_sessions s on s.id = a.session_id
-    where a.enrollment_id = p_enrollment_id and s.held_on < p_before and a.status <> 'excused'
+    where a.enrollment_id = p_enrollment_id and s.held_on < p_before
   ),
   last_presence as (
-    select max(held_on) as held_on from marks where status in ('present', 'late')
+    select max(held_on) as held_on from marks where status = 'present'
   )
   select count(*)::integer from marks, last_presence
   where marks.status = 'absent' and (last_presence.held_on is null or marks.held_on > last_presence.held_on)
 $$;
 
-create function public.session_roster(p_session_id uuid)
+create function public.attendance_roster(p_class_id uuid, p_held_on date)
 returns table (
   enrollment_id uuid,
   student_id uuid,
@@ -172,11 +163,7 @@ returns table (
   social_name text,
   needs_accessibility boolean,
   status public.attendance_status,
-  note text,
-  streak integer,
-  contact_name text,
-  contact_phone text,
-  contact_whatsapp boolean
+  streak integer
 )
 language sql
 stable
@@ -185,33 +172,63 @@ set search_path = ''
 as $$
   select e.id, s.id, s.full_name, s.social_name,
     exists (select 1 from public.student_care c where c.student_id = s.id and cardinality(c.accessibility) > 0),
-    a.status, a.note,
-    private.absence_streak(e.id, cs.held_on),
-    coalesce(g.full_name, case when s.phone is not null then s.full_name end),
-    coalesce(s.phone, g.phone),
-    case when s.phone is not null then true else coalesce(g.is_whatsapp, false) end
-  from public.class_sessions cs
-  join public.enrollments e on e.class_id = cs.class_id
-    and e.enrolled_on <= cs.held_on
-    and coalesce(e.ended_on, cs.held_on) >= cs.held_on
-    and e.status in ('active', 'completed', 'failed', 'transferred', 'dropped_out')
+    a.status,
+    private.absence_streak(e.id, p_held_on)
+  from public.enrollments e
   join public.students s on s.id = e.student_id
+  left join public.class_sessions cs on cs.class_id = e.class_id and cs.held_on = p_held_on
   left join public.attendance_records a on a.session_id = cs.id and a.enrollment_id = e.id
-  left join lateral (
-    select g.full_name, g.phone, g.is_whatsapp from public.guardians g
-    where g.student_id = s.id order by g.created_at limit 1
-  ) g on true
-  where cs.id = p_session_id and private.can_operate_class(cs.class_id)
+  where e.class_id = p_class_id
+    and private.can_operate_class(p_class_id)
+    and e.status <> 'cancelled'
+    and e.enrolled_on <= p_held_on
+    and coalesce(e.ended_on, p_held_on) >= p_held_on
   order by coalesce(s.social_name, s.full_name)
+$$;
+
+create function public.class_session_list(p_class_id uuid)
+returns table (
+  session_id uuid,
+  held_on date,
+  note text,
+  present integer,
+  absent integer,
+  taken_by_name text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select cs.id, cs.held_on, cs.note,
+    (select count(*)::integer from public.attendance_records a where a.session_id = cs.id and a.status = 'present'),
+    (select count(*)::integer from public.attendance_records a where a.session_id = cs.id and a.status = 'absent'),
+    p.display_name
+  from public.class_sessions cs
+  left join public.profiles p on p.id = cs.taken_by
+  where cs.class_id = p_class_id and private.can_operate_class(p_class_id)
+  order by cs.held_on desc
+$$;
+
+create function public.attendance_days(p_from date)
+returns table (class_id uuid, held_on date)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select cs.class_id, cs.held_on
+  from public.class_sessions cs
+  join public.classes c on c.id = cs.class_id and c.status = 'open'
+  where cs.class_id in (select private.operable_class_ids())
+    and cs.held_on >= greatest(p_from, private.today() - 90)
 $$;
 
 create function public.class_attendance(p_class_id uuid)
 returns table (
   enrollment_id uuid,
   present integer,
-  late integer,
   absent integer,
-  excused integer,
   streak integer
 )
 language sql
@@ -221,9 +238,7 @@ set search_path = ''
 as $$
   select e.id,
     count(*) filter (where a.status = 'present')::integer,
-    count(*) filter (where a.status = 'late')::integer,
     count(*) filter (where a.status = 'absent')::integer,
-    count(*) filter (where a.status = 'excused')::integer,
     private.absence_streak(e.id, private.today() + 1)
   from public.enrollments e
   left join public.attendance_records a on a.enrollment_id = e.id
@@ -277,170 +292,11 @@ as $$
             and cs.held_on > coalesce((
               select max(cs2.held_on) from public.attendance_records a2
               join public.class_sessions cs2 on cs2.id = a2.session_id
-              where a2.enrollment_id = c.id and a2.status in ('present', 'late')
+              where a2.enrollment_id = c.id and a2.status = 'present'
             ), '2000-01-01')
         )
     )
   order by c.streak desc, coalesce(s.social_name, s.full_name)
-$$;
-
-create function public.pending_sessions(p_days integer default 14)
-returns table (
-  session_id uuid,
-  class_id uuid,
-  class_name text,
-  unit_code text,
-  held_on date,
-  starts_at time,
-  ends_at time,
-  teaches boolean
-)
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select cs.id, c.id, c.name, u.code, cs.held_on, cs.starts_at, cs.ends_at,
-    c.id in (select private.taught_class_ids())
-  from public.class_sessions cs
-  join public.classes c on c.id = cs.class_id and c.status = 'open'
-  join public.units u on u.id = c.unit_id
-  where cs.class_id in (select private.operable_class_ids())
-    and cs.cancelled_at is null
-    and cs.attendance_taken_at is null
-    and cs.held_on between private.today() - least(greatest(p_days, 1), 60) and private.today()
-    and exists (select 1 from public.enrollments e where e.class_id = c.id and e.status = 'active')
-  order by cs.held_on desc, cs.starts_at
-$$;
-
-create function public.today_sessions()
-returns table (
-  session_id uuid,
-  class_id uuid,
-  class_name text,
-  unit_code text,
-  starts_at time,
-  ends_at time,
-  taken boolean,
-  cancelled boolean,
-  present integer,
-  absent integer
-)
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select cs.id, c.id, c.name, u.code, cs.starts_at, cs.ends_at,
-    cs.attendance_taken_at is not null, cs.cancelled_at is not null,
-    (select count(*)::integer from public.attendance_records a where a.session_id = cs.id and a.status in ('present', 'late')),
-    (select count(*)::integer from public.attendance_records a where a.session_id = cs.id and a.status in ('absent', 'excused'))
-  from public.class_sessions cs
-  join public.classes c on c.id = cs.class_id and c.status = 'open'
-  join public.units u on u.id = c.unit_id
-  where cs.class_id in (select private.taught_class_ids())
-    and cs.held_on = private.today()
-  order by cs.starts_at
-$$;
-
-drop function public.student_timeline(uuid);
-
-create function public.student_timeline(p_student_id uuid)
-returns table (
-  enrollment_id uuid,
-  class_id uuid,
-  class_name text,
-  course_name text,
-  unit_code text,
-  status public.enrollment_status,
-  enrolled_on date,
-  ended_on date,
-  exit_reason public.exit_reason,
-  transferred_to_class text,
-  operable boolean,
-  attended integer,
-  missed integer
-)
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select e.id, c.id, c.name, co.name, u.code, e.status, e.enrolled_on, e.ended_on, e.exit_reason,
-    tc.name, private.can_operate_class(c.id),
-    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status in ('present', 'late')),
-    (select count(*)::integer from public.attendance_records a where a.enrollment_id = e.id and a.status in ('absent', 'excused'))
-  from public.enrollments e
-  join public.classes c on c.id = e.class_id
-  join public.courses co on co.id = c.course_id
-  join public.units u on u.id = c.unit_id
-  left join public.enrollments t on t.id = e.transferred_to_id
-  left join public.classes tc on tc.id = t.class_id
-  where private.can_see_student(p_student_id) and e.student_id = p_student_id
-  order by e.enrolled_on desc, e.created_at desc
-$$;
-
-create or replace function public.update_class(
-  p_id uuid,
-  p_name text,
-  p_ends_on date,
-  p_schedule jsonb,
-  p_teacher_ids uuid[],
-  p_grading_scheme public.grading_scheme,
-  p_min_attendance smallint,
-  p_remove_session_ids uuid[],
-  p_add_sessions jsonb,
-  p_capacity smallint default null,
-  p_passing_score numeric default null,
-  p_concept_labels text[] default null,
-  p_concept_passing smallint default null
-)
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  class_row public.classes;
-begin
-  select * into class_row from public.classes where id = p_id for update;
-  if not found or not private.can_operate_class(p_id) then
-    raise exception 'not allowed' using errcode = '42501';
-  end if;
-  if class_row.status <> 'open' then
-    raise exception 'class closed' using errcode = '55000';
-  end if;
-  perform private.check_teachers(class_row.unit_id, p_teacher_ids);
-  if cardinality(p_teacher_ids) = 0
-    and class_row.unit_id not in (select private.admin_unit_ids()) then
-    raise exception 'a teacher must stay' using errcode = '23514';
-  end if;
-
-  update public.classes set
-    name = btrim(p_name),
-    ends_on = p_ends_on,
-    schedule = p_schedule,
-    capacity = p_capacity,
-    grading_scheme = p_grading_scheme,
-    passing_score = p_passing_score,
-    concept_labels = p_concept_labels,
-    concept_passing = p_concept_passing,
-    min_attendance = p_min_attendance
-  where id = p_id;
-
-  delete from public.class_teachers where class_id = p_id and user_id <> all (p_teacher_ids);
-  insert into public.class_teachers (class_id, unit_id, user_id)
-  select p_id, class_row.unit_id, unnest(p_teacher_ids)
-  on conflict do nothing;
-
-  delete from public.class_sessions s
-  where s.class_id = p_id
-    and s.id = any (p_remove_session_ids)
-    and s.held_on >= private.today()
-    and not s.is_extra
-    and not exists (select 1 from public.attendance_records a where a.session_id = s.id);
-  perform private.insert_sessions(p_id, p_add_sessions);
-end;
 $$;
 
 alter table public.attendance_records enable row level security;
@@ -480,15 +336,13 @@ grant update (kind, happened_on, body) on public.case_notes to authenticated;
 revoke all on function private.attendance_before_write() from public, anon, authenticated;
 revoke all on function private.absence_streak(uuid, date) from public, anon, authenticated;
 
-grant execute on function public.take_attendance(uuid, jsonb, text) to authenticated;
-grant execute on function public.cancel_session(uuid, text) to authenticated;
-grant execute on function public.restore_session(uuid) to authenticated;
-grant execute on function public.session_roster(uuid) to authenticated;
+grant execute on function public.take_attendance(uuid, date, uuid[], text) to authenticated;
+grant execute on function public.delete_attendance(uuid) to authenticated;
+grant execute on function public.attendance_roster(uuid, date) to authenticated;
+grant execute on function public.class_session_list(uuid) to authenticated;
+grant execute on function public.attendance_days(date) to authenticated;
 grant execute on function public.class_attendance(uuid) to authenticated;
 grant execute on function public.absence_alerts() to authenticated;
-grant execute on function public.pending_sessions(integer) to authenticated;
-grant execute on function public.today_sessions() to authenticated;
-grant execute on function public.student_timeline(uuid) to authenticated;
 
 create function public.home_counts()
 returns table (active_students integer, social_pending integer)

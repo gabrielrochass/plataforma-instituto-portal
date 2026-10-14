@@ -39,86 +39,40 @@ export async function newPage(browser: Browser, alias: string) {
   return page;
 }
 
-export async function createCourse(page: Page, name: string) {
-  await page.goto("/ajustes/cursos/novo");
-  await page.getByLabel("Nome do curso").fill(name);
-  await page.getByLabel("Carga horária em horas").fill("8");
-  await page.getByRole("button", { name: "Criar curso" }).click();
-  await expect(page).toHaveURL("/ajustes/cursos");
-}
-
 export async function createClass(
   page: Page,
-  course: string,
   name: string,
   options: {
     check?: boolean;
     startsOn?: string;
     days?: string[];
-    from?: string;
-    to?: string;
     concepts?: boolean;
     attendanceOnly?: boolean;
   } = {},
 ) {
-  const check = options.check ?? false;
   await page.goto("/turmas/nova");
   await expect(
-    page.getByRole("heading", { name: "Qual curso e em qual unidade?" }),
-  ).toBeFocused();
-  if (check) await expectNoAxeViolations(page);
-  await page.getByRole("button", { name: "Continuar" }).click();
-  await expect(page.locator("p", { hasText: "Escolha o curso" })).toBeVisible();
-  const select = page.getByRole("combobox", { name: "Curso" });
-  if (await select.count()) await select.selectOption({ label: course });
-  else await page.locator("label", { hasText: exact(course) }).click();
+    page.getByRole("heading", { level: 1, name: "Nova turma" }),
+  ).toBeVisible();
   if (await page.getByRole("radio", { name: "Recife Antigo" }).count()) {
     await page.locator("label", { hasText: exact("Recife Antigo") }).click();
   }
   await page.getByLabel("Nome da turma").fill(name);
-  await page.getByRole("button", { name: "Continuar" }).click();
-
-  await expect(
-    page.getByRole("heading", { name: "Quando acontecem as aulas?" }),
-  ).toBeVisible();
-  const startsOn = options.startsOn ?? today;
-  await page.getByLabel("Primeira aula").fill(startsOn);
-  await page.getByLabel("Última aula").fill(addDays(today, 27));
+  await page.getByLabel("Início").fill(options.startsOn ?? today);
+  await page.getByLabel("Fim").fill(addDays(today, 27));
   for (const day of options.days ?? ["Seg", "Qua", "Sex"]) {
     await page.locator("label", { hasText: exact(day) }).click();
   }
-  if (options.from) await page.getByLabel("Começa").fill(options.from);
-  if (options.to) await page.getByLabel("Termina").fill(options.to);
-  if (check) await expectNoAxeViolations(page);
-  await page.getByRole("button", { name: "Continuar" }).click();
-
-  await expect(
-    page.getByRole("heading", { name: "Confira as aulas" }),
-  ).toBeVisible();
-  if (check) await expectNoAxeViolations(page);
-  await page.getByRole("button", { name: "Continuar" }).click();
-
-  await expect(
-    page.getByRole("heading", { name: "Como os alunos são avaliados?" }),
-  ).toBeVisible();
-  if (options.concepts) {
-    await page.locator("label", { hasText: "Conceitos" }).click();
-    await expect(
-      page.getByText(
-        "Aprovado quem tiver conceito Ótimo, Bom ou Regular e pelo menos 75% de presença.",
-      ),
-    ).toBeVisible();
+  await page.getByLabel("Carga horária (horas)").fill("8");
+  if (options.concepts || options.attendanceOnly) {
+    await page.getByText("Ajustar regras de avaliação").click();
+    await page
+      .locator("label", {
+        hasText: options.concepts ? "Conceitos" : "Só frequência",
+      })
+      .click();
   }
-  if (options.attendanceOnly) {
-    await page.locator("label", { hasText: "Só frequência" }).click();
-  }
-  if (check) await expectNoAxeViolations(page);
-  await page.getByRole("button", { name: "Continuar" }).click();
-
-  await expect(
-    page.getByRole("heading", { name: "Tudo certo?" }),
-  ).toBeVisible();
-  if (check) await expectNoAxeViolations(page);
+  if (options.check) await expectNoAxeViolations(page);
   await page.getByRole("button", { name: "Criar turma" }).click();
   await expect(page).toHaveURL(/\/turmas\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
@@ -139,12 +93,10 @@ export async function registerMinor(
   await expect(page).toHaveURL(`/alunos/novo?turma=${classId}`);
   await page.getByLabel("Nome completo").fill(name);
   await page.getByLabel("Data de nascimento").fill(addDays(today, -15 * 365));
-  await page.getByRole("button", { name: "Continuar" }).click();
-
   await expect(
     page.getByText("Menor de idade: cadastre ao menos um responsável."),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByRole("button", { name: "Cadastrar aluno" }).click();
   await expect(
     page.getByText("Cadastre ao menos um responsável").first(),
   ).toBeVisible();
@@ -154,18 +106,10 @@ export async function registerMinor(
   await expect(page.getByLabel("Telefone do responsável")).toHaveValue(
     "(81) 99999-1234",
   );
-  await page.getByRole("button", { name: "Continuar" }).click();
-
+  await page.getByText("Acessibilidade e observações (opcional)").click();
   await page.locator("label", { hasText: exact("Visual") }).click();
   await page.getByLabel("O que ajuda na aula").fill("Senta na frente");
-  await page.getByRole("button", { name: "Continuar" }).click();
   if (enrolledOn) await page.getByLabel("Na turma desde").fill(enrolledOn);
-  await page.getByRole("button", { name: "Continuar" }).click();
-
-  await page.getByRole("button", { name: "Cadastrar aluno" }).click();
-  await expect(
-    page.getByText("O termo de matrícula precisa estar assinado").first(),
-  ).toBeVisible();
   await page
     .getByRole("checkbox", {
       name: "Termo de matrícula e uso de dados assinado",
@@ -178,11 +122,21 @@ export async function registerMinor(
 
 export async function markAllPresent(page: Page) {
   await expect(async () => {
-    await page
-      .getByRole("button", { name: "Marcar todos como presentes" })
-      .click();
-    await expect(page.getByRole("status")).not.toContainText("sem marcação", {
-      timeout: 1000,
-    });
+    await page.getByRole("button", { name: "Marcar todos" }).click();
+    await expect(page.locator("output").first()).toHaveText(
+      /^(\d+) de \1 presentes$/,
+      { timeout: 1000 },
+    );
   }).toPass();
+}
+
+export async function takeAttendance(
+  page: Page,
+  classId: string,
+  day?: string,
+) {
+  await page.goto(`/turmas/${classId}/chamada${day ? `?data=${day}` : ""}`);
+  await markAllPresent(page);
+  await page.getByRole("button", { name: "Salvar chamada" }).click();
+  await expect(page).toHaveURL(`/turmas/${classId}`);
 }

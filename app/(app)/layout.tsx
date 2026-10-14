@@ -1,32 +1,18 @@
-import { ClipboardCheckIcon, UserPlusIcon } from "lucide-react";
 import { Suspense } from "react";
-import type { PrimaryAction } from "@/components/app-shell/primary-action-link";
+import { addOptions, sideNav } from "@/components/app-shell/nav-items";
 import { SideNav } from "@/components/app-shell/side-nav";
 import { TabBar } from "@/components/app-shell/tab-bar";
 import { Tour } from "@/components/onboarding/tour";
 import { getViewer } from "@/lib/data/viewer";
-import { m } from "@/lib/i18n";
-
-const registerStudent: PrimaryAction = {
-  href: "/alunos/novo",
-  label: m.students.new,
-  icon: UserPlusIcon,
-};
-
-const takeAttendance: PrimaryAction = {
-  href: "/chamada",
-  label: m.attendance.take,
-  icon: ClipboardCheckIcon,
-};
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const viewer = await getViewer();
-  const action = viewer.teaches ? takeAttendance : registerStudent;
+  const add = addOptions(viewer);
 
   return (
     <>
       <div className="flex min-h-dvh">
-        <SideNav action={action} />
+        <SideNav items={sideNav(viewer)} add={add} />
         <main
           id="conteudo"
           tabIndex={-1}
@@ -35,7 +21,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
       </div>
-      <TabBar action={action} />
+      <TabBar add={add} />
       <Suspense fallback={null}>
         <Tour autoStart={!viewer.onboarded} />
       </Suspense>

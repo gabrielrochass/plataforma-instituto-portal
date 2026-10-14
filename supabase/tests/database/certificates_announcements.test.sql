@@ -16,12 +16,11 @@ insert into public.staff_memberships (user_id, unit_id, role) values
   ('44444444-4444-4444-8444-444444444444', '0a000000-0000-4000-8000-000000000001', 'teacher'),
   ('66666666-6666-4666-8666-666666666666', '0a000000-0000-4000-8000-000000000002', 'teacher');
 
-insert into public.courses (id, name, workload_hours) values ('c0000000-0000-4000-8000-0000000000ab', 'Certificado teste', 60);
-insert into public.classes (id, course_id, unit_id, name, starts_on, ends_on, schedule, grading_scheme, passing_score, min_attendance) values
-  ('c1000000-0000-4000-8000-0000000000a1', 'c0000000-0000-4000-8000-0000000000ab', '0a000000-0000-4000-8000-000000000001',
-   'Certificado A', private.today() - 90, private.today() - 1, '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]', 'numeric_10', 6, 75),
-  ('c1000000-0000-4000-8000-0000000000a2', 'c0000000-0000-4000-8000-0000000000ab', '0a000000-0000-4000-8000-000000000001',
-   'Certificado B', private.today() - 90, private.today() + 30, '[{"weekday": 3, "starts_at": "08:00", "ends_at": "10:00"}]', 'numeric_10', 6, 75);
+insert into public.classes (id, unit_id, name, starts_on, ends_on, weekdays, workload_hours, grading_scheme, passing_score, min_attendance) values
+  ('c1000000-0000-4000-8000-0000000000a1', '0a000000-0000-4000-8000-000000000001',
+   'Certificado A', private.today() - 90, private.today() - 1, '{2}', 40, 'numeric_10', 6, 75),
+  ('c1000000-0000-4000-8000-0000000000a2', '0a000000-0000-4000-8000-000000000001',
+   'Certificado B', private.today() - 90, private.today() + 30, '{3}', 40, 'numeric_10', 6, 75);
 insert into public.class_teachers (class_id, unit_id, user_id) values
   ('c1000000-0000-4000-8000-0000000000a1', '0a000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444'),
   ('c1000000-0000-4000-8000-0000000000a2', '0a000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444');
@@ -75,7 +74,7 @@ set local role anon;
 select is(
   (select student_name || '|' || workload_hours || '|' || revoked from public.verify_certificate(
     (select lower(replace(code, '-', ' ')) from codes where student_id = '5a000000-0000-4000-8000-0000000000a1'))),
-  'Ana Certa|60|false',
+  'Ana Certa|40|false',
   'anyone verifies a code typed loosely'
 );
 select is_empty(

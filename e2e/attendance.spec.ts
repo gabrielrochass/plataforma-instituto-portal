@@ -3,7 +3,6 @@ import { expectNoAxeViolations } from "./axe";
 import {
   addDays,
   createClass,
-  createCourse,
   newPage,
   registerMinor,
   signIn,
@@ -18,29 +17,25 @@ async function teacherWithClass(
   startsOn = today,
 ) {
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
   await admin.context().close();
 
   await signIn(page, unique("prof-ra"), "/");
   const name = `Chamada ${Date.now()}`;
-  const classId = await createClass(page, course, name, {
+  const classId = await createClass(page, name, {
     startsOn,
     days: [weekdayLabel(today)],
-    from: "00:00",
-    to: "23:59",
   });
   return { classId, name };
 }
 
-function mark(page: Page, student: string, status: "Presente" | "Falta") {
-  return page
-    .getByRole("group", { name: student })
-    .locator("label", { hasText: status })
-    .click();
+async function saveDay(page: Page, classId: string, day: string) {
+  await page.goto(`/turmas/${classId}/chamada?data=${day}`);
+  await expect(page.getByLabel("Dia da aula")).toHaveValue(day);
+  await page.getByRole("button", { name: "Salvar chamada" }).click();
+  await expect(page).toHaveURL(`/turmas/${classId}`);
 }
 
-test("a teacher takes today's attendance from the home screen", async ({
+test("a teacher takes attendance with a checklist and a note", async ({
   page,
   browser,
 }) => {
@@ -52,57 +47,48 @@ test("a teacher takes today's attendance from the home screen", async ({
   await registerMinor(page, classId, beto);
 
   await page.goto("/");
-  const today = page.getByRole("region", { name: "Aulas de hoje" });
-  await expect(today).toContainText(name);
+  const todays = page.getByRole("region", { name: "Aulas de hoje" });
+  await expect(todays).toContainText(name);
   await expectNoAxeViolations(page);
 
-  await page.getByRole("link", { name: "Fazer chamada" }).first().click();
-  await expect(page).toHaveURL(new RegExp(`/turmas/${classId}/chamada/`));
+  await todays.getByRole("link", { name: new RegExp(name) }).click();
+  await expect(page).toHaveURL(`/turmas/${classId}/chamada`);
+  await expect(page.getByLabel("Dia da aula")).toHaveValue(today);
+  await expect(page.locator("output").first()).toHaveText("0 de 2 presentes");
   await expectNoAxeViolations(page);
 
+  await expect(async () => {
+    await page.getByRole("checkbox", { name: new RegExp(ana) }).check();
+    await expect(page.locator("output").first()).toHaveText(
+      "1 de 2 presentes",
+      { timeout: 1000 },
+    );
+  }).toPass();
+  await page.getByLabel("Observação (opcional)").fill("Aula de revisão");
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page.getByText("Falta marcar 2 alunos.")).toBeVisible();
+  await expect(page).toHaveURL(`/turmas/${classId}`);
 
-  await mark(page, beto, "Falta");
-  await page.reload();
+  await page.getByRole("link", { name: "Chamadas" }).click();
+  const history = page.getByRole("region", { name: "Chamadas feitas" });
+  await expect(history).toContainText("1 presente, 1 falta");
+  await expect(history).toContainText("Aula de revisão");
+  await expectNoAxeViolations(page);
+
+  await history.getByRole("link").first().click();
   await expect(
-    page.getByText("Rascunho guardado neste aparelho"),
+    page.getByText(
+      "Chamada deste dia já feita. Dá para corrigir e salvar de novo.",
+    ),
   ).toBeVisible();
   await expect(
-    page
-      .getByRole("group", { name: beto })
-      .getByRole("radio", { name: "Falta" }),
+    page.getByRole("checkbox", { name: new RegExp(ana) }),
   ).toBeChecked();
-
-  await page
-    .getByRole("button", { name: "Marcar todos como presentes" })
-    .click();
   await expect(
-    page
-      .getByRole("group", { name: ana })
-      .getByRole("radio", { name: "Presente" }),
-  ).toBeChecked();
-  await page.getByRole("button", { name: `Mais opções para ${beto}` }).click();
-  await page
-    .getByRole("dialog")
-    .locator("label", { hasText: "Falta justificada" })
-    .click();
-  await page.getByRole("dialog").getByLabel("Observação").fill("Atestado");
-  await expectNoAxeViolations(page);
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Fechar" })
-    .first()
-    .click();
-  await page.getByLabel("O que foi trabalhado na aula").fill("Variáveis");
-  await expect(page.getByText("1 presente, 1 falta")).toBeVisible();
-  await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page.getByText("Chamada salva").first()).toBeVisible();
-
-  await page.goto("/");
-  await expect(
-    page.getByRole("region", { name: "Aulas de hoje" }),
-  ).toContainText("1 presente, 1 falta");
+    page.getByRole("checkbox", { name: new RegExp(beto) }),
+  ).not.toBeChecked();
+  await expect(page.getByLabel("Observação (opcional)")).toHaveValue(
+    "Aula de revisão",
+  );
 
   await page.goto(`/turmas/${classId}/alunos`);
   await expect(page.getByRole("link", { name: new RegExp(ana) })).toContainText(
@@ -131,36 +117,12 @@ test("three absences in a row raise an alert until someone calls the family", as
     addDays(today, -14),
   );
 
-  await page.goto(
-    `/turmas/${classId}/aulas?mes=${addDays(today, -14).slice(0, 7)}`,
-  );
-  for (const offset of [-14, -7]) {
-    await page.goto(
-      `/turmas/${classId}/aulas?mes=${addDays(today, offset).slice(0, 7)}`,
-    );
-    await page
-      .getByRole("listitem")
-      .filter({ has: page.getByRole("link", { name: /^Fazer chamada:/ }) })
-      .first()
-      .getByRole("link", { name: /^Fazer chamada:/ })
-      .click();
-    await mark(page, caio, "Falta");
-    await page.getByRole("button", { name: "Salvar chamada" }).click();
-    await expect(page).not.toHaveURL(/chamada/);
-  }
-
-  await page.goto("/chamada");
-  await expect(page).toHaveURL(new RegExp(`/turmas/${classId}/chamada/`));
+  await saveDay(page, classId, addDays(today, -14));
+  await saveDay(page, classId, addDays(today, -7));
+  await page.goto(`/turmas/${classId}/chamada`);
   await expect(page.getByText("2 faltas seguidas")).toBeVisible();
-  await mark(page, caio, "Falta");
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Entraram em alerta" }),
-  ).toBeFocused();
-  await expectNoAxeViolations(page);
-  await expect(
-    page.getByRole("link", { name: "Ligar para Joana Souza" }),
-  ).toHaveAttribute("href", "tel:+5581999991234");
+  await expect(page).toHaveURL(`/turmas/${classId}`);
 
   await page.goto("/");
   const attention = page.getByRole("region", { name: "Precisam de atenção" });
@@ -182,7 +144,6 @@ test("three absences in a row raise an alert until someone calls the family", as
   await expect(
     page.getByText("Liguei, ele mudou de turno no trabalho."),
   ).toBeVisible();
-  await expectNoAxeViolations(page);
 
   await page.goto("/");
   await expect(
@@ -190,26 +151,19 @@ test("three absences in a row raise an alert until someone calls the family", as
   ).not.toContainText(caio);
 });
 
-test("a class that did not happen leaves the attendance and can come back", async ({
-  page,
-  browser,
-}) => {
+test("a wrong day of attendance can be deleted", async ({ page, browser }) => {
   test.slow();
   const { classId } = await teacherWithClass(page, browser);
   await registerMinor(page, classId, `Dora ${Date.now()}`);
-  await page.goto("/chamada");
-  await page.getByRole("button", { name: "A aula não aconteceu" }).click();
-  const dialog = page.getByRole("dialog", { name: "A aula não aconteceu?" });
+  await saveDay(page, classId, today);
+  await page.goto(`/turmas/${classId}/chamada?data=${today}`);
+  await page.getByRole("button", { name: "Apagar chamada deste dia" }).click();
+  const dialog = page.getByRole("alertdialog");
   await expectNoAxeViolations(page);
-  await dialog.locator("label", { hasText: "Chuva ou alagamento" }).click();
-  await dialog.getByRole("button", { name: "Confirmar" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}/aulas`);
-  await expect(
-    page.getByText("Não aconteceu: Chuva ou alagamento"),
-  ).toBeVisible();
-  await page.getByRole("button", { name: /^Desfazer/ }).click();
-  await expect(page.getByText("Aula de volta")).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: /^Fazer chamada:/ }),
-  ).toBeVisible();
+  await dialog
+    .getByRole("button", { name: "Apagar chamada deste dia" })
+    .click();
+  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await page.goto(`/turmas/${classId}/chamadas`);
+  await expect(page.getByText("Nenhuma chamada ainda.")).toBeVisible();
 });

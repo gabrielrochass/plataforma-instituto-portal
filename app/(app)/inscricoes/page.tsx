@@ -33,7 +33,7 @@ export default async function RequestsPage({
   const today = todayInRecife();
   const groups = new Map<string, RequestRow[]>();
   for (const row of rows) {
-    const key = `${row.course_name}, ${row.unit_code}`;
+    const key = `${row.class_name}, ${row.unit_code}`;
     groups.set(key, [...(groups.get(key) ?? []), row]);
   }
   const labels: Record<Filter, string> = {

@@ -221,7 +221,6 @@ export type Database = {
         Row: {
           class_id: string
           enrollment_id: string
-          note: string | null
           recorded_at: string
           recorded_by: string | null
           session_id: string
@@ -230,7 +229,6 @@ export type Database = {
         Insert: {
           class_id: string
           enrollment_id: string
-          note?: string | null
           recorded_at?: string
           recorded_by?: string | null
           session_id: string
@@ -239,7 +237,6 @@ export type Database = {
         Update: {
           class_id?: string
           enrollment_id?: string
-          note?: string | null
           recorded_at?: string
           recorded_by?: string | null
           session_id?: string
@@ -266,51 +263,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "class_sessions"
             referencedColumns: ["id", "class_id"]
-          },
-        ]
-      }
-      calendar_closures: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          ends_on: string
-          id: string
-          reason: string
-          starts_on: string
-          unit_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          ends_on: string
-          id?: string
-          reason: string
-          starts_on: string
-          unit_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          ends_on?: string
-          id?: string
-          reason?: string
-          starts_on?: string
-          unit_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "calendar_closures_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "calendar_closures_unit_id_fkey"
-            columns: ["unit_id"]
-            isOneToOne: false
-            referencedRelation: "units"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -366,8 +318,8 @@ export type Database = {
         Row: {
           attendance_pct: number | null
           class_id: string
+          class_name: string
           code: string
-          course_name: string
           created_at: string
           ends_on: string
           enrollment_id: string
@@ -385,8 +337,8 @@ export type Database = {
         Insert: {
           attendance_pct?: number | null
           class_id: string
+          class_name: string
           code: string
-          course_name: string
           created_at?: string
           ends_on: string
           enrollment_id: string
@@ -404,8 +356,8 @@ export type Database = {
         Update: {
           attendance_pct?: number | null
           class_id?: string
+          class_name?: string
           code?: string
-          course_name?: string
           created_at?: string
           ends_on?: string
           enrollment_id?: string
@@ -453,43 +405,28 @@ export type Database = {
       }
       class_sessions: {
         Row: {
-          attendance_taken_at: string | null
-          cancel_reason: string | null
-          cancelled_at: string | null
           class_id: string
-          ends_at: string
           held_on: string
           id: string
-          is_extra: boolean
-          starts_at: string
+          note: string | null
+          taken_at: string
           taken_by: string | null
-          topic: string | null
         }
         Insert: {
-          attendance_taken_at?: string | null
-          cancel_reason?: string | null
-          cancelled_at?: string | null
           class_id: string
-          ends_at: string
           held_on: string
           id?: string
-          is_extra?: boolean
-          starts_at: string
+          note?: string | null
+          taken_at?: string
           taken_by?: string | null
-          topic?: string | null
         }
         Update: {
-          attendance_taken_at?: string | null
-          cancel_reason?: string | null
-          cancelled_at?: string | null
           class_id?: string
-          ends_at?: string
           held_on?: string
           id?: string
-          is_extra?: boolean
-          starts_at?: string
+          note?: string | null
+          taken_at?: string
           taken_by?: string | null
-          topic?: string | null
         }
         Relationships: [
           {
@@ -546,7 +483,6 @@ export type Database = {
           capacity: number | null
           concept_labels: string[] | null
           concept_passing: number | null
-          course_id: string
           created_at: string
           created_by: string | null
           ends_on: string
@@ -556,17 +492,17 @@ export type Database = {
           min_attendance: number
           name: string
           passing_score: number | null
-          schedule: Json
           starts_on: string
           status: Database["public"]["Enums"]["class_status"]
           unit_id: string
           updated_at: string
+          weekdays: number[]
+          workload_hours: number
         }
         Insert: {
           capacity?: number | null
           concept_labels?: string[] | null
           concept_passing?: number | null
-          course_id: string
           created_at?: string
           created_by?: string | null
           ends_on: string
@@ -576,17 +512,17 @@ export type Database = {
           min_attendance: number
           name: string
           passing_score?: number | null
-          schedule: Json
           starts_on: string
           status?: Database["public"]["Enums"]["class_status"]
           unit_id: string
           updated_at?: string
+          weekdays: number[]
+          workload_hours: number
         }
         Update: {
           capacity?: number | null
           concept_labels?: string[] | null
           concept_passing?: number | null
-          course_id?: string
           created_at?: string
           created_by?: string | null
           ends_on?: string
@@ -596,20 +532,14 @@ export type Database = {
           min_attendance?: number
           name?: string
           passing_score?: number | null
-          schedule?: Json
           starts_on?: string
           status?: Database["public"]["Enums"]["class_status"]
           unit_id?: string
           updated_at?: string
+          weekdays?: number[]
+          workload_hours?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "classes_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "classes_created_by_fkey"
             columns: ["created_by"]
@@ -671,55 +601,10 @@ export type Database = {
           },
         ]
       }
-      courses: {
-        Row: {
-          archived_at: string | null
-          concept_labels: string[] | null
-          concept_passing: number | null
-          created_at: string
-          description: string | null
-          grading_scheme: Database["public"]["Enums"]["grading_scheme"]
-          id: string
-          min_attendance: number
-          name: string
-          passing_score: number | null
-          updated_at: string
-          workload_hours: number
-        }
-        Insert: {
-          archived_at?: string | null
-          concept_labels?: string[] | null
-          concept_passing?: number | null
-          created_at?: string
-          description?: string | null
-          grading_scheme?: Database["public"]["Enums"]["grading_scheme"]
-          id?: string
-          min_attendance?: number
-          name: string
-          passing_score?: number | null
-          updated_at?: string
-          workload_hours: number
-        }
-        Update: {
-          archived_at?: string | null
-          concept_labels?: string[] | null
-          concept_passing?: number | null
-          created_at?: string
-          description?: string | null
-          grading_scheme?: Database["public"]["Enums"]["grading_scheme"]
-          id?: string
-          min_attendance?: number
-          name?: string
-          passing_score?: number | null
-          updated_at?: string
-          workload_hours?: number
-        }
-        Relationships: []
-      }
       enrollment_offers: {
         Row: {
+          class_id: string
           closes_on: string | null
-          course_id: string
           created_at: string
           created_by: string | null
           description: string | null
@@ -728,8 +613,8 @@ export type Database = {
           unit_id: string
         }
         Insert: {
+          class_id: string
           closes_on?: string | null
-          course_id: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -738,8 +623,8 @@ export type Database = {
           unit_id: string
         }
         Update: {
+          class_id?: string
           closes_on?: string | null
-          course_id?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -749,11 +634,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "enrollment_offers_course_id_fkey"
-            columns: ["course_id"]
+            foreignKeyName: "enrollment_offers_class_id_fkey"
+            columns: ["class_id"]
             isOneToOne: false
-            referencedRelation: "courses"
+            referencedRelation: "classes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_offers_class_id_unit_id_fkey"
+            columns: ["class_id", "unit_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id", "unit_id"]
           },
           {
             foreignKeyName: "enrollment_offers_created_by_fkey"
@@ -1253,6 +1145,7 @@ export type Database = {
       students: {
         Row: {
           anonymized_at: string | null
+          badge_token: string | null
           birth_date: string
           cpf: string | null
           created_at: string
@@ -1263,6 +1156,7 @@ export type Database = {
           last_assessed_on: string | null
           name_norm: string
           phone: string | null
+          photo_path: string | null
           registered_unit_id: string
           social_name: string | null
           updated_at: string
@@ -1270,6 +1164,7 @@ export type Database = {
         }
         Insert: {
           anonymized_at?: string | null
+          badge_token?: string | null
           birth_date: string
           cpf?: string | null
           created_at?: string
@@ -1280,6 +1175,7 @@ export type Database = {
           last_assessed_on?: string | null
           name_norm?: string
           phone?: string | null
+          photo_path?: string | null
           registered_unit_id: string
           social_name?: string | null
           updated_at?: string
@@ -1287,6 +1183,7 @@ export type Database = {
         }
         Update: {
           anonymized_at?: string | null
+          badge_token?: string | null
           birth_date?: string
           cpf?: string | null
           created_at?: string
@@ -1297,6 +1194,7 @@ export type Database = {
           last_assessed_on?: string | null
           name_norm?: string
           phone?: string | null
+          photo_path?: string | null
           registered_unit_id?: string
           social_name?: string | null
           updated_at?: string
@@ -1396,18 +1294,33 @@ export type Database = {
       }
       anonymize_student: { Args: { p_student_id: string }; Returns: undefined }
       archive_announcement: { Args: { p_id: string }; Returns: undefined }
-      cancel_class: { Args: { p_class_id: string }; Returns: undefined }
-      cancel_session: {
-        Args: { p_reason: string; p_session_id: string }
-        Returns: undefined
+      attendance_days: {
+        Args: { p_from: string }
+        Returns: {
+          class_id: string
+          held_on: string
+        }[]
       }
+      attendance_roster: {
+        Args: { p_class_id: string; p_held_on: string }
+        Returns: {
+          badge_token: string
+          enrollment_id: string
+          full_name: string
+          needs_accessibility: boolean
+          photo_path: string
+          social_name: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          streak: number
+          student_id: string
+        }[]
+      }
+      cancel_class: { Args: { p_class_id: string }; Returns: undefined }
       class_attendance: {
         Args: { p_class_id: string }
         Returns: {
           absent: number
           enrollment_id: string
-          excused: number
-          late: number
           present: number
           streak: number
         }[]
@@ -1419,8 +1332,6 @@ export type Database = {
           capacity: number
           concept_labels: string[]
           concept_passing: number
-          course_id: string
-          course_name: string
           ends_on: string
           grading_scheme: Database["public"]["Enums"]["grading_scheme"]
           id: string
@@ -1429,7 +1340,6 @@ export type Database = {
           name: string
           operable: boolean
           passing_score: number
-          schedule: Json
           starts_on: string
           status: Database["public"]["Enums"]["class_status"]
           teacher_ids: string[]
@@ -1437,6 +1347,7 @@ export type Database = {
           unit_code: string
           unit_id: string
           unit_name: string
+          weekdays: number[]
           workload_hours: number
         }[]
       }
@@ -1452,6 +1363,17 @@ export type Database = {
           passed_score: boolean
           student_id: string
           student_name: string
+        }[]
+      }
+      class_session_list: {
+        Args: { p_class_id: string }
+        Returns: {
+          absent: number
+          held_on: string
+          note: string
+          present: number
+          session_id: string
+          taken_by_name: string
         }[]
       }
       close_class: {
@@ -1477,23 +1399,23 @@ export type Database = {
           p_capacity?: number
           p_concept_labels?: string[]
           p_concept_passing?: number
-          p_course_id: string
           p_ends_on: string
           p_grading_scheme: Database["public"]["Enums"]["grading_scheme"]
           p_id: string
           p_min_attendance: number
           p_name: string
           p_passing_score?: number
-          p_schedule: Json
-          p_sessions: Json
           p_starts_on: string
           p_teacher_ids: string[]
           p_unit_id: string
+          p_weekdays: number[]
+          p_workload_hours: number
         }
         Returns: undefined
       }
       create_invite: {
         Args: {
+          p_admin_geral?: boolean
           p_display_name: string
           p_id: string
           p_role: Database["public"]["Enums"]["unit_role"]
@@ -1506,6 +1428,7 @@ export type Database = {
         Args: { p_token_hash: string; p_user_id: string }
         Returns: undefined
       }
+      delete_attendance: { Args: { p_session_id: string }; Returns: undefined }
       dev_set_persona: {
         Args: { p_persona: string; p_user_id: string }
         Returns: undefined
@@ -1549,7 +1472,7 @@ export type Database = {
       }
       impact_report: {
         Args: {
-          p_course_id?: string
+          p_class_id?: string
           p_from: string
           p_to: string
           p_unit_id?: string
@@ -1559,6 +1482,7 @@ export type Database = {
       invite_info: {
         Args: { p_token_hash: string }
         Returns: {
+          admin_geral: boolean
           display_name: string
           role: Database["public"]["Enums"]["unit_role"]
           unit_name: string
@@ -1569,12 +1493,14 @@ export type Database = {
       open_offers: {
         Args: never
         Returns: {
+          class_name: string
           closes_on: string
-          course_description: string
-          course_name: string
           description: string
+          ends_on: string
           id: string
+          starts_on: string
           unit_name: string
+          weekdays: number[]
           workload_hours: number
         }[]
       }
@@ -1587,25 +1513,13 @@ export type Database = {
       pending_invites: {
         Args: never
         Returns: {
+          admin_geral: boolean
           created_at: string
           display_name: string
           expires_at: string
           id: string
           role: Database["public"]["Enums"]["unit_role"]
           unit_id: string
-        }[]
-      }
-      pending_sessions: {
-        Args: { p_days?: number }
-        Returns: {
-          class_id: string
-          class_name: string
-          ends_at: string
-          held_on: string
-          session_id: string
-          starts_at: string
-          teaches: boolean
-          unit_code: string
         }[]
       }
       post_announcement: {
@@ -1645,6 +1559,7 @@ export type Database = {
         Args: { p_unit_id: string; p_user_id: string }
         Returns: undefined
       }
+      renew_badge: { Args: { p_student_id: string }; Returns: string }
       reopen_class: { Args: { p_class_id: string }; Returns: undefined }
       reopen_enrollment: {
         Args: { p_enrollment_id: string }
@@ -1654,7 +1569,8 @@ export type Database = {
         Args: never
         Returns: {
           birth_date: string
-          course_name: string
+          class_id: string
+          class_name: string
           created_at: string
           full_name: string
           id: string
@@ -1668,7 +1584,6 @@ export type Database = {
           unit_id: string
         }[]
       }
-      restore_session: { Args: { p_session_id: string }; Returns: undefined }
       revoke_certificate: {
         Args: { p_id: string; p_reason: string }
         Returns: undefined
@@ -1681,22 +1596,6 @@ export type Database = {
       save_social_profile: {
         Args: { p_profile: Json; p_student_id: string }
         Returns: undefined
-      }
-      session_roster: {
-        Args: { p_session_id: string }
-        Returns: {
-          contact_name: string
-          contact_phone: string
-          contact_whatsapp: boolean
-          enrollment_id: string
-          full_name: string
-          needs_accessibility: boolean
-          note: string
-          social_name: string
-          status: Database["public"]["Enums"]["attendance_status"]
-          streak: number
-          student_id: string
-        }[]
       }
       set_admin_geral: {
         Args: { p_user_id: string; p_value: boolean }
@@ -1753,6 +1652,7 @@ export type Database = {
           full_name: string
           id: string
           needs_accessibility: boolean
+          photo_path: string
           social_name: string
           social_pending: boolean
           unit_code: string
@@ -1805,7 +1705,6 @@ export type Database = {
           attended: number
           class_id: string
           class_name: string
-          course_name: string
           ended_on: string
           enrolled_on: string
           enrollment_id: string
@@ -1835,8 +1734,13 @@ export type Database = {
         Returns: string
       }
       take_attendance: {
-        Args: { p_marks: Json; p_session_id: string; p_topic?: string }
-        Returns: undefined
+        Args: {
+          p_class_id: string
+          p_held_on: string
+          p_note?: string
+          p_present: string[]
+        }
+        Returns: string
       }
       team_members: {
         Args: never
@@ -1848,21 +1752,6 @@ export type Database = {
           is_admin_geral: boolean
           manageable: boolean
           memberships: Json
-        }[]
-      }
-      today_sessions: {
-        Args: never
-        Returns: {
-          absent: number
-          cancelled: boolean
-          class_id: string
-          class_name: string
-          ends_at: string
-          present: number
-          session_id: string
-          starts_at: string
-          taken: boolean
-          unit_code: string
         }[]
       }
       transfer_enrollment: {
@@ -1877,7 +1766,6 @@ export type Database = {
       }
       update_class: {
         Args: {
-          p_add_sessions: Json
           p_capacity?: number
           p_concept_labels?: string[]
           p_concept_passing?: number
@@ -1887,16 +1775,17 @@ export type Database = {
           p_min_attendance: number
           p_name: string
           p_passing_score?: number
-          p_remove_session_ids: string[]
-          p_schedule: Json
+          p_starts_on: string
           p_teacher_ids: string[]
+          p_weekdays: number[]
+          p_workload_hours: number
         }
         Returns: undefined
       }
       verify_certificate: {
         Args: { p_code: string }
         Returns: {
-          course_name: string
+          class_name: string
           ends_on: string
           issued_on: string
           revoked: boolean
@@ -1910,7 +1799,7 @@ export type Database = {
     Enums: {
       announcement_audience: "everyone" | "unit" | "class"
       assessment_moment: "intake" | "follow_up" | "exit"
-      attendance_status: "present" | "absent" | "excused" | "late"
+      attendance_status: "present" | "absent"
       case_note_kind:
         | "family_contact"
         | "pedagogical"
@@ -2139,7 +2028,7 @@ export const Constants = {
     Enums: {
       announcement_audience: ["everyone", "unit", "class"],
       assessment_moment: ["intake", "follow_up", "exit"],
-      attendance_status: ["present", "absent", "excused", "late"],
+      attendance_status: ["present", "absent"],
       case_note_kind: [
         "family_contact",
         "pedagogical",

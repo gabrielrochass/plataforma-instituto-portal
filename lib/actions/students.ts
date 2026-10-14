@@ -233,3 +233,81 @@ export async function reopenEnrollment(id: string): Promise<ActionResult> {
   refresh();
   return { ok: true };
 }
+
+const photoBucket = "student-photos";
+
+export async function saveStudentPhoto(
+  studentId: string,
+  data: FormData,
+): Promise<ActionResult> {
+  const file = data.get("photo");
+  if (
+    !z.uuid().safeParse(studentId).success ||
+    !(file instanceof File) ||
+    file.type !== "image/jpeg" ||
+    file.size === 0 ||
+    file.size > 1_500_000
+  ) {
+    return { ok: false, message: m.studentForm.photoError };
+  }
+  await getViewer();
+  const supabase = await createClient();
+  const { data: current, error: readError } = await supabase
+    .from("students")
+    .select("photo_path")
+    .eq("id", studentId)
+    .maybeSingle();
+  if (readError || !current) return failure;
+  const path = `${studentId}/${crypto.randomUUID().replaceAll("-", "")}.jpg`;
+  const { error: uploadError } = await supabase.storage
+    .from(photoBucket)
+    .upload(path, file, { contentType: "image/jpeg", upsert: false });
+  if (uploadError) return failure;
+  const { error } = await supabase
+    .from("students")
+    .update({ photo_path: path })
+    .eq("id", studentId);
+  if (error) {
+    await supabase.storage.from(photoBucket).remove([path]);
+    return failureFor(error);
+  }
+  if (current.photo_path) {
+    await supabase.storage.from(photoBucket).remove([current.photo_path]);
+  }
+  refresh();
+  return { ok: true };
+}
+
+export async function removeStudentPhoto(
+  studentId: string,
+): Promise<ActionResult> {
+  if (!z.uuid().safeParse(studentId).success) return failure;
+  await getViewer();
+  const supabase = await createClient();
+  const { data: current } = await supabase
+    .from("students")
+    .select("photo_path")
+    .eq("id", studentId)
+    .maybeSingle();
+  if (!current?.photo_path) return { ok: true };
+  const { error } = await supabase
+    .from("students")
+    .update({ photo_path: null })
+    .eq("id", studentId);
+  if (error) return failureFor(error);
+  await supabase.storage.from(photoBucket).remove([current.photo_path]);
+  refresh();
+  return { ok: true };
+}
+
+export async function renewBadge(studentId: string): Promise<ActionResult> {
+  if (!z.uuid().safeParse(studentId).success) return failure;
+  await getViewer();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("renew_badge", {
+    p_student_id: studentId,
+  });
+  if (error) return failureFor(error);
+  refresh();
+  return { ok: true };
+}

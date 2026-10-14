@@ -14,10 +14,9 @@ insert into public.staff_memberships (user_id, unit_id, role) values
   ('33333333-3333-4333-8333-333333333333', '0a000000-0000-4000-8000-000000000002', 'admin'),
   ('44444444-4444-4444-8444-444444444444', '0a000000-0000-4000-8000-000000000001', 'teacher');
 
-insert into public.courses (id, name, workload_hours) values ('c0000000-0000-4000-8000-0000000000ee', 'Social teste', 40);
-insert into public.classes (id, course_id, unit_id, name, starts_on, ends_on, schedule, grading_scheme, passing_score, min_attendance) values
-  ('c1000000-0000-4000-8000-0000000000e1', 'c0000000-0000-4000-8000-0000000000ee', '0a000000-0000-4000-8000-000000000001',
-   'Social RA', private.today() - 30, private.today() + 30, '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]', 'numeric_10', 6, 75);
+insert into public.classes (id, unit_id, name, starts_on, ends_on, weekdays, workload_hours, grading_scheme, passing_score, min_attendance) values
+  ('c1000000-0000-4000-8000-0000000000e1', '0a000000-0000-4000-8000-000000000001',
+   'Social RA', private.today() - 30, private.today() + 30, '{2}', 40, 'numeric_10', 6, 75);
 insert into public.class_teachers (class_id, unit_id, user_id) values
   ('c1000000-0000-4000-8000-0000000000e1', '0a000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444');
 insert into public.students (id, full_name, birth_date, phone, cpf, registered_unit_id) values

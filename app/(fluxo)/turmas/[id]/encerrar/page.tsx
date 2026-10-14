@@ -7,6 +7,7 @@ import { getClassResults } from "@/lib/data/grades";
 import { todayInRecife } from "@/lib/dates";
 import { formatScore, resultOf } from "@/lib/grading";
 import { m } from "@/lib/i18n";
+import { classDays } from "@/lib/schedule";
 
 export const metadata: Metadata = { title: m.closing.title };
 
@@ -22,11 +23,9 @@ export default async function CloseClassPage({
     getClassSessions(id),
   ]);
   const today = todayInRecife();
-  const pendingSessions = sessions.filter(
-    (session) =>
-      session.held_on <= today &&
-      !session.cancelled_at &&
-      !session.attendance_taken_at,
+  const taken = new Set(sessions.map((session) => session.held_on));
+  const pendingSessions = classDays(row, row.starts_on, today).filter(
+    (day) => !taken.has(day),
   ).length;
   const missingGrades = results.reduce(
     (total, result) => total + result.missing_grades,

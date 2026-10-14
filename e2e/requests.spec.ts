@@ -1,13 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
-import {
-  addDays,
-  createClass,
-  createCourse,
-  signIn,
-  today,
-  unique,
-} from "./helpers";
+import { addDays, createClass, signIn, today, unique } from "./helpers";
 
 test("someone signs up online and the coordination enrolls them", async ({
   page,
@@ -15,13 +8,13 @@ test("someone signs up online and the coordination enrolls them", async ({
 }) => {
   test.slow();
   await signIn(page, unique("admin-ra"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
+  const course = `Noite ${Date.now()}`;
+  await createClass(page, course);
 
   await page.goto("/inscricoes/ofertas");
   await page
-    .getByLabel("Curso", { exact: true })
-    .selectOption({ label: course });
+    .getByLabel("Turma", { exact: true })
+    .selectOption({ label: `${course}, RA` });
   await page
     .getByLabel("Informações para quem se inscreve (opcional)")
     .fill("Aulas à noite");
@@ -88,7 +81,6 @@ test("someone signs up online and the coordination enrolls them", async ({
   ).toBeVisible();
   const requestUrl = page.url();
 
-  await createClass(page, course, `Noite ${Date.now()}`);
   await page.goto(requestUrl);
   await expect(page.getByText("Nenhuma turma aberta")).toHaveCount(0);
   await expectNoAxeViolations(page);

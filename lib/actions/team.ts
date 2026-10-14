@@ -31,9 +31,14 @@ const uuid = z.uuid();
 export async function createInvite(input: InviteInput): Promise<LinkResult> {
   const parsed = inviteInput.safeParse(input);
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
-  const { id, name, unitId, role } = parsed.data;
+  const { id, name, kind, unitId } = parsed.data;
   const viewer = await getViewer();
-  if (!invitableRoles(viewer, unitId).includes(role)) return forbidden;
+  const role = kind === "teacher" ? "teacher" : "admin";
+  const allowed =
+    kind === "adminGeral"
+      ? viewer.isAdminGeral
+      : invitableRoles(viewer, unitId).includes(role);
+  if (!allowed) return forbidden;
 
   const { token, hash } = newToken();
   const supabase = await createClient();
@@ -41,8 +46,9 @@ export async function createInvite(input: InviteInput): Promise<LinkResult> {
     p_id: id,
     p_token_hash: hash,
     p_display_name: name,
-    p_unit_id: unitId,
+    p_unit_id: (kind === "adminGeral" ? null : unitId) as string,
     p_role: role,
+    p_admin_geral: kind === "adminGeral",
   });
   if (error) return failureFor(error);
   refresh();

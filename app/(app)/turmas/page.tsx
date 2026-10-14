@@ -17,7 +17,7 @@ import { getUnits } from "@/lib/data/team";
 import { getViewer } from "@/lib/data/viewer";
 import { todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
-import { scheduleSummary } from "@/lib/schedule";
+import { weekdaysSummary } from "@/lib/schedule";
 
 export const metadata: Metadata = { title: m.classes.title };
 
@@ -115,20 +115,15 @@ export default async function ClassesPage({
                     className="flex h-full flex-col gap-2 rounded-2xl bg-card p-4 transition-colors hover:bg-card/70"
                   >
                     <span className="flex items-start justify-between gap-3">
-                      <span className="flex min-w-0 flex-col">
-                        <span className="text-footnote text-muted-foreground">
-                          {row.course_name}
-                        </span>
-                        <span className="text-headline font-semibold">
-                          {row.name}
-                        </span>
+                      <span className="text-headline font-semibold">
+                        {row.name}
                       </span>
                       <span className="shrink-0 rounded-md bg-secondary px-2 py-0.5 text-caption font-semibold">
                         {row.unit_code}
                       </span>
                     </span>
                     <span className="text-subhead">
-                      {scheduleSummary(row.slots)}
+                      {weekdaysSummary(row.weekdays)}
                     </span>
                     <span className="flex flex-wrap items-center justify-between gap-2">
                       <ClassStatus

@@ -68,3 +68,11 @@ Pendências fora do sistema:
 - O código tem 12 caracteres aleatórios (32 possibilidades cada), o que torna inviável adivinhar.
 - O certificado usa o nome social quando existe. Ao anonimizar, o nome é apagado e o certificado fica revogado.
 - Avisos são internos da equipe. "Copiar para WhatsApp" só copia o texto; quem envia é a pessoa, pelo próprio celular.
+
+## Foto e crachá
+
+- A foto do aluno é opcional, fica em um bucket privado do Supabase Storage e só é exibida por link temporário
+  (1 hora) para quem já pode ver o aluno. Ao anonimizar, a foto sai do cadastro.
+- O QR do crachá guarda só um código aleatório de 10 caracteres, sem nome, CPF ou outro dado pessoal.
+- Se o crachá for perdido, "Gerar novo QR" troca o código e o antigo deixa de marcar presença.
+- A leitura do QR acontece no aparelho de quem faz a chamada; a câmera não grava nem envia imagens.

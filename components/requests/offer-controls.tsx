@@ -63,15 +63,12 @@ export function OfferToggle({
 }
 
 export function OfferForm({
-  courses,
-  units,
+  classes,
 }: {
-  courses: readonly { id: string; name: string }[];
-  units: readonly { id: string; name: string }[];
+  classes: readonly { id: string; name: string }[];
 }) {
   const [id, setId] = useState(() => crypto.randomUUID());
-  const [courseId, setCourseId] = useState("");
-  const [unitId, setUnitId] = useState(units.length === 1 ? units[0].id : "");
+  const [classId, setClassId] = useState("");
   const [description, setDescription] = useState("");
   const [closesOn, setClosesOn] = useState("");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
@@ -80,20 +77,19 @@ export function OfferForm({
   function submit() {
     startTransition(async () => {
       const result = await attempt(
-        openOffer({ id, courseId, unitId, description, closesOn }),
+        openOffer({ id, classId, description, closesOn }),
         failed,
       );
       if (!result.ok) {
         setErrors({
-          courseId: result.errors?.courseId?.[0],
-          unitId: result.errors?.unitId?.[0],
+          classId: result.errors?.classId?.[0],
           form: result.errors ? undefined : result.message,
         });
         return;
       }
       setErrors({});
       setId(crypto.randomUUID());
-      setCourseId("");
+      setClassId("");
       setDescription("");
       setClosesOn("");
       toast.add({ title: m.requests.opened, type: "success" });
@@ -118,47 +114,24 @@ export function OfferForm({
         </label>
         <NativeSelect
           id="oferta-curso"
-          value={courseId}
-          onChange={(event) => setCourseId(event.target.value)}
-          aria-invalid={errors.courseId ? true : undefined}
-          aria-describedby={errors.courseId ? "oferta-curso-erro" : undefined}
+          value={classId}
+          onChange={(event) => setClassId(event.target.value)}
+          aria-invalid={errors.classId ? true : undefined}
+          aria-describedby={errors.classId ? "oferta-curso-erro" : undefined}
         >
           <option value="" />
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.name}
+          {classes.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
             </option>
           ))}
         </NativeSelect>
-        {errors.courseId && (
+        {errors.classId && (
           <p id="oferta-curso-erro" className="text-footnote text-destructive">
-            {errors.courseId}
+            {errors.classId}
           </p>
         )}
       </div>
-      {units.length > 1 && (
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="oferta-unidade"
-            className="text-footnote font-medium text-muted-foreground"
-          >
-            {m.requests.unit}
-          </label>
-          <NativeSelect
-            id="oferta-unidade"
-            value={unitId}
-            onChange={(event) => setUnitId(event.target.value)}
-            aria-invalid={errors.unitId ? true : undefined}
-          >
-            <option value="" />
-            {units.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
-      )}
       <TextAreaField
         label={m.requests.description}
         hint={m.requests.descriptionHint}

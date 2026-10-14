@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
 import {
   createClass,
-  createCourse,
   markAllPresent,
   newPage,
   registerMinor,
@@ -18,14 +17,10 @@ test("coordination issues, prints and revokes certificates anyone can verify", a
 }) => {
   test.slow();
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
 
   await signIn(page, unique("prof-ra"), "/");
-  const classId = await createClass(page, course, `Certificado ${Date.now()}`, {
+  const classId = await createClass(page, `Certificado ${Date.now()}`, {
     days: [weekdayLabel(today)],
-    from: "00:00",
-    to: "23:59",
     attendanceOnly: true,
   });
   const name = `Lara ${Date.now()}`;

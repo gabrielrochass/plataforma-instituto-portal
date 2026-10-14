@@ -141,7 +141,7 @@ test("changing the password asks for the current one", async ({
   const newSecret = "outra frase bem minha";
   await createPerson(email);
   try {
-    await page.goto("/entrar?next=/ajustes/conta");
+    await page.goto("/entrar?next=/conta");
     await fillCredentials(page, email, password);
     await page.getByRole("button", { name: "Entrar", exact: true }).click();
     await page.getByRole("link", { name: /Alterar senha/ }).click();
@@ -159,7 +159,7 @@ test("changing the password asks for the current one", async ({
 
     await page.getByLabel("Senha atual").fill(password);
     await page.getByRole("button", { name: "Alterar senha" }).click();
-    await expect(page).toHaveURL("/ajustes/conta");
+    await expect(page).toHaveURL("/conta");
     await expect(page.getByText("Senha alterada.")).toBeVisible();
 
     await page.getByRole("button", { name: "Sair", exact: true }).click();
@@ -172,9 +172,9 @@ test("changing the password asks for the current one", async ({
 });
 
 test("Sair ends the session on this device", async ({ page }) => {
-  await signIn(page, "sair", "/ajustes/conta");
+  await signIn(page, "sair", "/conta");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Conta" }),
+    page.getByRole("heading", { level: 1, name: "Minha conta" }),
   ).toBeVisible();
   await expect(page.getByText(emailOf("sair"))).toBeVisible();
   await page.getByRole("button", { name: "Sair", exact: true }).click();
@@ -185,7 +185,7 @@ test("Sair ends the session on this device", async ({ page }) => {
 });
 
 test("Sair de todos os aparelhos ends the session", async ({ page }) => {
-  await signIn(page, "sair-todos", "/ajustes/conta");
+  await signIn(page, "sair-todos", "/conta");
   await page
     .getByRole("button", { name: "Sair de todos os aparelhos" })
     .click();
@@ -234,7 +234,7 @@ test("pages run under the content security policy", async ({ page }) => {
     expect(await violations(), path).toEqual([]);
   }
   await signIn(page, "csp", "/");
-  for (const path of ["/", "/turmas", "/alunos", "/mais", "/ajustes/conta"]) {
+  for (const path of ["/", "/turmas", "/alunos", "/mais", "/conta"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     expect(await violations(), path).toEqual([]);

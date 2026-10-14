@@ -32,8 +32,8 @@ export default async function InvitePage({
             title={m.invite.title}
             text={m.invite.text(
               invite.display_name,
-              m.roles[invite.role],
-              invite.unit_name,
+              invite.admin_geral ? m.roles.adminGeral : m.roles[invite.role],
+              invite.admin_geral ? null : invite.unit_name,
             )}
           />
           {email !== null ? (

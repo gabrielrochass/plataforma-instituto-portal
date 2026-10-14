@@ -9,15 +9,11 @@ const tabs = [
 ];
 
 const settingsPaths = [
-  "/ajustes",
-  "/ajustes/conta",
-  "/ajustes/conta/senha",
-  "/ajustes/equipe",
-  "/ajustes/equipe/convidar",
-  "/ajustes/unidades",
-  "/ajustes/cursos",
-  "/ajustes/cursos/novo",
-  "/ajustes/calendario",
+  "/conta",
+  "/conta/senha",
+  "/equipe",
+  "/equipe/convidar",
+  "/unidades",
   "/turmas/nova",
   "/alunos/novo",
   "/inscricoes",
@@ -48,13 +44,44 @@ for (const colorScheme of ["light", "dark"] as const) {
       }
     });
 
-    test("settings open from Mais", async ({ page }) => {
+    test("Mais shows every section and + offers what to add", async ({
+      page,
+    }) => {
       await page.goto("/mais");
-      await page.getByRole("link", { name: "Ajustes" }).click();
-      await expect(
-        page.getByRole("heading", { level: 1, name: "Ajustes" }),
-      ).toBeVisible();
+      for (const name of [
+        "Equipe",
+        "Avisos",
+        "Inscrições",
+        "Impacto",
+        "Unidades",
+        "Minha conta",
+      ]) {
+        await expect(
+          page.getByRole("link", { name: new RegExp(`^${name}`) }),
+        ).toBeVisible();
+      }
+      await page.getByRole("button", { name: "Adicionar" }).click();
+      const sheet = page.getByRole("dialog", {
+        name: "O que você quer adicionar?",
+      });
+      for (const name of [
+        "Aluno",
+        "Turma",
+        "Professor",
+        "Adm da unidade",
+        "Adm geral",
+        "Aviso",
+      ]) {
+        await expect(
+          sheet.getByRole("link", { name: new RegExp(`^${name}`) }),
+        ).toBeVisible();
+      }
       await expectNoAxeViolations(page);
+      await sheet.getByRole("link", { name: /^Adm geral/ }).click();
+      await expect(page).toHaveURL("/equipe/convidar?papel=adm-geral");
+      await expect(
+        page.getByRole("radio", { name: "Adm geral" }),
+      ).toBeChecked();
     });
 
     test("settings screens meet WCAG", async ({ page }) => {
@@ -77,7 +104,7 @@ test("the tour shows each section once", async ({ page }) => {
   await expect(dialog).toBeVisible();
   await expectNoAxeViolations(page);
   await dialog.getByRole("button", { name: "Começar" }).click();
-  for (const title of ["Atalho do dia", "Turmas", "Alunos", "Mais"]) {
+  for (const title of ["Adicionar", "Turmas", "Alunos", "Mais"]) {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
     await page.getByRole("button", { name: "Próximo" }).click();
   }

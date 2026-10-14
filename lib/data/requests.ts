@@ -17,7 +17,7 @@ export async function getOffers() {
   const { data, error } = await supabase
     .from("enrollment_offers")
     .select(
-      "id, course_id, unit_id, description, closes_on, is_open, created_at, courses (name), units (code, name)",
+      "id, class_id, unit_id, description, closes_on, is_open, created_at, classes!enrollment_offers_class_id_fkey (name), units (code, name)",
     )
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -38,7 +38,7 @@ export async function getRequest(id: string) {
   const { data, error } = await supabase
     .from("enrollment_requests")
     .select(
-      "id, protocol, full_name, social_name, birth_date, phone, email, neighborhood, guardian_name, guardian_phone, status, note, student_id, created_at, enrollment_offers (id, course_id, unit_id, courses (name), units (name, code))",
+      "id, protocol, full_name, social_name, birth_date, phone, email, neighborhood, guardian_name, guardian_phone, status, note, student_id, created_at, enrollment_offers (id, class_id, unit_id, classes!enrollment_offers_class_id_fkey (name), units (name, code))",
     )
     .eq("id", id)
     .maybeSingle();

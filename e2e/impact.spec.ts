@@ -1,21 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
-import {
-  createClass,
-  createCourse,
-  registerMinor,
-  signIn,
-  unique,
-} from "./helpers";
+import { createClass, registerMinor, signIn, unique } from "./helpers";
 
-test("coordination sees the impact of a course and prints the report", async ({
+test("coordination sees the impact of a class and prints the report", async ({
   page,
 }) => {
   test.slow();
   await signIn(page, unique("admin-ra"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  const classId = await createClass(page, course, `Impacto ${Date.now()}`);
+  const course = `Impacto ${Date.now()}`;
+  const classId = await createClass(page, course);
   await registerMinor(page, classId, `Lia ${Date.now()}`);
 
   await page.goto("/mais");
@@ -23,9 +16,9 @@ test("coordination sees the impact of a course and prints the report", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Impacto" }),
   ).toBeVisible();
-  await page.getByLabel("Curso").selectOption({ label: course });
+  await page.getByLabel("Turma").selectOption({ label: `${course}, RA` });
   await page.getByRole("button", { name: "Aplicar" }).click();
-  await expect(page).toHaveURL(/curso=/);
+  await expect(page).toHaveURL(/turma=/);
 
   const served = page
     .getByText("Pessoas atendidas", { exact: true })

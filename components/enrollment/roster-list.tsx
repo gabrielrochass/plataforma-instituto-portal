@@ -31,6 +31,7 @@ export type RosterRow = {
   enrollmentId: string;
   studentId: string;
   name: string;
+  photo?: string | null;
   detail: string;
   accessibility: boolean;
   warning?: string;
@@ -61,7 +62,7 @@ export function RosterList({
             key={row.enrollmentId}
             className="flex min-h-15 items-center gap-3 px-4 py-2"
           >
-            <PersonAvatar name={row.name} />
+            <PersonAvatar name={row.name} photo={row.photo} />
             <Link
               href={`/alunos/${row.studentId}` as Route}
               className="flex min-w-0 flex-1 flex-col py-1"

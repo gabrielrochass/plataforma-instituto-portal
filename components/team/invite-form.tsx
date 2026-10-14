@@ -7,32 +7,43 @@ import { Input } from "@/components/ui/input";
 import { createInvite } from "@/lib/actions/team";
 import { attempt, failed } from "@/lib/attempt";
 import { m } from "@/lib/i18n";
-import type { Unit, UnitRole } from "@/lib/roles";
+import type { Unit } from "@/lib/roles";
+import type { InviteKind } from "@/lib/schemas/team";
 import { ShareLink } from "./share-link";
 
 type Errors = { name?: string; unitId?: string; form?: string };
 
 export function InviteForm({
-  units,
-  rolesByUnit,
+  kinds,
+  initialKind,
+  unitsByKind,
 }: {
-  units: readonly Unit[];
-  rolesByUnit: Record<string, UnitRole[]>;
+  kinds: readonly InviteKind[];
+  initialKind: InviteKind;
+  unitsByKind: Record<InviteKind, readonly Unit[]>;
 }) {
   const [id, setId] = useState(() => crypto.randomUUID());
+  const [kind, setKind] = useState<InviteKind>(initialKind);
   const [name, setName] = useState("");
+  const units = unitsByKind[kind];
   const [unitId, setUnitId] = useState(units.length === 1 ? units[0].id : "");
-  const [role, setRole] = useState<UnitRole>("teacher");
   const [errors, setErrors] = useState<Errors>({});
   const [sent, setSent] = useState<{ name: string; link: string } | null>(null);
   const [pending, startTransition] = useTransition();
   const nameRef = useRef<HTMLInputElement>(null);
-  const roles = rolesByUnit[unitId] ?? ["teacher"];
+
+  function chooseKind(next: InviteKind) {
+    setKind(next);
+    const options = unitsByKind[next];
+    if (!options.some((unit) => unit.id === unitId)) {
+      setUnitId(options.length === 1 ? options[0].id : "");
+    }
+  }
 
   function submit() {
     startTransition(async () => {
       const result = await attempt(
-        createInvite({ id, name, unitId, role }),
+        createInvite({ id, name, kind, unitId }),
         failed,
       );
       if (!result.ok) {
@@ -57,7 +68,6 @@ export function InviteForm({
     setSent(null);
     setId(crypto.randomUUID());
     setName("");
-    setRole("teacher");
   }
 
   if (sent) {
@@ -84,6 +94,18 @@ export function InviteForm({
       }}
       className="flex flex-col gap-7"
     >
+      {kinds.length > 1 && (
+        <ChoiceChips
+          legend={m.team.kind}
+          name="papel"
+          value={kind}
+          onChange={(value) => chooseKind(value as InviteKind)}
+          options={kinds.map((option) => ({
+            value: option,
+            label: m.team.kinds[option],
+          }))}
+        />
+      )}
       <div className="flex flex-col gap-2">
         <label
           htmlFor="invite-name"
@@ -109,27 +131,18 @@ export function InviteForm({
           </p>
         )}
       </div>
-      <ChoiceChips
-        legend={m.team.unit}
-        name="unit"
-        value={unitId}
-        onChange={(value) => {
-          setUnitId(value);
-          if (!(rolesByUnit[value] ?? []).includes(role)) setRole("teacher");
-        }}
-        options={units.map((unit) => ({ value: unit.id, label: unit.name }))}
-        error={errors.unitId}
-      />
-      {roles.length > 1 && (
+      {kind === "adminGeral" ? (
+        <p className="rounded-2xl bg-card p-4 text-subhead">
+          {m.team.adminGeralInviteHint}
+        </p>
+      ) : (
         <ChoiceChips
-          legend={m.team.role}
-          name="role"
-          value={role}
-          onChange={(value) => setRole(value as UnitRole)}
-          options={roles.map((option) => ({
-            value: option,
-            label: m.roles[option],
-          }))}
+          legend={m.team.unit}
+          name="unit"
+          value={unitId}
+          onChange={setUnitId}
+          options={units.map((unit) => ({ value: unit.id, label: unit.name }))}
+          error={errors.unitId}
         />
       )}
       {errors.form && (

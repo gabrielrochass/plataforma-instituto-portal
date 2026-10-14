@@ -1,19 +1,16 @@
 import { addDays } from "@/lib/dates";
+import { holidaysBetween } from "@/lib/holidays";
 import { m } from "@/lib/i18n";
 
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-export type Slot = { weekday: Weekday; startsAt: string; endsAt: string };
-
-export type Session = { heldOn: string; startsAt: string; endsAt: string };
-
-export type Closure = { startsOn: string; endsOn: string; reason: string };
-
 export const weekdays: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
 
-export const maxSessions = 400;
-
-const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+type ClassDates = {
+  starts_on: string;
+  ends_on: string;
+  weekdays: readonly number[];
+};
 
 export function weekdayOf(isoDate: string): Weekday {
   const [year, month, day] = isoDate.split("-").map(Number);
@@ -21,110 +18,63 @@ export function weekdayOf(isoDate: string): Weekday {
   return (sundayFirst === 0 ? 7 : sundayFirst) as Weekday;
 }
 
-export function minutesOf(time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
+export function listText(items: readonly string[]) {
+  return items.length > 1
+    ? `${items.slice(0, -1).join(", ")} e ${items.at(-1)}`
+    : (items[0] ?? "");
 }
 
-export function isValidSlot(slot: Slot) {
-  return (
-    timePattern.test(slot.startsAt) &&
-    timePattern.test(slot.endsAt) &&
-    minutesOf(slot.endsAt) > minutesOf(slot.startsAt)
+export function weekdaysSummary(days: readonly number[]) {
+  return listText(
+    [...days]
+      .sort((a, b) => a - b)
+      .map((day) => m.schedule.weekdaysShort[day - 1]),
   );
 }
 
-export function generateSessions({
-  startsOn,
-  endsOn,
-  slots,
-  closures,
-  holidays,
-}: {
-  startsOn: string;
-  endsOn: string;
-  slots: readonly Slot[];
-  closures: readonly Closure[];
-  holidays: ReadonlyMap<string, string>;
-}) {
-  const included: Session[] = [];
-  const excluded: { heldOn: string; reason: string }[] = [];
-  const ordered = [...slots].sort(
-    (a, b) =>
-      a.weekday - b.weekday || minutesOf(a.startsAt) - minutesOf(b.startsAt),
-  );
-
-  for (let day = startsOn; day <= endsOn; day = addDays(day, 1)) {
-    const daySlots = ordered.filter((slot) => slot.weekday === weekdayOf(day));
-    if (daySlots.length === 0) continue;
-    const closure = closures.find(
-      (candidate) => candidate.startsOn <= day && day <= candidate.endsOn,
-    );
-    const reason = holidays.get(day) ?? closure?.reason;
-    if (reason) {
-      excluded.push({ heldOn: day, reason });
-      continue;
-    }
-    for (const slot of daySlots) {
-      included.push({
-        heldOn: day,
-        startsAt: slot.startsAt,
-        endsAt: slot.endsAt,
-      });
-    }
-  }
-  return { included, excluded };
-}
-
-export function workloadMinutes(sessions: readonly Session[]) {
-  return sessions.reduce(
-    (total, session) =>
-      total + minutesOf(session.endsAt) - minutesOf(session.startsAt),
-    0,
-  );
-}
-
-export function formatTime(time: string) {
-  const [hours, minutes] = time.split(":");
-  return minutes === "00" ? `${Number(hours)}h` : `${Number(hours)}h${minutes}`;
-}
-
-export function scheduleSummary(slots: readonly Slot[]) {
-  const groups = new Map<string, Weekday[]>();
-  for (const slot of [...slots].sort((a, b) => a.weekday - b.weekday)) {
-    const key = `${slot.startsAt}-${slot.endsAt}`;
-    groups.set(key, [...(groups.get(key) ?? []), slot.weekday]);
-  }
-  return [...groups.entries()]
-    .map(([key, days]) => {
-      const [startsAt, endsAt] = key.split("-");
-      return m.schedule.slot(
-        days.map((day) => m.schedule.weekdaysShort[day - 1]),
-        formatTime(startsAt),
-        formatTime(endsAt),
-      );
-    })
-    .join("; ");
-}
-
-export function planReschedule(
-  existing: readonly (Session & { id: string; locked: boolean })[],
-  generated: readonly Session[],
+export function classDays(
+  row: ClassDates,
   from: string,
+  to: string,
+  holidays: ReadonlyMap<string, string> = holidaysBetween(from, to),
 ) {
-  const key = (session: Session) =>
-    `${session.heldOn} ${session.startsAt} ${session.endsAt}`;
-  const current = new Set(existing.map(key));
-  const wanted = new Set(
-    generated.filter((session) => session.heldOn >= from).map(key),
+  const days: string[] = [];
+  const start = from > row.starts_on ? from : row.starts_on;
+  const end = to < row.ends_on ? to : row.ends_on;
+  for (let day = start; day <= end; day = addDays(day, 1)) {
+    if (row.weekdays.includes(weekdayOf(day)) && !holidays.has(day)) {
+      days.push(day);
+    }
+  }
+  return days;
+}
+
+export function pendingDays(
+  row: ClassDates,
+  taken: ReadonlySet<string>,
+  today: string,
+  lookback = 14,
+) {
+  return classDays(row, addDays(today, -lookback), today).filter(
+    (day) => !taken.has(day),
   );
+}
+
+export function suggestedDay(row: ClassDates, today: string) {
+  if (today < row.starts_on) return row.starts_on;
+  const until = today < row.ends_on ? today : row.ends_on;
+  return classDays(row, addDays(until, -14), until).at(-1) ?? until;
+}
+
+export function attendanceOverview(
+  row: ClassDates,
+  taken: ReadonlySet<string>,
+  today: string,
+) {
+  const classToday = classDays(row, today, today).length > 0;
   return {
-    removed: existing.filter(
-      (session) =>
-        session.heldOn >= from && !session.locked && !wanted.has(key(session)),
-    ),
-    added: generated.filter(
-      (session) => session.heldOn >= from && !current.has(key(session)),
-    ),
+    classToday,
+    takenToday: taken.has(today),
+    pending: pendingDays(row, taken, today).filter((day) => day < today),
   };
 }

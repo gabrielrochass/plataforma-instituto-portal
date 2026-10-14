@@ -15,12 +15,21 @@ const personName = z
 
 const role = z.enum(Constants.public.Enums.unit_role);
 
-export const inviteInput = z.object({
-  id: z.uuid(),
-  name: personName,
-  unitId: z.uuid(m.team.unitRequired),
-  role,
-});
+export const inviteKinds = ["teacher", "unitAdmin", "adminGeral"] as const;
+
+export type InviteKind = (typeof inviteKinds)[number];
+
+export const inviteInput = z
+  .object({
+    id: z.uuid(),
+    name: personName,
+    kind: z.enum(inviteKinds),
+    unitId: z.union([z.literal(""), z.uuid()]),
+  })
+  .refine((value) => value.kind === "adminGeral" || value.unitId !== "", {
+    message: m.team.unitRequired,
+    path: ["unitId"],
+  });
 
 export type InviteInput = z.infer<typeof inviteInput>;
 

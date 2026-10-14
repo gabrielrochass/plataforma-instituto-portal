@@ -1,5 +1,4 @@
 import {
-  CalendarXIcon,
   ChevronRightIcon,
   CircleAlertIcon,
   CircleCheckIcon,
@@ -10,129 +9,55 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import type { AbsenceAlert, PendingSession } from "@/lib/data/attendance";
-import { formatDate } from "@/lib/dates";
+import type { AbsenceAlert } from "@/lib/data/attendance";
 import { m } from "@/lib/i18n";
 import { telHref, whatsappHref } from "@/lib/people";
-import { formatTime } from "@/lib/schedule";
-import { cn } from "@/lib/utils";
 
-export type TodaySession = {
-  session_id: string;
-  class_id: string;
-  class_name: string;
-  unit_code: string;
-  starts_at: string;
-  ends_at: string;
-  taken: boolean;
-  cancelled: boolean;
-  present: number;
-  absent: number;
+export type ClassDay = {
+  classId: string;
+  name: string;
+  unitCode: string;
+  takenToday: boolean;
+  pending: number;
 };
 
-function chamadaHref(classId: string, sessionId: string) {
-  return `/turmas/${classId}/chamada/${sessionId}` as Route;
-}
-
-export function TodaySessions({
-  sessions,
-}: {
-  sessions: readonly TodaySession[];
-}) {
-  return (
-    <ul className="flex flex-col gap-3">
-      {sessions.map((session) => (
-        <li
-          key={session.session_id}
-          className="flex flex-col gap-3 rounded-2xl bg-card p-4"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col">
-              <span className="text-footnote text-muted-foreground tabular-nums">
-                {m.classes.timeRange(
-                  formatTime(session.starts_at),
-                  formatTime(session.ends_at),
-                )}
-              </span>
-              <span className="text-headline font-semibold">
-                {session.class_name}
-              </span>
-            </div>
-            <span className="shrink-0 rounded-md bg-secondary px-2 py-0.5 text-caption font-semibold">
-              {session.unit_code}
-            </span>
-          </div>
-          {session.cancelled ? (
-            <p className="inline-flex items-center gap-1.5 text-footnote text-muted-foreground">
-              <CalendarXIcon aria-hidden="true" className="size-4" />
-              {m.attendance.cancelledSession}
-            </p>
-          ) : session.taken ? (
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="inline-flex items-center gap-1.5 text-footnote font-medium text-success">
-                <CircleCheckIcon aria-hidden="true" className="size-4" />
-                {m.attendance.done(session.present, session.absent)}
-              </p>
-              <Link
-                href={chamadaHref(session.class_id, session.session_id)}
-                className={buttonVariants({ variant: "secondary", size: "lg" })}
-              >
-                {m.attendance.view}
-              </Link>
-            </div>
-          ) : (
-            <Link
-              href={chamadaHref(session.class_id, session.session_id)}
-              className={cn(buttonVariants({ size: "lg" }), "h-12 text-body")}
-            >
-              <ClipboardCheckIcon aria-hidden="true" />
-              {m.attendance.take}
-            </Link>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export function PendingSessions({
-  sessions,
-  today,
-}: {
-  sessions: readonly PendingSession[];
-  today: string;
-}) {
+export function ClassDayList({ items }: { items: readonly ClassDay[] }) {
   return (
     <ul className="divide-y overflow-hidden rounded-2xl bg-card">
-      {sessions.map((session) => (
-        <li key={session.session_id}>
-          <Link
-            href={chamadaHref(session.class_id, session.session_id)}
-            className="flex min-h-15 items-center gap-3 px-4 py-2 hover:bg-muted/60 focus-visible:-outline-offset-2!"
-          >
-            <CircleAlertIcon
-              aria-hidden="true"
-              className="size-5 shrink-0 text-warning"
-            />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="text-body font-medium">
-                {session.class_name}
+      {items.map((item) => {
+        const Icon = item.takenToday ? CircleCheckIcon : ClipboardCheckIcon;
+        return (
+          <li key={item.classId}>
+            <Link
+              href={`/turmas/${item.classId}/chamada` as Route}
+              className="flex min-h-15 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/60 focus-visible:-outline-offset-2!"
+            >
+              <Icon aria-hidden="true" className="size-5 shrink-0" />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="text-body font-medium">{item.name}</span>
+                <span className="text-footnote text-muted-foreground">
+                  {[
+                    item.unitCode,
+                    item.takenToday ? m.attendance.saved : null,
+                    item.pending > 0
+                      ? m.attendance.pendingDays(item.pending)
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
               </span>
-              <span className="text-footnote text-muted-foreground tabular-nums">
-                {`${m.classes.sessionLine(
-                  formatDate(session.held_on, today),
-                  formatTime(session.starts_at),
-                  formatTime(session.ends_at),
-                )}. ${m.attendance.pending}`}
+              <span className="text-subhead font-medium text-link">
+                {item.takenToday ? m.attendance.view : m.attendance.take}
               </span>
-            </span>
-            <ChevronRightIcon
-              aria-hidden="true"
-              className="size-5 shrink-0 text-muted-foreground"
-            />
-          </Link>
-        </li>
-      ))}
+              <ChevronRightIcon
+                aria-hidden="true"
+                className="size-5 shrink-0 text-muted-foreground"
+              />
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }

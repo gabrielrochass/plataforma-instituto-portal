@@ -29,13 +29,13 @@ export type ImpactReport = {
   dropped_out: number;
   attended: number;
   recorded: number;
-  minutes: number;
+  hours: number;
   requests: number;
   requests_converted: number;
   requests_completed: number;
   exit_reasons: Counts;
   monthly: ImpactMonth[];
-  by_course: ImpactGroup[];
+  by_class: ImpactGroup[];
   by_unit: ImpactGroup[];
   profiled: number;
   age: Counts;
@@ -90,10 +90,6 @@ export function resolvePeriod(value: unknown, today: string): Period {
 
 export function percent(part: number, whole: number) {
   return whole > 0 ? Math.round((part / whole) * 100) : null;
-}
-
-export function hoursOf(minutes: number) {
-  return Math.round(minutes / 60);
 }
 
 export function orderedCounts(counts: Counts, order: readonly string[]) {

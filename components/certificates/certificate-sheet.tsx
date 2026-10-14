@@ -29,7 +29,7 @@ export function CertificateSheet({
           </p>
           <p className="max-w-[80cqw] text-[1.9cqw] leading-relaxed text-balance">
             {c.completed(
-              certificate.course_name,
+              certificate.class_name,
               certificate.workload_hours,
               formatFullDate(certificate.starts_on),
               formatFullDate(certificate.ends_on),

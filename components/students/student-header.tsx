@@ -55,7 +55,11 @@ export function StudentHeader({
       </Link>
       <header className="flex flex-col gap-4 pb-6">
         <div className="flex items-start gap-4">
-          <PersonAvatar name={name} className="size-16 text-title3" />
+          <PersonAvatar
+            name={name}
+            photo={student.photo}
+            className="size-16 text-title3"
+          />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <h1 className="text-title1 font-bold tracking-tight text-balance">
               {name}

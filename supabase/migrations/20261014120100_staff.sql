@@ -32,14 +32,16 @@ create table private.staff_invites (
   id uuid primary key,
   token_hash text not null unique check (token_hash ~ '^[0-9a-f]{64}$'),
   display_name text not null check (char_length(display_name) between 1 and 80 and display_name = btrim(display_name) and display_name !~ '[[:cntrl:]]'),
-  unit_id uuid not null references public.units,
+  unit_id uuid references public.units,
   role public.unit_role not null,
+  admin_geral boolean not null default false,
   created_by uuid references public.profiles on delete set null,
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default now() + interval '7 days',
   accepted_at timestamptz,
   accepted_by uuid references public.profiles on delete set null,
-  revoked_at timestamptz
+  revoked_at timestamptz,
+  check (admin_geral or unit_id is not null)
 );
 
 create index staff_invites_unit_idx on private.staff_invites (unit_id) where accepted_at is null and revoked_at is null;
@@ -177,7 +179,8 @@ create function public.create_invite(
   p_token_hash text,
   p_display_name text,
   p_unit_id uuid,
-  p_role public.unit_role
+  p_role public.unit_role,
+  p_admin_geral boolean default false
 )
 returns void
 language plpgsql
@@ -185,13 +188,21 @@ security definer
 set search_path = ''
 as $$
 begin
-  if p_unit_id not in (select private.admin_unit_ids())
+  if p_admin_geral then
+    if not (select private.is_admin_geral()) then
+      raise exception 'not allowed' using errcode = '42501';
+    end if;
+  elsif p_unit_id is null
+    or p_unit_id not in (select private.admin_unit_ids())
     or (p_role = 'admin' and not (select private.is_admin_geral())) then
     raise exception 'not allowed' using errcode = '42501';
   end if;
 
-  insert into private.staff_invites (id, token_hash, display_name, unit_id, role, created_by)
-  values (p_id, p_token_hash, btrim(p_display_name), p_unit_id, p_role, (select auth.uid()))
+  insert into private.staff_invites (id, token_hash, display_name, unit_id, role, admin_geral, created_by)
+  values (
+    p_id, p_token_hash, btrim(p_display_name), case when p_admin_geral then null else p_unit_id end,
+    case when p_admin_geral then 'admin' else p_role end, p_admin_geral, (select auth.uid())
+  )
   on conflict (id) do nothing;
 end;
 $$;
@@ -207,7 +218,7 @@ begin
   set revoked_at = now()
   where id = p_id
     and accepted_at is null
-    and unit_id in (select private.admin_unit_ids());
+    and (unit_id in (select private.admin_unit_ids()) or (admin_geral and (select private.is_admin_geral())));
   if not found then
     raise exception 'not allowed' using errcode = '42501';
   end if;
@@ -220,6 +231,7 @@ returns table (
   display_name text,
   unit_id uuid,
   role public.unit_role,
+  admin_geral boolean,
   created_at timestamptz,
   expires_at timestamptz
 )
@@ -228,25 +240,25 @@ stable
 security definer
 set search_path = ''
 as $$
-  select i.id, i.display_name, i.unit_id, i.role, i.created_at, i.expires_at
+  select i.id, i.display_name, i.unit_id, i.role, i.admin_geral, i.created_at, i.expires_at
   from private.staff_invites i
   where i.accepted_at is null
     and i.revoked_at is null
     and i.expires_at > now()
-    and i.unit_id in (select private.admin_unit_ids())
+    and (i.unit_id in (select private.admin_unit_ids()) or (i.admin_geral and (select private.is_admin_geral())))
   order by i.created_at desc
 $$;
 
 create function public.invite_info(p_token_hash text)
-returns table (display_name text, unit_name text, role public.unit_role)
+returns table (display_name text, unit_name text, role public.unit_role, admin_geral boolean)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select i.display_name, u.name, i.role
+  select i.display_name, u.name, i.role, i.admin_geral
   from private.staff_invites i
-  join public.units u on u.id = i.unit_id
+  left join public.units u on u.id = i.unit_id
   where i.token_hash = p_token_hash
     and i.accepted_at is null
     and i.revoked_at is null
@@ -281,10 +293,14 @@ begin
     raise exception 'invite used' using errcode = '22023';
   end if;
 
-  insert into public.staff_memberships (user_id, unit_id, role)
-  values (me, invite.unit_id, invite.role)
-  on conflict (user_id, unit_id) do update
-    set role = case when excluded.role = 'admin' then excluded.role else public.staff_memberships.role end;
+  if invite.admin_geral then
+    update public.profiles set is_admin_geral = true where id = me;
+  else
+    insert into public.staff_memberships (user_id, unit_id, role)
+    values (me, invite.unit_id, invite.role)
+    on conflict (user_id, unit_id) do update
+      set role = case when excluded.role = 'admin' then excluded.role else public.staff_memberships.role end;
+  end if;
 
   update private.staff_invites set accepted_at = now(), accepted_by = me where id = invite.id;
   return invite.unit_id;
@@ -498,7 +514,7 @@ grant execute on function private.admin_unit_ids() to authenticated;
 grant execute on function private.is_staff() to authenticated;
 grant execute on function private.manages_member(uuid) to authenticated;
 
-grant execute on function public.create_invite(uuid, text, text, uuid, public.unit_role) to authenticated;
+grant execute on function public.create_invite(uuid, text, text, uuid, public.unit_role, boolean) to authenticated;
 grant execute on function public.revoke_invite(uuid) to authenticated;
 grant execute on function public.pending_invites() to authenticated;
 grant execute on function public.accept_invite(text) to authenticated;

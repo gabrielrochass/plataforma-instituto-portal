@@ -1,4 +1,9 @@
-import { CalendarClockIcon, ClockIcon, MapPinIcon } from "lucide-react";
+import {
+  CalendarClockIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  MapPinIcon,
+} from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { PublicHeader } from "@/components/brand/public-header";
@@ -6,6 +11,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getOpenOffers } from "@/lib/data/requests";
 import { formatFullDate } from "@/lib/dates";
 import { m } from "@/lib/i18n";
+import { weekdaysSummary } from "@/lib/schedule";
 
 export const metadata: Metadata = {
   title: m.requests.publicTitle,
@@ -32,11 +38,15 @@ export default async function PublicOffersPage() {
               key={offer.id}
               className="flex flex-col gap-3 rounded-2xl bg-card p-5"
             >
-              <h2 className="text-title3 font-semibold">{offer.course_name}</h2>
+              <h2 className="text-title3 font-semibold">{offer.class_name}</h2>
               <p className="flex flex-wrap gap-x-4 gap-y-1 text-subhead text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <MapPinIcon aria-hidden="true" className="size-4" />
                   {offer.unit_name}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDaysIcon aria-hidden="true" className="size-4" />
+                  {`${weekdaysSummary(offer.weekdays)}. ${m.classes.periodRange(formatFullDate(offer.starts_on), formatFullDate(offer.ends_on))}`}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <ClockIcon aria-hidden="true" className="size-4" />
@@ -49,15 +59,15 @@ export default async function PublicOffersPage() {
                   </span>
                 )}
               </p>
-              {(offer.description ?? offer.course_description) && (
+              {offer.description && (
                 <p className="text-body whitespace-pre-line">
-                  {offer.description ?? offer.course_description}
+                  {offer.description}
                 </p>
               )}
               <Link
                 href={`/inscricao/${offer.id}` as Route}
                 aria-label={m.requests.applyFor(
-                  offer.course_name,
+                  offer.class_name,
                   offer.unit_name,
                 )}
                 className={buttonVariants({

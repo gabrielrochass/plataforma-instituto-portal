@@ -4,7 +4,6 @@ import { expectNoAxeViolations } from "./axe";
 import {
   addDays,
   createClass,
-  createCourse,
   newPage,
   registerMinor,
   signIn,
@@ -17,9 +16,7 @@ test("coordination keeps a versioned social profile with consent and audit", asy
 }) => {
   test.slow();
   await signIn(page, unique("admin-ra"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  const classId = await createClass(page, course, `Social ${Date.now()}`);
+  const classId = await createClass(page, `Social ${Date.now()}`);
   const name = `Iara ${Date.now()}`;
   const studentId = await registerMinor(page, classId, name);
   await expect(page.getByText("Ficha social pendente")).toBeVisible();
@@ -90,12 +87,10 @@ test("coordination keeps a versioned social profile with consent and audit", asy
 test("teachers never reach the social profile", async ({ page, browser }) => {
   test.slow();
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
   await admin.context().close();
 
   await signIn(page, unique("prof-ra"), "/");
-  const classId = await createClass(page, course, `Prof ${Date.now()}`);
+  const classId = await createClass(page, `Prof ${Date.now()}`);
   const studentId = await registerMinor(page, classId, `Rui ${Date.now()}`);
   await expect(page.getByRole("link", { name: "Ficha social" })).toHaveCount(0);
   for (const path of ["ficha", "dados", "ficha/nova"]) {
@@ -109,9 +104,7 @@ test("teachers never reach the social profile", async ({ page, browser }) => {
 test("admin geral anonymizes on request", async ({ page }) => {
   test.slow();
   await signIn(page, unique("admin-geral"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  const classId = await createClass(page, course, `Anon ${Date.now()}`);
+  const classId = await createClass(page, `Anon ${Date.now()}`);
   const studentId = await registerMinor(page, classId, `Zoe ${Date.now()}`);
   await page.goto(`/alunos/${studentId}/dados`);
   await page.getByRole("button", { name: "Anonimizar" }).click();

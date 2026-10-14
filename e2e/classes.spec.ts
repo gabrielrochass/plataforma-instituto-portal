@@ -1,35 +1,22 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
-import {
-  createClass,
-  createCourse,
-  newPage,
-  registerMinor,
-  signIn,
-  unique,
-} from "./helpers";
+import { createClass, newPage, registerMinor, signIn, unique } from "./helpers";
 
-test("a coordinator opens a course and a class in five steps", async ({
-  page,
-}) => {
+test("a coordinator opens a class in one screen", async ({ page }) => {
   test.slow();
-  await signIn(page, unique("admin-ra"), "/ajustes");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  await expect(
-    page.getByRole("link", { name: new RegExp(course) }),
-  ).toContainText("Aprovado quem tiver média 6 ou mais");
+  await signIn(page, unique("admin-ra"), "/");
   const name = `Turma ${Date.now()}`;
-  const classId = await createClass(page, course, name, {
+  const classId = await createClass(page, name, {
     check: true,
     concepts: true,
   });
-  await expect(page.getByText("Seg, Qua e Sex, 8h às 10h")).toBeVisible();
+  await expect(page.getByText("Seg, Qua e Sex")).toBeVisible();
+  await expect(page.getByText("8 horas")).toBeVisible();
   await expect(page.getByText(/Aprovado quem tiver conceito/)).toBeVisible();
   await expectNoAxeViolations(page);
 
-  await page.getByRole("link", { name: "Aulas" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}/aulas`);
+  await page.getByRole("link", { name: "Chamadas" }).click();
+  await expect(page).toHaveURL(`/turmas/${classId}/chamadas`);
   await expectNoAxeViolations(page);
 
   await page.goto("/turmas");
@@ -44,12 +31,10 @@ test("a teacher registers a minor in their class and only sees the classroom sum
 }) => {
   test.slow();
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
   await admin.context().close();
 
   await signIn(page, unique("prof-ra"), "/");
-  const classId = await createClass(page, course, `Turma ${Date.now()}`);
+  const classId = await createClass(page, `Turma ${Date.now()}`);
   const studentName = `Maria ${Date.now()}`;
   const studentId = await registerMinor(page, classId, studentName);
 
@@ -86,12 +71,10 @@ test("a transfer keeps both classes in the student history", async ({
 }) => {
   test.slow();
   await signIn(page, unique("admin-ra"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
   const from = `Origem ${Date.now()}`;
   const to = `Destino ${Date.now()}`;
-  const fromId = await createClass(page, course, from);
-  await createClass(page, course, to);
+  const fromId = await createClass(page, from);
+  await createClass(page, to);
   const studentName = `Pedro ${Date.now()}`;
   const studentId = await registerMinor(page, fromId, studentName);
 
@@ -125,9 +108,7 @@ test("a transfer keeps both classes in the student history", async ({
 test("a drop out can be undone right away", async ({ page }) => {
   test.slow();
   await signIn(page, unique("admin-bv"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  const classId = await createClass(page, course, `Turma ${Date.now()}`);
+  const classId = await createClass(page, `Turma ${Date.now()}`);
   const studentName = `Lia ${Date.now()}`;
   await registerMinor(page, classId, studentName);
 
@@ -153,9 +134,7 @@ test("a drop out can be undone right away", async ({ page }) => {
 test("students search ignores accents", async ({ page }) => {
   test.slow();
   await signIn(page, unique("admin-ra"), "/");
-  const course = unique("Curso");
-  await createCourse(page, course);
-  const classId = await createClass(page, course, `Turma ${Date.now()}`);
+  const classId = await createClass(page, `Turma ${Date.now()}`);
   const stamp = Date.now();
   await registerMinor(page, classId, `João Acentuado ${stamp}`);
   await page.goto("/alunos");
@@ -174,9 +153,7 @@ test("another unit cannot open the class or the student", async ({
 }) => {
   test.slow();
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
-  const classId = await createClass(admin, course, `Turma ${Date.now()}`);
+  const classId = await createClass(admin, `Turma ${Date.now()}`);
   const studentId = await registerMinor(admin, classId, `Rui ${Date.now()}`);
   await admin.context().close();
 

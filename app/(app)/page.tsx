@@ -9,20 +9,12 @@ import type { Route } from "next";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { LinkList, type ListLink } from "@/components/app-shell/link-list";
 import { PageHeader } from "@/components/app-shell/page-header";
-import {
-  AlertList,
-  PendingSessions,
-  TodaySessions,
-} from "@/components/attendance/session-lists";
+import { AlertList, ClassDayList } from "@/components/attendance/session-lists";
 import { classPhase } from "@/lib/class-phase";
 import { getAnnouncements } from "@/lib/data/announcements";
-import {
-  getAbsenceAlerts,
-  getHomeCounts,
-  getPendingSessions,
-  getTodaySessions,
-} from "@/lib/data/attendance";
+import { getAbsenceAlerts, getHomeCounts } from "@/lib/data/attendance";
 import { getClasses } from "@/lib/data/classes";
+import { getClassDays } from "@/lib/data/overview";
 import { getRequests } from "@/lib/data/requests";
 import { getViewer } from "@/lib/data/viewer";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
@@ -33,10 +25,10 @@ export default async function HomePage() {
   const viewer = await getViewer();
   const admin = can.manageTeam(viewer);
   const today = todayInRecife();
-  const [sessions, pending, alerts, classes, counts, requests, announcements] =
+  const [mine, all, alerts, classes, counts, requests, announcements] =
     await Promise.all([
-      viewer.teaches ? getTodaySessions() : [],
-      getPendingSessions(),
+      viewer.teaches ? getClassDays(today, viewer.id) : [],
+      admin ? getClassDays(today, null) : [],
       getAbsenceAlerts(),
       admin ? getClasses() : [],
       admin ? getHomeCounts() : null,
@@ -46,8 +38,10 @@ export default async function HomePage() {
   const unread = announcements.filter((item) => !item.read_at).length;
   const newRequests = requests.filter((row) => row.status === "pending").length;
   const firstName = viewer.name?.split(" ")[0] ?? null;
-  const late = pending.filter((session) => session.held_on < today);
-  const myLate = late.filter((session) => session.teaches);
+  const todays = mine.filter((item) => item.classToday);
+  const myLate = mine.filter((item) => !item.classToday && item.pending > 0);
+  const lateCount = all.reduce((total, item) => total + item.pending, 0);
+  const late = all.filter((item) => item.pending > 0);
   const toClose = classes.filter(
     (row) => row.manageable && classPhase(row, today) === "toClose",
   );
@@ -117,7 +111,7 @@ export default async function HomePage() {
                 [m.home.activeStudents, counts.active_students],
                 [m.home.currentClasses, current.length],
                 [m.home.alerts, alerts.length],
-                [m.home.lateSessions, late.length],
+                [m.home.lateSessions, lateCount],
               ].map(([label, value]) => (
                 <div
                   key={String(label)}
@@ -140,12 +134,12 @@ export default async function HomePage() {
             <h2 id="hoje" className="px-1 text-title3 font-semibold">
               {m.home.today}
             </h2>
-            {sessions.length === 0 ? (
+            {todays.length === 0 ? (
               <p className="rounded-2xl bg-card p-4 text-subhead text-muted-foreground">
                 {m.home.noClassesToday}
               </p>
             ) : (
-              <TodaySessions sessions={sessions} />
+              <ClassDayList items={todays} />
             )}
           </section>
         )}
@@ -155,7 +149,7 @@ export default async function HomePage() {
             <h2 id="atrasadas" className="px-1 text-title3 font-semibold">
               {m.home.late}
             </h2>
-            <PendingSessions sessions={admin ? late : myLate} today={today} />
+            <ClassDayList items={admin ? late : myLate} />
           </section>
         )}
 

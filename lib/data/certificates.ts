@@ -8,7 +8,7 @@ export const getCertificates = cache(async (classId: string) => {
   const { data, error } = await supabase
     .from("certificates")
     .select(
-      "id, code, student_id, student_name, course_name, unit_name, workload_hours, starts_on, ends_on, issued_on, revoked_at, revoke_reason",
+      "id, code, student_id, student_name, class_name, unit_name, workload_hours, starts_on, ends_on, issued_on, revoked_at, revoke_reason",
     )
     .eq("class_id", classId)
     .order("student_name")

@@ -28,19 +28,23 @@ export default async function RequestPage({
   const offer = request.enrollment_offers;
   const today = todayInRecife();
   const name = displayName(request);
-  const course = offer.courses?.name ?? "";
+  const course = offer.classes?.name ?? "";
   const [classes, matches] = await Promise.all([
     getClasses(),
     findStudents(request.full_name),
   ]);
-  const openClasses = classes.filter(
-    (row) =>
-      row.course_id === offer.course_id &&
-      row.unit_id === offer.unit_id &&
-      row.status === "open" &&
-      row.operable &&
-      row.ends_on >= today,
-  );
+  const openClasses = classes
+    .filter(
+      (row) =>
+        row.unit_id === offer.unit_id &&
+        row.status === "open" &&
+        row.operable &&
+        row.ends_on >= today,
+    )
+    .sort(
+      (a, b) =>
+        Number(b.id === offer.class_id) - Number(a.id === offer.class_id),
+    );
   const details = [
     [
       m.requests.birthDate,
@@ -121,6 +125,7 @@ export default async function RequestPage({
                   <ConvertRequest
                     requestId={request.id}
                     name={name}
+                    defaultClassId={offer.class_id}
                     classes={openClasses.map((row) => ({
                       id: row.id,
                       label: row.name,

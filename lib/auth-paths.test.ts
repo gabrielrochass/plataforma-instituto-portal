@@ -16,7 +16,7 @@ describe("isPublicPath", () => {
 
   it("keeps the app private", () => {
     expect(isPublicPath("/")).toBe(false);
-    expect(isPublicPath("/ajustes/conta")).toBe(false);
+    expect(isPublicPath("/conta")).toBe(false);
     expect(isPublicPath("/turmas")).toBe(false);
   });
 });

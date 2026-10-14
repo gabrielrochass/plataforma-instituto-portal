@@ -150,7 +150,7 @@ export type StudentUpdateInput = z.input<typeof studentUpdateInput>;
 export const transferInput = z.object({
   enrollmentId: z.uuid(),
   newEnrollmentId: z.uuid(),
-  toClassId: z.uuid(m.wizard.errors.course),
+  toClassId: z.uuid(m.enrollment.transferTo),
   on: isoDate,
   reason: z.enum(Constants.public.Enums.exit_reason),
 });

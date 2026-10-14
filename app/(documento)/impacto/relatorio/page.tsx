@@ -28,11 +28,11 @@ export default async function ImpactReportPage({
   const monthly = monthlyBars(report, impact.today);
   const query = new URLSearchParams({ periodo: period.key });
   if (impact.unitId) query.set("unidade", impact.unitId);
-  if (impact.courseId) query.set("curso", impact.courseId);
+  if (impact.classId) query.set("turma", impact.classId);
   const scope = [
     period.key === lastTwelveMonths ? m.impact.lastTwelveMonths : period.key,
     impact.unit?.name ?? m.impact.allUnits,
-    impact.course?.name ?? m.impact.allCourses,
+    impact.selectedClass?.name ?? m.impact.allClasses,
   ].join(", ");
 
   return (

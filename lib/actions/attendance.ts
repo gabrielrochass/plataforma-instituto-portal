@@ -14,7 +14,6 @@ import {
   type AttendanceInput,
   attendanceInput,
   type CaseNoteInput,
-  cancelSessionInput,
   caseNoteInput,
 } from "@/lib/schemas/attendance";
 import { createClient } from "@/lib/supabase/server";
@@ -24,48 +23,30 @@ export async function takeAttendance(
 ): Promise<ActionResult> {
   const parsed = attendanceInput.safeParse(input);
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
-  const { sessionId, topic, marks } = parsed.data;
+  const { classId, day, presentIds, note } = parsed.data;
   await getViewer();
   const supabase = await createClient();
   const { error } = await supabase.rpc("take_attendance", {
-    p_session_id: sessionId,
-    p_topic: topic ?? undefined,
-    p_marks: marks.map((mark) => ({
-      enrollment_id: mark.enrollmentId,
-      status: mark.status,
-      note: mark.note,
-    })),
+    p_class_id: classId,
+    p_held_on: day,
+    p_present: presentIds,
+    p_note: note ?? undefined,
   });
-  if (error) return failureFor(error);
-  refresh();
-  return { ok: true };
-}
-
-export async function cancelSession(
-  sessionId: string,
-  reason: string,
-): Promise<ActionResult> {
-  const parsed = cancelSessionInput.safeParse({ sessionId, reason });
-  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
-  await getViewer();
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("cancel_session", {
-    p_session_id: parsed.data.sessionId,
-    p_reason: parsed.data.reason,
-  });
-  if (error?.code === "55000") {
-    return { ok: false, message: m.attendance.cannotCancel };
+  if (error?.code === "22023") {
+    return { ok: false, errors: { day: [m.attendance.dayOutside] } };
   }
   if (error) return failureFor(error);
   refresh();
   return { ok: true };
 }
 
-export async function restoreSession(sessionId: string): Promise<ActionResult> {
+export async function deleteAttendance(
+  sessionId: string,
+): Promise<ActionResult> {
   if (!z.uuid().safeParse(sessionId).success) return failure;
   await getViewer();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("restore_session", {
+  const { error } = await supabase.rpc("delete_attendance", {
     p_session_id: sessionId,
   });
   if (error) return failureFor(error);

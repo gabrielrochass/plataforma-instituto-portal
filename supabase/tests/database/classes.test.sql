@@ -1,5 +1,5 @@
 begin;
-select plan(17);
+select plan(13);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('22222222-2222-4222-8222-222222222222', 'adm-ra@test.local', '{"full_name": "Rita"}'),
@@ -15,72 +15,44 @@ insert into public.staff_memberships (user_id, unit_id, role) values
 
 set local role authenticated;
 
-set local request.jwt.claims = '{"sub": "22222222-2222-4222-8222-222222222222", "role": "authenticated"}';
-select lives_ok(
-  $$ insert into public.courses (id, name, workload_hours) values ('c0000000-0000-4000-8000-000000000001', 'Programação', 60) $$,
-  'a unit admin adds a course'
-);
-select throws_ok(
-  $$ insert into public.courses (name, workload_hours, grading_scheme, passing_score) values ('Errado', 10, 'numeric_10', 60) $$,
-  '23514', null, 'the passing score must fit the scale'
-);
-select throws_ok(
-  $$ insert into public.courses (name, workload_hours, grading_scheme, passing_score, concept_labels, concept_passing)
-     values ('Conceitos', 10, 'concept', null, array['Bom', 'bom'], 1) $$,
-  '23514', null, 'concept labels must be unique'
-);
-
 set local request.jwt.claims = '{"sub": "44444444-4444-4444-8444-444444444444", "role": "authenticated"}';
-select throws_ok(
-  $$ insert into public.courses (name, workload_hours) values ('Inglês', 40) $$,
-  '42501', null, 'a teacher cannot add courses'
-);
 select lives_ok(
   $$ select public.create_class(
        p_id => 'c1000000-0000-4000-8000-000000000001',
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000001',
        p_name => ' Python Manhã ',
        p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
+       p_weekdays => '{2,4}',
+       p_workload_hours => 60::smallint,
        p_capacity => 20::smallint,
        p_teacher_ids => array['55555555-5555-4555-8555-555555555555']::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[{"held_on": "2026-10-06", "starts_at": "08:00", "ends_at": "10:00"},
-         {"held_on": "2026-10-13", "starts_at": "08:00", "ends_at": "10:00"}]'
+       p_min_attendance => 75::smallint
      ) $$,
   'a teacher creates a class in their unit'
 );
 select lives_ok(
   $$ select public.create_class(
        p_id => 'c1000000-0000-4000-8000-000000000001',
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000001',
-       p_name => 'Python Manhã',
+       p_name => 'Outro nome',
        p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
-       p_capacity => 20::smallint,
+       p_weekdays => '{2}',
+       p_workload_hours => 60::smallint,
        p_teacher_ids => '{}'::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[{"held_on": "2026-10-20", "starts_at": "08:00", "ends_at": "10:00"}]'
+       p_min_attendance => 75::smallint
      ) $$,
   'creating the same class again is harmless'
 );
 select is(
-  (select name from public.classes where id = 'c1000000-0000-4000-8000-000000000001'),
-  'Python Manhã',
-  'the class name is trimmed'
-);
-select is(
-  (select count(*)::int from public.class_sessions where class_id = 'c1000000-0000-4000-8000-000000000001'),
-  2,
-  'the chosen sessions are saved once'
+  (select name || '|' || weekdays::text || '|' || workload_hours from public.classes where id = 'c1000000-0000-4000-8000-000000000001'),
+  'Python Manhã|{2,4}|60',
+  'the class keeps the first save, trimmed'
 );
 select is(
   (select array_agg(user_id order by user_id) from public.class_teachers where class_id = 'c1000000-0000-4000-8000-000000000001'),
@@ -90,91 +62,120 @@ select is(
 select throws_ok(
   $$ select public.create_class(
        p_id => gen_random_uuid(),
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000002',
        p_name => 'Outra',
        p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
+       p_weekdays => '{2}',
+       p_workload_hours => 40::smallint,
        p_teacher_ids => '{}'::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[]'
+       p_min_attendance => 75::smallint
      ) $$,
   '42501', null, 'a teacher cannot create a class in another unit'
 );
 select throws_ok(
   $$ select public.create_class(
        p_id => gen_random_uuid(),
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000001',
        p_name => 'Fora',
        p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
+       p_weekdays => '{2}',
+       p_workload_hours => 40::smallint,
        p_teacher_ids => array['66666666-6666-4666-8666-666666666666']::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[]'
+       p_min_attendance => 75::smallint
      ) $$,
   '23514', null, 'a teacher from another unit cannot be assigned'
 );
 select throws_ok(
   $$ select public.create_class(
        p_id => gen_random_uuid(),
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000001',
-       p_name => 'Horário ruim',
+       p_name => 'Dia errado',
        p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "10:00", "ends_at": "08:00"}]',
+       p_weekdays => '{8}',
+       p_workload_hours => 40::smallint,
        p_teacher_ids => '{}'::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[]'
+       p_min_attendance => 75::smallint
      ) $$,
-  '23514', null, 'a schedule must end after it starts'
+  '23514', null, 'weekdays go from 1 to 7'
 );
 select throws_ok(
   $$ select public.create_class(
        p_id => gen_random_uuid(),
-       p_course_id => 'c0000000-0000-4000-8000-000000000001',
        p_unit_id => '0a000000-0000-4000-8000-000000000001',
-       p_name => 'Aula fora',
+       p_name => 'Nota errada',
        p_starts_on => '2026-10-01',
-       p_ends_on => '2026-10-31',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
+       p_ends_on => '2026-12-18',
+       p_weekdays => '{2}',
+       p_workload_hours => 40::smallint,
        p_teacher_ids => '{}'::uuid[],
        p_grading_scheme => 'numeric_10',
-       p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_sessions => '[{"held_on": "2026-11-03", "starts_at": "08:00", "ends_at": "10:00"}]'
+       p_passing_score => 60,
+       p_min_attendance => 75::smallint
      ) $$,
-  '22023', null, 'sessions must fall inside the class period'
+  '23514', null, 'the passing score must fit the scale'
 );
 select throws_ok(
   $$ update public.classes set unit_id = '0a000000-0000-4000-8000-000000000002' $$,
   '42501', null, 'classes are never moved directly'
 );
 
+reset role;
+insert into public.class_sessions (class_id, held_on) values ('c1000000-0000-4000-8000-000000000001', '2026-10-06');
+set local role authenticated;
+select throws_ok(
+  $$ select public.update_class(
+       p_id => 'c1000000-0000-4000-8000-000000000001',
+       p_name => 'Python Manhã',
+       p_starts_on => '2026-10-10',
+       p_ends_on => '2026-12-18',
+       p_weekdays => '{2}',
+       p_workload_hours => 60::smallint,
+       p_teacher_ids => '{}'::uuid[],
+       p_grading_scheme => 'numeric_10',
+       p_passing_score => 6,
+       p_min_attendance => 75::smallint
+     ) $$,
+  '23514', null, 'the period cannot leave attendance out'
+);
+select lives_ok(
+  $$ select public.update_class(
+       p_id => 'c1000000-0000-4000-8000-000000000001',
+       p_name => 'Python Tarde',
+       p_starts_on => '2026-10-01',
+       p_ends_on => '2026-12-20',
+       p_weekdays => '{3}',
+       p_workload_hours => 80::smallint,
+       p_teacher_ids => array['55555555-5555-4555-8555-555555555555']::uuid[],
+       p_grading_scheme => 'numeric_10',
+       p_passing_score => 6,
+       p_min_attendance => 75::smallint
+     ) $$,
+  'a teacher edits the class'
+);
+
 set local request.jwt.claims = '{"sub": "66666666-6666-4666-8666-666666666666", "role": "authenticated"}';
 select is_empty($$ select id from public.classes where id = 'c1000000-0000-4000-8000-000000000001' $$, 'a teacher in another unit does not see the class');
-select is_empty($$ select id from public.class_sessions where class_id = 'c1000000-0000-4000-8000-000000000001' $$, 'nor its sessions');
 select throws_ok(
   $$ select public.update_class(
        p_id => 'c1000000-0000-4000-8000-000000000001',
        p_name => 'Tomada',
+       p_starts_on => '2026-10-01',
        p_ends_on => '2026-12-18',
-       p_schedule => '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]',
+       p_weekdays => '{2}',
+       p_workload_hours => 60::smallint,
        p_teacher_ids => '{}'::uuid[],
        p_grading_scheme => 'numeric_10',
        p_passing_score => 6,
-       p_min_attendance => 75::smallint,
-       p_remove_session_ids => '{}'::uuid[],
-       p_add_sessions => '[]'
+       p_min_attendance => 75::smallint
      ) $$,
   '42501', null, 'nor change it'
 );

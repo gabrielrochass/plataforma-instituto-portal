@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
 import {
   createClass,
-  createCourse,
   markAllPresent,
   newPage,
   registerMinor,
@@ -18,16 +17,12 @@ test("a teacher grades, reviews and closes the class", async ({
 }) => {
   test.slow();
   const admin = await newPage(browser, unique("admin-ra"));
-  const course = unique("Curso");
-  await createCourse(admin, course);
   await admin.context().close();
 
   await signIn(page, unique("prof-ra"), "/");
   const className = `Notas ${Date.now()}`;
-  const classId = await createClass(page, course, className, {
+  const classId = await createClass(page, className, {
     days: [weekdayLabel(today)],
-    from: "00:00",
-    to: "23:59",
   });
   const ana = `Ana ${Date.now()}`;
   const beto = `Beto ${Date.now()}`;
@@ -97,7 +92,7 @@ test("a teacher grades, reviews and closes the class", async ({
     .getByRole("button", { name: "Encerrar turma" })
     .click();
   await expect(page).toHaveURL(`/turmas/${classId}`);
-  await expect(page.getByText("Encerrada")).toBeVisible();
+  await expect(page.getByText("Encerrada", { exact: true })).toBeVisible();
 
   await page.goto(`/alunos/${betoId}/turmas`);
   await expect(

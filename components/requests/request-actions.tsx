@@ -84,16 +84,22 @@ export function ConvertRequest({
   requestId,
   name,
   classes,
+  defaultClassId,
   matches,
 }: {
   requestId: string;
   name: string;
   classes: readonly { id: string; label: string }[];
+  defaultClassId?: string;
   matches: readonly { id: string; label: string }[];
 }) {
   const router = useRouter();
   const [classId, setClassId] = useState(
-    classes.length === 1 ? classes[0].id : "",
+    classes.some((option) => option.id === defaultClassId)
+      ? (defaultClassId as string)
+      : classes.length === 1
+        ? classes[0].id
+        : "",
   );
   const [enrollmentId] = useState(() => crypto.randomUUID());
   const [newStudentId] = useState(() => crypto.randomUUID());

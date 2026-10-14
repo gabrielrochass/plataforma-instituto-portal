@@ -9,6 +9,7 @@ import { RosterList } from "@/components/enrollment/roster-list";
 import { attendanceRate } from "@/lib/attendance";
 import { getClassAttendance } from "@/lib/data/attendance";
 import { getClass, getClasses, getRoster } from "@/lib/data/classes";
+import { photoUrls } from "@/lib/data/photos";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
 import { ageOn, displayName } from "@/lib/people";
@@ -26,6 +27,7 @@ export default async function ClassRosterPage({
     getClasses(),
     getClassAttendance(id),
   ]);
+  const photos = await photoUrls(roster.map((entry) => entry.photoPath));
   if (!row) notFound();
   const today = todayInRecife();
   const editable = row.operable && row.status === "open";
@@ -79,8 +81,8 @@ export default async function ClassRosterPage({
                   const counts = attendance.get(entry.id);
                   const rate = counts
                     ? attendanceRate({
-                        attended: counts.present + counts.late,
-                        missed: counts.absent + counts.excused,
+                        attended: counts.present,
+                        missed: counts.absent,
                       })
                     : null;
                   return {
@@ -90,6 +92,9 @@ export default async function ClassRosterPage({
                       full_name: entry.fullName,
                       social_name: entry.socialName,
                     }),
+                    photo: entry.photoPath
+                      ? (photos.get(entry.photoPath) ?? null)
+                      : null,
                     detail: `${m.students.age(ageOn(entry.birthDate, today))}. ${
                       rate === null
                         ? m.attendance.noRate
@@ -121,6 +126,9 @@ export default async function ClassRosterPage({
                       full_name: entry.fullName,
                       social_name: entry.socialName,
                     }),
+                    photo: entry.photoPath
+                      ? (photos.get(entry.photoPath) ?? null)
+                      : null,
                     detail: `${m.students.enrollmentStatus[entry.status]}, ${formatFullDate(
                       entry.endedOn ?? entry.enrolledOn,
                     )}${entry.exitReason ? `. ${m.enrollment.reasons[entry.exitReason]}` : ""}`,

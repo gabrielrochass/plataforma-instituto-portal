@@ -1,10 +1,9 @@
 import { m } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
-import { type NavItem, tabNav } from "./nav-items";
+import { AddMenu } from "./add-menu";
+import { type AddOption, type NavItem, tabNav } from "./nav-items";
 import { NavLink } from "./nav-link";
-import { type PrimaryAction, PrimaryActionLink } from "./primary-action-link";
 
-export function TabBar({ action }: { action?: PrimaryAction }) {
+export function TabBar({ add }: { add: readonly AddOption[] }) {
   const [first, second, ...rest] = tabNav;
 
   return (
@@ -12,24 +11,16 @@ export function TabBar({ action }: { action?: PrimaryAction }) {
       aria-label={m.nav.label}
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden [@media(prefers-reduced-transparency:reduce)]:bg-card"
     >
-      <ul
-        className={cn(
-          "mx-auto grid h-(--tabbar-h) max-w-md items-center",
-          action ? "grid-cols-5" : "grid-cols-4",
-        )}
-      >
+      <ul className="mx-auto grid h-(--tabbar-h) max-w-md grid-cols-5 items-center">
         <TabItem item={first} />
         <TabItem item={second} />
-        {action && (
-          <li className="flex justify-center">
-            <PrimaryActionLink
-              action={action}
-              compact
-              size="icon-lg"
-              className="rounded-full shadow-sm ring-1 ring-black/10"
-            />
-          </li>
-        )}
+        <li className="flex justify-center">
+          <AddMenu
+            items={add}
+            compact
+            className="rounded-full shadow-sm ring-1 ring-black/10"
+          />
+        </li>
         {rest.map((item) => (
           <TabItem key={item.href} item={item} />
         ))}

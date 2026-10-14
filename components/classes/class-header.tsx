@@ -13,7 +13,7 @@ export function ClassHeader({ row }: { row: ClassSummary }) {
     <>
       <PageHeader
         title={row.name}
-        subtitle={`${row.course_name}. ${row.unit_name}`}
+        subtitle={row.unit_name}
         back={{ href: "/turmas", label: m.classes.title }}
         action={
           row.operable && row.status === "open" ? (
@@ -35,7 +35,9 @@ export function ClassHeader({ row }: { row: ClassSummary }) {
         items={[
           { href: base as Route, label: m.classes.summary },
           { href: `${base}/alunos` as Route, label: m.classes.roster },
-          { href: `${base}/aulas` as Route, label: m.classes.sessions },
+          ...(row.operable
+            ? [{ href: `${base}/chamadas` as Route, label: m.classes.sessions }]
+            : []),
           ...(row.operable
             ? [{ href: `${base}/notas` as Route, label: m.grades.tab }]
             : []),

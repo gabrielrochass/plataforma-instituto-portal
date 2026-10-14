@@ -13,15 +13,15 @@ export function ImpactFilters({
   period,
   units,
   unitId,
-  courses,
-  courseId,
+  classes,
+  classId,
 }: {
   periods: readonly string[];
   period: string;
   units: readonly Option[];
   unitId: string;
-  courses: readonly Option[];
-  courseId: string;
+  classes: readonly Option[];
+  classId: string;
 }) {
   return (
     <Form
@@ -63,14 +63,14 @@ export function ImpactFilters({
         <div className="hidden sm:block" />
       )}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="impacto-curso" className={labelClass}>
-          {m.impact.course}
+        <label htmlFor="impacto-turma" className={labelClass}>
+          {m.impact.class}
         </label>
-        <NativeSelect id="impacto-curso" name="curso" defaultValue={courseId}>
-          <option value="">{m.impact.allCourses}</option>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.name}
+        <NativeSelect id="impacto-turma" name="turma" defaultValue={classId}>
+          <option value="">{m.impact.allClasses}</option>
+          {classes.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
             </option>
           ))}
         </NativeSelect>

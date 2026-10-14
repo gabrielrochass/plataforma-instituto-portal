@@ -118,7 +118,7 @@ export default async function StudentsPage({
                     href={`/alunos/${student.id}` as Route}
                     className="flex min-h-15 items-center gap-3 px-4 py-2 transition-colors hover:bg-muted/60 focus-visible:-outline-offset-2!"
                   >
-                    <PersonAvatar name={name} />
+                    <PersonAvatar name={name} photo={student.photo} />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="text-body font-medium">{name}</span>
                       <span className="flex flex-wrap items-center gap-x-2 text-footnote text-muted-foreground">

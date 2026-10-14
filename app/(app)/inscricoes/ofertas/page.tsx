@@ -5,23 +5,18 @@ import {
   OfferToggle,
   PublicOffersLink,
 } from "@/components/requests/offer-controls";
-import { getCourses } from "@/lib/data/classes";
+import { getClasses } from "@/lib/data/classes";
 import { getOffers } from "@/lib/data/requests";
-import { getUnits } from "@/lib/data/team";
 import { requireTeamManager } from "@/lib/data/viewer";
-import { formatFullDate } from "@/lib/dates";
+import { formatFullDate, todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
-import { adminUnits } from "@/lib/roles";
 
 export const metadata: Metadata = { title: m.requests.offers };
 
 export default async function OffersPage() {
-  const viewer = await requireTeamManager();
-  const [offers, courses, units] = await Promise.all([
-    getOffers(),
-    getCourses(),
-    getUnits(),
-  ]);
+  await requireTeamManager();
+  const today = todayInRecife();
+  const [offers, classes] = await Promise.all([getOffers(), getClasses()]);
   const sections = [
     {
       id: "abertas",
@@ -66,7 +61,7 @@ export default async function OffersPage() {
                   >
                     <span className="flex min-w-0 flex-col">
                       <span className="text-body font-medium">
-                        {offer.courses?.name}
+                        {offer.classes?.name}
                       </span>
                       <span className="text-footnote text-muted-foreground">
                         {offer.units?.name}
@@ -77,7 +72,7 @@ export default async function OffersPage() {
                     </span>
                     <OfferToggle
                       id={offer.id}
-                      course={offer.courses?.name ?? ""}
+                      course={offer.classes?.name ?? ""}
                       isOpen={offer.is_open}
                     />
                   </li>
@@ -91,10 +86,17 @@ export default async function OffersPage() {
             {m.requests.newOffer}
           </h2>
           <OfferForm
-            courses={courses
-              .filter((course) => !course.archived_at)
-              .map((course) => ({ id: course.id, name: course.name }))}
-            units={adminUnits(viewer, units)}
+            classes={classes
+              .filter(
+                (row) =>
+                  row.manageable &&
+                  row.status === "open" &&
+                  row.ends_on >= today,
+              )
+              .map((row) => ({
+                id: row.id,
+                name: `${row.name}, ${row.unit_code}`,
+              }))}
           />
         </section>
       </div>

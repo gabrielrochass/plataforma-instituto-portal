@@ -2,7 +2,7 @@
 
 # Portal
 
-Sistema interno do Instituto Portal (pt-BR, unidades RA e BV): cursos e turmas, alunos e matrículas com histórico,
+Sistema interno do Instituto Portal (pt-BR, unidades RA e BV): turmas, alunos e matrículas com histórico,
 chamada pelo celular, notas, acompanhamento social e impacto para patrocinadores. Papéis: adm geral, adm de unidade,
 professor; aluno só na fase de atividades. Next.js 16 + Supabase + Vercel (região gru1).
 
@@ -21,7 +21,7 @@ professor; aluno só na fase de atividades. Next.js 16 + Supabase + Vercel (regi
 - Sem comentários desnecessários; nomes claros dispensam explicação.
 - Textos de interface só em `lib/i18n.ts`.
 - Nada de ponto médio (·) nem travessão (— ou –) nos textos: use frases curtas, vírgulas e espaçamento.
-- Banco e código em inglês, rotas e textos em pt-BR. Glossário: unidade `unit`, curso `course`, turma `class`, aula
+- Banco e código em inglês, rotas e textos em pt-BR. Glossário: unidade `unit`, turma `class`, dia de chamada
   `class_session`, matrícula `enrollment`, chamada `attendance`, avaliação `assessment`, nota `grade`, aluno
   `student`, responsável `guardian`, ficha social `social_profile`, acompanhamento `case_note`, egresso
   `alumni_outcome`, inscrição `enrollment_request`, aviso `announcement`.

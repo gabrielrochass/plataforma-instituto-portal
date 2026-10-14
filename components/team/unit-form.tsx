@@ -40,7 +40,7 @@ export function UnitForm({ unit }: { unit?: Unit }) {
         setName("");
       } else {
         toast.add({ title: m.units.saved, type: "success" });
-        router.replace("/ajustes/unidades");
+        router.replace("/unidades");
       }
     });
   }

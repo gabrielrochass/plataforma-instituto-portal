@@ -27,7 +27,7 @@ export default async function ImpactPage({
   const monthly = monthlyBars(report, impact.today);
   const query = new URLSearchParams({ periodo: impact.period.key });
   if (impact.unitId) query.set("unidade", impact.unitId);
-  if (impact.courseId) query.set("curso", impact.courseId);
+  if (impact.classId) query.set("turma", impact.classId);
 
   return (
     <div data-wide className="flex flex-col">
@@ -49,8 +49,8 @@ export default async function ImpactPage({
           period={impact.period.key}
           units={impact.units}
           unitId={impact.unitId}
-          courses={impact.courses}
-          courseId={impact.courseId}
+          classes={impact.classes}
+          classId={impact.classId}
         />
         <ImpactStats
           report={report}

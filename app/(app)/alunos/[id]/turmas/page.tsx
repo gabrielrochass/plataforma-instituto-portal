@@ -62,7 +62,7 @@ export default async function StudentClassesPage({
             const content = (
               <>
                 <span className="text-footnote text-muted-foreground">
-                  {`${entry.course_name}, ${entry.unit_code}`}
+                  {entry.unit_code}
                 </span>
                 <span className="text-headline font-semibold">
                   {entry.class_name}

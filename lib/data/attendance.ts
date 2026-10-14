@@ -3,35 +3,21 @@ import "server-only";
 import { cache } from "react";
 import { requireUser } from "@/lib/supabase/server";
 
-const time = (value: string) => value.slice(0, 5);
-
-export const getTodaySessions = cache(async () => {
+export const getAttendanceDays = cache(async (from: string) => {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("today_sessions");
-  if (error) throw error;
-  return data.map((row) => ({
-    ...row,
-    starts_at: time(row.starts_at),
-    ends_at: time(row.ends_at),
-  }));
-});
-
-export const getPendingSessions = cache(async () => {
-  const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("pending_sessions", {
-    p_days: 14,
+  const { data, error } = await supabase.rpc("attendance_days", {
+    p_from: from,
   });
   if (error) throw error;
-  return data.map((row) => ({
-    ...row,
-    starts_at: time(row.starts_at),
-    ends_at: time(row.ends_at),
-  }));
+  const taken = new Map<string, Set<string>>();
+  for (const row of data) {
+    taken.set(
+      row.class_id,
+      (taken.get(row.class_id) ?? new Set()).add(row.held_on),
+    );
+  }
+  return taken;
 });
-
-export type PendingSession = Awaited<
-  ReturnType<typeof getPendingSessions>
->[number];
 
 export const getAbsenceAlerts = cache(async () => {
   const { supabase } = await requireUser();
@@ -42,32 +28,18 @@ export const getAbsenceAlerts = cache(async () => {
 
 export type AbsenceAlert = Awaited<ReturnType<typeof getAbsenceAlerts>>[number];
 
-export async function getSession(sessionId: string) {
+export async function getAttendanceRoster(classId: string, day: string) {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase
-    .from("class_sessions")
-    .select(
-      "id, class_id, held_on, starts_at, ends_at, topic, cancelled_at, cancel_reason, attendance_taken_at",
-    )
-    .eq("id", sessionId)
-    .maybeSingle();
-  if (error) throw error;
-  return data
-    ? { ...data, starts_at: time(data.starts_at), ends_at: time(data.ends_at) }
-    : null;
-}
-
-export async function getSessionRoster(sessionId: string) {
-  const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("session_roster", {
-    p_session_id: sessionId,
+  const { data, error } = await supabase.rpc("attendance_roster", {
+    p_class_id: classId,
+    p_held_on: day,
   });
   if (error) throw error;
   return data;
 }
 
-export type SessionRosterRow = Awaited<
-  ReturnType<typeof getSessionRoster>
+export type AttendanceRosterRow = Awaited<
+  ReturnType<typeof getAttendanceRoster>
 >[number];
 
 export const getClassAttendance = cache(async (classId: string) => {

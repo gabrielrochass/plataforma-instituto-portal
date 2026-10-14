@@ -259,14 +259,13 @@ begin
     'sala_de_aula', (select to_jsonb(c) - 'student_id' from public.student_care c where c.student_id = p_student_id),
     'matriculas', coalesce((
       select jsonb_agg(jsonb_build_object(
-        'turma', cl.name, 'curso', co.name, 'situacao', e.status, 'inicio', e.enrolled_on, 'fim', e.ended_on,
+        'turma', cl.name, 'situacao', e.status, 'inicio', e.enrolled_on, 'fim', e.ended_on,
         'frequencia', e.attendance_pct, 'media_final', e.final_score, 'conceito_final', e.final_concept,
-        'presencas', (select count(*) from public.attendance_records a where a.enrollment_id = e.id and a.status in ('present', 'late')),
-        'faltas', (select count(*) from public.attendance_records a where a.enrollment_id = e.id and a.status in ('absent', 'excused'))
+        'presencas', (select count(*) from public.attendance_records a where a.enrollment_id = e.id and a.status = 'present'),
+        'faltas', (select count(*) from public.attendance_records a where a.enrollment_id = e.id and a.status = 'absent')
       ) order by e.enrolled_on)
       from public.enrollments e
       join public.classes cl on cl.id = e.class_id
-      join public.courses co on co.id = cl.course_id
       where e.student_id = p_student_id
     ), '[]'),
     'acompanhamento', coalesce((select jsonb_agg(jsonb_build_object('tipo', n.kind, 'data', n.happened_on, 'texto', n.body) order by n.happened_on) from public.case_notes n where n.student_id = p_student_id), '[]'),

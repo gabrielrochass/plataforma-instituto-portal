@@ -4,16 +4,17 @@ create type public.request_status as enum ('pending', 'waitlisted', 'converted',
 
 create table public.enrollment_offers (
   id uuid primary key default gen_random_uuid(),
-  course_id uuid not null references public.courses,
+  class_id uuid not null references public.classes,
   unit_id uuid not null references public.units,
   description text check (private.valid_note(description, 1000)),
   closes_on date check (closes_on between '2000-01-01' and '2100-12-31'),
   is_open boolean not null default true,
   created_by uuid default auth.uid() references public.profiles on delete set null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  foreign key (class_id, unit_id) references public.classes (id, unit_id)
 );
 
-create unique index enrollment_offers_open_key on public.enrollment_offers (course_id, unit_id) where is_open;
+create unique index enrollment_offers_open_key on public.enrollment_offers (class_id) where is_open;
 
 create table public.enrollment_requests (
   id uuid primary key default gen_random_uuid(),
@@ -82,9 +83,11 @@ $$;
 create function public.open_offers()
 returns table (
   id uuid,
-  course_name text,
-  course_description text,
+  class_name text,
   workload_hours smallint,
+  starts_on date,
+  ends_on date,
+  weekdays smallint[],
   unit_name text,
   description text,
   closes_on date
@@ -94,9 +97,9 @@ stable
 security definer
 set search_path = ''
 as $$
-  select o.id, c.name, c.description, c.workload_hours, u.name, o.description, o.closes_on
+  select o.id, c.name, c.workload_hours, c.starts_on, c.ends_on, c.weekdays, u.name, o.description, o.closes_on
   from public.enrollment_offers o
-  join public.courses c on c.id = o.course_id and c.archived_at is null
+  join public.classes c on c.id = o.class_id and c.status = 'open' and c.ends_on >= private.today()
   join public.units u on u.id = o.unit_id and u.archived_at is null
   where o.is_open and (o.closes_on is null or o.closes_on >= private.today())
   order by c.name, u.name
@@ -163,7 +166,8 @@ create function public.request_list()
 returns table (
   id uuid,
   offer_id uuid,
-  course_name text,
+  class_id uuid,
+  class_name text,
   unit_id uuid,
   unit_code text,
   protocol text,
@@ -180,7 +184,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select r.id, o.id, c.name, u.id, u.code, r.protocol, r.full_name, r.social_name, r.birth_date, r.phone, r.status,
+  select r.id, o.id, c.id, c.name, u.id, u.code, r.protocol, r.full_name, r.social_name, r.birth_date, r.phone, r.status,
     case when r.status in ('pending', 'waitlisted') then
       (row_number() over (
         partition by o.id, r.status in ('pending', 'waitlisted')
@@ -190,7 +194,7 @@ as $$
     r.created_at
   from public.enrollment_requests r
   join public.enrollment_offers o on o.id = r.offer_id
-  join public.courses c on c.id = o.course_id
+  join public.classes c on c.id = o.class_id
   join public.units u on u.id = o.unit_id
   where o.unit_id in (select private.admin_unit_ids())
   order by r.created_at
@@ -279,7 +283,7 @@ create policy "admins decide requests" on public.enrollment_requests
   with check (status in ('pending', 'waitlisted', 'declined', 'withdrawn'));
 
 grant select on public.enrollment_offers to authenticated;
-grant insert (id, course_id, unit_id, description, closes_on) on public.enrollment_offers to authenticated;
+grant insert (id, class_id, unit_id, description, closes_on) on public.enrollment_offers to authenticated;
 grant update (description, closes_on, is_open) on public.enrollment_offers to authenticated;
 grant select on public.enrollment_requests to authenticated;
 grant update (status, note, decided_by, decided_at) on public.enrollment_requests to authenticated;

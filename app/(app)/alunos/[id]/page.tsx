@@ -1,8 +1,10 @@
-import { MessageCircleIcon, PhoneIcon } from "lucide-react";
+import { IdCardIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { RenewBadgeButton } from "@/components/students/badge-actions";
+import { StudentPhotoField } from "@/components/students/photo-field";
 import { StudentHeader } from "@/components/students/student-header";
 import { buttonVariants } from "@/components/ui/button";
 import { attendanceRate } from "@/lib/attendance";
@@ -61,6 +63,31 @@ export default async function StudentPage({
         showSocial={privateData !== null}
       />
       <div className="flex flex-col gap-8">
+        {!student.anonymized_at && (
+          <section
+            aria-labelledby="foto-cracha"
+            className="flex flex-col gap-4 rounded-2xl bg-card p-4"
+          >
+            <h2 id="foto-cracha" className="sr-only">
+              {m.badges.title}
+            </h2>
+            <StudentPhotoField
+              studentId={student.id}
+              name={displayName(student)}
+              photo={student.photo}
+            />
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/alunos/${student.id}/cracha` as Route}
+                className={buttonVariants({ variant: "secondary", size: "lg" })}
+              >
+                <IdCardIcon aria-hidden="true" />
+                {m.badges.printOne}
+              </Link>
+              <RenewBadgeButton studentId={student.id} />
+            </div>
+          </section>
+        )}
         <section
           aria-labelledby="turmas-ativas"
           className="flex flex-col gap-3"
@@ -81,7 +108,7 @@ export default async function StudentPage({
                         {entry.class_name}
                       </span>
                       <span className="text-footnote text-muted-foreground">
-                        {`${entry.course_name}, ${entry.unit_code}. ${rateLabel(entry)}`}
+                        {`${entry.unit_code}. ${rateLabel(entry)}`}
                       </span>
                     </Link>
                   ) : (
@@ -90,7 +117,7 @@ export default async function StudentPage({
                         {entry.class_name}
                       </span>
                       <span className="text-footnote text-muted-foreground">
-                        {`${entry.course_name}, ${entry.unit_code}`}
+                        {entry.unit_code}
                       </span>
                     </div>
                   )}

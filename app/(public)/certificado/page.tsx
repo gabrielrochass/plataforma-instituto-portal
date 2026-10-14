@@ -66,7 +66,7 @@ export default async function VerifyCertificatePage({
             <dl className="flex flex-col gap-3">
               {[
                 [c.holder, found.student_name],
-                [c.course, found.course_name],
+                [c.course, found.class_name],
                 [c.workload, c.hours(found.workload_hours)],
                 [
                   c.period,

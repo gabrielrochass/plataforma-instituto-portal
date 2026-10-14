@@ -12,20 +12,19 @@ insert into public.staff_memberships (user_id, unit_id, role) values
   ('44444444-4444-4444-8444-444444444444', '0a000000-0000-4000-8000-000000000001', 'teacher'),
   ('66666666-6666-4666-8666-666666666666', '0a000000-0000-4000-8000-000000000002', 'teacher');
 
-insert into public.courses (id, name, workload_hours) values ('c0000000-0000-4000-8000-0000000000dd', 'Notas teste', 40);
-insert into public.classes (id, course_id, unit_id, name, starts_on, ends_on, schedule, grading_scheme, passing_score, concept_labels, concept_passing, min_attendance) values
-  ('c1000000-0000-4000-8000-0000000000d1', 'c0000000-0000-4000-8000-0000000000dd', '0a000000-0000-4000-8000-000000000001',
-   'Notas numéricas', private.today() - 30, private.today() + 30, '[{"weekday": 2, "starts_at": "08:00", "ends_at": "10:00"}]', 'numeric_10', 6, null, null, 75),
-  ('c1000000-0000-4000-8000-0000000000d2', 'c0000000-0000-4000-8000-0000000000dd', '0a000000-0000-4000-8000-000000000001',
-   'Notas conceito', private.today() - 30, private.today() + 30, '[{"weekday": 3, "starts_at": "08:00", "ends_at": "10:00"}]', 'concept', null, array['Ótimo', 'Bom', 'Regular', 'Insuficiente'], 3, 75),
-  ('c1000000-0000-4000-8000-0000000000d3', 'c0000000-0000-4000-8000-0000000000dd', '0a000000-0000-4000-8000-000000000001',
-   'Só presença', private.today() - 30, private.today() + 30, '[{"weekday": 4, "starts_at": "08:00", "ends_at": "10:00"}]', 'attendance_only', null, null, null, 75);
+insert into public.classes (id, unit_id, name, starts_on, ends_on, weekdays, workload_hours, grading_scheme, passing_score, concept_labels, concept_passing, min_attendance) values
+  ('c1000000-0000-4000-8000-0000000000d1', '0a000000-0000-4000-8000-000000000001',
+   'Notas numéricas', private.today() - 30, private.today() + 30, '{2}', 40, 'numeric_10', 6, null, null, 75),
+  ('c1000000-0000-4000-8000-0000000000d2', '0a000000-0000-4000-8000-000000000001',
+   'Notas conceito', private.today() - 30, private.today() + 30, '{3}', 40, 'concept', null, array['Ótimo', 'Bom', 'Regular', 'Insuficiente'], 3, 75),
+  ('c1000000-0000-4000-8000-0000000000d3', '0a000000-0000-4000-8000-000000000001',
+   'Só presença', private.today() - 30, private.today() + 30, '{4}', 40, 'attendance_only', null, null, null, 75);
 insert into public.class_teachers (class_id, unit_id, user_id) values
   ('c1000000-0000-4000-8000-0000000000d1', '0a000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444'),
   ('c1000000-0000-4000-8000-0000000000d2', '0a000000-0000-4000-8000-000000000001', '44444444-4444-4444-8444-444444444444');
-insert into public.class_sessions (id, class_id, held_on, starts_at, ends_at) values
-  ('5e000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d1', private.today() - 14, '08:00', '10:00'),
-  ('5e000000-0000-4000-8000-0000000000d2', 'c1000000-0000-4000-8000-0000000000d1', private.today() - 7, '08:00', '10:00');
+insert into public.class_sessions (id, class_id, held_on) values
+  ('5e000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d1', private.today() - 14),
+  ('5e000000-0000-4000-8000-0000000000d2', 'c1000000-0000-4000-8000-0000000000d1', private.today() - 7);
 insert into public.students (id, full_name, birth_date, phone, registered_unit_id) values
   ('5a000000-0000-4000-8000-0000000000d1', 'Ana Nota', '2000-01-01', '81999990001', '0a000000-0000-4000-8000-000000000001'),
   ('5a000000-0000-4000-8000-0000000000d2', 'Bruno Nota', '2000-01-01', '81999990002', '0a000000-0000-4000-8000-000000000001');
@@ -35,7 +34,7 @@ insert into public.enrollments (id, student_id, class_id, enrolled_on) values
   ('e2000000-0000-4000-8000-0000000000d1', '5a000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d2', private.today() - 30);
 insert into public.attendance_records (session_id, enrollment_id, class_id, status) values
   ('5e000000-0000-4000-8000-0000000000d1', 'e1000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d1', 'present'),
-  ('5e000000-0000-4000-8000-0000000000d2', 'e1000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d1', 'late'),
+  ('5e000000-0000-4000-8000-0000000000d2', 'e1000000-0000-4000-8000-0000000000d1', 'c1000000-0000-4000-8000-0000000000d1', 'present'),
   ('5e000000-0000-4000-8000-0000000000d2', 'e1000000-0000-4000-8000-0000000000d2', 'c1000000-0000-4000-8000-0000000000d1', 'absent');
 
 set local role authenticated;

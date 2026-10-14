@@ -5,7 +5,7 @@ create table public.certificates (
   class_id uuid not null references public.classes,
   student_id uuid not null references public.students,
   student_name text not null check (private.valid_text(student_name, 120)),
-  course_name text not null check (private.valid_text(course_name, 80)),
+  class_name text not null check (private.valid_text(class_name, 80)),
   unit_name text not null check (private.valid_text(unit_name, 80)),
   workload_hours smallint not null,
   starts_on date not null,
@@ -58,14 +58,13 @@ begin
     raise exception 'class not finished' using errcode = '55000';
   end if;
   insert into public.certificates (
-    code, enrollment_id, class_id, student_id, student_name, course_name, unit_name,
+    code, enrollment_id, class_id, student_id, student_name, class_name, unit_name,
     workload_hours, starts_on, ends_on, attendance_pct
   )
-  select private.certificate_code(), e.id, class_row.id, s.id, coalesce(s.social_name, s.full_name), co.name, u.name,
-    co.workload_hours, class_row.starts_on, class_row.ends_on, e.attendance_pct
+  select private.certificate_code(), e.id, class_row.id, s.id, coalesce(s.social_name, s.full_name), class_row.name, u.name,
+    class_row.workload_hours, class_row.starts_on, class_row.ends_on, e.attendance_pct
   from public.enrollments e
   join public.students s on s.id = e.student_id
-  join public.courses co on co.id = class_row.course_id
   join public.units u on u.id = class_row.unit_id
   where e.class_id = class_row.id and e.status = 'completed' and s.anonymized_at is null
     and not exists (
@@ -95,7 +94,7 @@ $$;
 create function public.verify_certificate(p_code text)
 returns table (
   student_name text,
-  course_name text,
+  class_name text,
   unit_name text,
   workload_hours smallint,
   starts_on date,
@@ -108,7 +107,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select c.student_name, c.course_name, c.unit_name, c.workload_hours, c.starts_on, c.ends_on, c.issued_on,
+  select c.student_name, c.class_name, c.unit_name, c.workload_hours, c.starts_on, c.ends_on, c.issued_on,
     c.revoked_at is not null
   from public.certificates c
   where c.code = (
@@ -132,7 +131,7 @@ begin
     full_name = 'Pessoa anonimizada',
     social_name = null,
     birth_date = make_date(extract(year from birth_date)::integer, 1, 1),
-    cpf = null, phone = null, email = null, user_id = null,
+    cpf = null, phone = null, email = null, user_id = null, photo_path = null, badge_token = null,
     anonymized_at = now()
   where id = p_student_id and anonymized_at is null;
   if not found then

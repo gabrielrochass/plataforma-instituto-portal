@@ -7,7 +7,7 @@ describe("availableSteps", () => {
       "acao",
       "turmas",
       "alunos",
-      "ajustes",
+      "conta",
     ]);
   });
 });

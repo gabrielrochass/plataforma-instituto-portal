@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { StudentWizard } from "@/components/students/student-wizard";
+import { StudentForm } from "@/components/students/student-form";
 import { getClasses } from "@/lib/data/classes";
 import { getUnits } from "@/lib/data/team";
 import { getViewer } from "@/lib/data/viewer";
@@ -29,7 +29,7 @@ export default async function NewStudentPage({
       : null;
 
   return (
-    <StudentWizard
+    <StudentForm
       classes={open.map((row) => ({
         id: row.id,
         label: `${row.name} (${row.unit_code})`,

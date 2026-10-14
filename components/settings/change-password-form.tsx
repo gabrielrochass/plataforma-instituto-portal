@@ -65,7 +65,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
       }
       await auth.signOut({ scope: "others" });
       toast.add({ title: m.account.passwordChanged, type: "success" });
-      router.replace("/ajustes/conta");
+      router.replace("/conta");
     });
   }
 

@@ -88,6 +88,100 @@ export type Database = {
           },
         ]
       }
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          archived_at: string | null
+          audience: Database["public"]["Enums"]["announcement_audience"]
+          author_id: string | null
+          body: string
+          class_id: string | null
+          created_at: string
+          expires_on: string | null
+          id: string
+          title: string
+          unit_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          audience: Database["public"]["Enums"]["announcement_audience"]
+          author_id?: string | null
+          body: string
+          class_id?: string | null
+          created_at?: string
+          expires_on?: string | null
+          id?: string
+          title: string
+          unit_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          audience?: Database["public"]["Enums"]["announcement_audience"]
+          author_id?: string | null
+          body?: string
+          class_id?: string | null
+          created_at?: string
+          expires_on?: string | null
+          id?: string
+          title?: string
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           class_id: string
@@ -261,6 +355,95 @@ export type Database = {
           },
           {
             foreignKeyName: "case_notes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificates: {
+        Row: {
+          attendance_pct: number | null
+          class_id: string
+          code: string
+          course_name: string
+          created_at: string
+          ends_on: string
+          enrollment_id: string
+          id: string
+          issued_by: string | null
+          issued_on: string
+          revoke_reason: string | null
+          revoked_at: string | null
+          starts_on: string
+          student_id: string
+          student_name: string
+          unit_name: string
+          workload_hours: number
+        }
+        Insert: {
+          attendance_pct?: number | null
+          class_id: string
+          code: string
+          course_name: string
+          created_at?: string
+          ends_on: string
+          enrollment_id: string
+          id?: string
+          issued_by?: string | null
+          issued_on?: string
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          starts_on: string
+          student_id: string
+          student_name: string
+          unit_name: string
+          workload_hours: number
+        }
+        Update: {
+          attendance_pct?: number | null
+          class_id?: string
+          code?: string
+          course_name?: string
+          created_at?: string
+          ends_on?: string
+          enrollment_id?: string
+          id?: string
+          issued_by?: string | null
+          issued_on?: string
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          starts_on?: string
+          student_id?: string
+          student_name?: string
+          unit_name?: string
+          workload_hours?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_issued_by_fkey"
+            columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
@@ -1193,7 +1376,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      announcement_list: {
+        Args: never
+        Returns: {
+          audience: Database["public"]["Enums"]["announcement_audience"]
+          author_name: string
+          body: string
+          can_archive: boolean
+          class_id: string
+          class_name: string
+          created_at: string
+          expires_on: string
+          id: string
+          read_at: string
+          read_count: number
+          title: string
+          unit_name: string
+        }[]
+      }
       anonymize_student: { Args: { p_student_id: string }; Returns: undefined }
+      archive_announcement: { Args: { p_id: string }; Returns: undefined }
       cancel_class: { Args: { p_class_id: string }; Returns: undefined }
       cancel_session: {
         Args: { p_reason: string; p_session_id: string }
@@ -1362,6 +1564,8 @@ export type Database = {
           unit_name: string
         }[]
       }
+      issue_certificates: { Args: { p_class_id: string }; Returns: number }
+      mark_announcement_read: { Args: { p_id: string }; Returns: undefined }
       open_offers: {
         Args: never
         Returns: {
@@ -1403,6 +1607,17 @@ export type Database = {
           teaches: boolean
           unit_code: string
         }[]
+      }
+      post_announcement: {
+        Args: {
+          p_audience: Database["public"]["Enums"]["announcement_audience"]
+          p_body: string
+          p_class_id?: string
+          p_expires_on?: string
+          p_title: string
+          p_unit_id?: string
+        }
+        Returns: string
       }
       register_student: {
         Args: {
@@ -1454,6 +1669,10 @@ export type Database = {
         }[]
       }
       restore_session: { Args: { p_session_id: string }; Returns: undefined }
+      revoke_certificate: {
+        Args: { p_id: string; p_reason: string }
+        Returns: undefined
+      }
       revoke_invite: { Args: { p_id: string }; Returns: undefined }
       save_grades: {
         Args: { p_assessment_id: string; p_grades: Json }
@@ -1674,8 +1893,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_certificate: {
+        Args: { p_code: string }
+        Returns: {
+          course_name: string
+          ends_on: string
+          issued_on: string
+          revoked: boolean
+          starts_on: string
+          student_name: string
+          unit_name: string
+          workload_hours: number
+        }[]
+      }
     }
     Enums: {
+      announcement_audience: "everyone" | "unit" | "class"
       assessment_moment: "intake" | "follow_up" | "exit"
       attendance_status: "present" | "absent" | "excused" | "late"
       case_note_kind:
@@ -1904,6 +2137,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      announcement_audience: ["everyone", "unit", "class"],
       assessment_moment: ["intake", "follow_up", "exit"],
       attendance_status: ["present", "absent", "excused", "late"],
       case_note_kind: [

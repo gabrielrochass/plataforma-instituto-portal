@@ -42,4 +42,8 @@ export const can = {
     viewer.isAdminGeral ||
     viewer.memberships.some((membership) => membership.role === "admin"),
   manageUnits: (viewer: Viewer) => viewer.isAdminGeral,
+  postAnnouncement: (viewer: Viewer) =>
+    viewer.teaches ||
+    viewer.isAdminGeral ||
+    viewer.memberships.some((membership) => membership.role === "admin"),
 };

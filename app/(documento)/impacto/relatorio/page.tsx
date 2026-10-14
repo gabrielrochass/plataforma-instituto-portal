@@ -1,9 +1,9 @@
 import { ChevronLeftIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { PrintButton } from "@/components/app-shell/print-button";
 import { PortalLogo } from "@/components/brand/portal-logo";
 import { BarTrend } from "@/components/impact/bar-trend";
-import { PrintButton } from "@/components/impact/print-button";
 import {
   FunnelBreakdown,
   GroupTables,
@@ -36,7 +36,7 @@ export default async function ImpactReportPage({
   ].join(", ");
 
   return (
-    <article className="flex flex-col gap-6">
+    <article className="mx-auto flex max-w-[210mm] flex-col gap-6 print:max-w-none">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link
           href={`/impacto?${query}` as Route}

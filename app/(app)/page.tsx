@@ -3,6 +3,7 @@ import {
   ClipboardListIcon,
   HourglassIcon,
   InboxIcon,
+  MegaphoneIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import { EmptyState } from "@/components/app-shell/empty-state";
@@ -14,6 +15,7 @@ import {
   TodaySessions,
 } from "@/components/attendance/session-lists";
 import { classPhase } from "@/lib/class-phase";
+import { getAnnouncements } from "@/lib/data/announcements";
 import {
   getAbsenceAlerts,
   getHomeCounts,
@@ -31,7 +33,7 @@ export default async function HomePage() {
   const viewer = await getViewer();
   const admin = can.manageTeam(viewer);
   const today = todayInRecife();
-  const [sessions, pending, alerts, classes, counts, requests] =
+  const [sessions, pending, alerts, classes, counts, requests, announcements] =
     await Promise.all([
       viewer.teaches ? getTodaySessions() : [],
       getPendingSessions(),
@@ -39,7 +41,9 @@ export default async function HomePage() {
       admin ? getClasses() : [],
       admin ? getHomeCounts() : null,
       admin ? getRequests() : [],
+      getAnnouncements(),
     ]);
+  const unread = announcements.filter((item) => !item.read_at).length;
   const newRequests = requests.filter((row) => row.status === "pending").length;
   const firstName = viewer.name?.split(" ")[0] ?? null;
   const late = pending.filter((session) => session.held_on < today);
@@ -91,6 +95,18 @@ export default async function HomePage() {
     <>
       <PageHeader title={m.home.greeting(firstName)} subtitle={date} />
       <div className="flex flex-col gap-8">
+        {unread > 0 && (
+          <LinkList
+            links={[
+              {
+                href: "/avisos",
+                title: m.announcements.homeUnread(unread),
+                icon: MegaphoneIcon,
+                color: "chart-1",
+              },
+            ]}
+          />
+        )}
         {admin && counts && (
           <section aria-labelledby="numeros" className="flex flex-col gap-3">
             <h2 id="numeros" className="sr-only">

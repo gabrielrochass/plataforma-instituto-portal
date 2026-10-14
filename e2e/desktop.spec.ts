@@ -20,6 +20,8 @@ const appPaths = [
   "/chamada",
   "/impacto",
   "/impacto/relatorio",
+  "/avisos",
+  "/avisos/novo",
 ];
 
 for (const colorScheme of ["light", "dark"] as const) {

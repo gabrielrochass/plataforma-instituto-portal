@@ -60,4 +60,10 @@ describe("roles", () => {
     expect(can.manageUnits(adminRa)).toBe(false);
     expect(can.manageUnits(geral)).toBe(true);
   });
+
+  it("lets coordination and teachers with classes post announcements", () => {
+    expect(can.postAnnouncement(adminRa)).toBe(true);
+    expect(can.postAnnouncement(teacher)).toBe(false);
+    expect(can.postAnnouncement({ ...teacher, teaches: true })).toBe(true);
+  });
 });

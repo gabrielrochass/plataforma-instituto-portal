@@ -39,6 +39,14 @@ export function ClassHeader({ row }: { row: ClassSummary }) {
           ...(row.operable
             ? [{ href: `${base}/notas` as Route, label: m.grades.tab }]
             : []),
+          ...(row.operable && row.status === "finished"
+            ? [
+                {
+                  href: `${base}/certificados` as Route,
+                  label: m.certificates.tab,
+                },
+              ]
+            : []),
         ]}
       />
     </>

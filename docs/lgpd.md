@@ -60,3 +60,11 @@ Pendências fora do sistema:
   não revele o valor escondido.
 - Só a coordenação acessa; o adm de unidade vê apenas as próprias unidades.
 - Pessoas anonimizadas continuam nos números, sem identificação.
+
+## Certificados e avisos
+
+- A página pública `/certificado` mostra, para quem tem o código, só nome no certificado, curso, carga horária,
+  período, unidade, data de emissão e se foi revogado. Sem código não há listagem nem busca por nome.
+- O código tem 12 caracteres aleatórios (32 possibilidades cada), o que torna inviável adivinhar.
+- O certificado usa o nome social quando existe. Ao anonimizar, o nome é apagado e o certificado fica revogado.
+- Avisos são internos da equipe. "Copiar para WhatsApp" só copia o texto; quem envia é a pessoa, pelo próprio celular.

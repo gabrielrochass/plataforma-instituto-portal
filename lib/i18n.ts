@@ -1100,6 +1100,107 @@ export const m = {
     range: (from: string, to: string) => `De ${from} a ${to}`,
     scope: "Recorte",
   },
+  certificates: {
+    tab: "Certificados",
+    title: "Certificados",
+    intro:
+      "Quem concluiu a turma recebe certificado. Cada um tem um código que qualquer pessoa confere no site.",
+    issue: "Emitir certificados",
+    issued: (count: number) =>
+      count === 0
+        ? "Todos que concluíram já têm certificado"
+        : count === 1
+          ? "1 certificado emitido"
+          : `${count} certificados emitidos`,
+    notFinished: "Encerre a turma para emitir os certificados.",
+    empty: "Nenhum certificado emitido ainda.",
+    printAll: "Imprimir todos",
+    print: (name: string) => `Imprimir certificado de ${name}`,
+    code: "Código",
+    valid: "Válido",
+    revoked: "Revogado",
+    revoke: (name: string) => `Revogar certificado de ${name}`,
+    revokeTitle: "Revogar certificado?",
+    revokeText:
+      "O código passa a aparecer como inválido. Se precisar, emita um novo depois.",
+    revokeReason: "Motivo",
+    reasonRequired: "Escreva o motivo.",
+    revokeConfirm: "Revogar",
+    revokedToast: "Certificado revogado",
+    certificate: "Certificado",
+    certifies: "Certificamos que",
+    completed: (
+      course: string,
+      hours: number,
+      from: string,
+      to: string,
+      unit: string,
+    ) =>
+      `concluiu o curso ${course}, com carga horária de ${hours} horas, realizado de ${from} a ${to} na unidade ${unit}.`,
+    place: (date: string) => `Recife, ${date}.`,
+    signatureRole: "Presidente",
+    verifyAt: (url: string) => `Confira a validade em ${url}`,
+    backToClass: "Voltar à turma",
+    printButton: "Imprimir ou salvar em PDF",
+    verifyTitle: "Conferir certificado",
+    verifyText: "Digite o código impresso no certificado.",
+    verifyLabel: "Código do certificado",
+    verifyButton: "Conferir",
+    validTitle: "Certificado válido",
+    revokedTitle: "Certificado revogado",
+    revokedText: "Este certificado não tem mais validade.",
+    notFoundTitle: "Código não encontrado",
+    notFoundText: "Confira se digitou o código como está no certificado.",
+    holder: "Nome",
+    course: "Curso",
+    hours: (value: number) => `${value} horas`,
+    workload: "Carga horária",
+    period: "Período",
+    unit: "Unidade",
+    issuedOn: "Emitido em",
+    another: "Conferir outro código",
+    periodRange: (from: string, to: string) => `${from} a ${to}`,
+  },
+  announcements: {
+    title: "Avisos",
+    hint: "Recados da coordenação e das turmas",
+    new: "Novo aviso",
+    empty: "Nenhum aviso por enquanto.",
+    emptyHint: "Quando a coordenação ou um professor publicar, aparece aqui.",
+    unread: "Novo",
+    markRead: "Marcar como lido",
+    read: "Lido",
+    readCount: (count: number) =>
+      count === 1 ? "1 pessoa leu" : `${count} pessoas leram`,
+    copy: "Copiar para WhatsApp",
+    copied: "Texto copiado",
+    archive: (title: string) => `Arquivar aviso ${title}`,
+    archived: "Aviso arquivado",
+    by: (name: string, date: string) => `${name}, ${date}`,
+    expires: (date: string) => `Vale até ${date}`,
+    everyone: "Toda a equipe",
+    audience: "Para quem",
+    audiences: {
+      everyone: "Toda a equipe",
+      unit: "Uma unidade",
+      class: "Uma turma",
+    },
+    unit: "Unidade",
+    class: "Turma",
+    titleLabel: "Título",
+    body: "Mensagem",
+    expiresOn: "Vale até (opcional)",
+    publish: "Publicar aviso",
+    published: "Aviso publicado",
+    homeUnread: (count: number) =>
+      count === 1 ? "1 aviso novo" : `${count} avisos novos`,
+    errors: {
+      title: "Escreva um título.",
+      body: "Escreva a mensagem.",
+      target: "Escolha para quem é o aviso.",
+      expired: "A data precisa ser hoje ou depois.",
+    },
+  },
   more: {
     title: "Mais",
   },
@@ -1342,7 +1443,13 @@ export type LegalDocument = {
 };
 
 export const legal: {
-  controller: { name: string; cnpj: string; email: string; address: string };
+  controller: {
+    name: string;
+    cnpj: string;
+    email: string;
+    address: string;
+    president: string;
+  };
   version: string;
   effectiveDate: string;
   backupDays: number;
@@ -1356,6 +1463,7 @@ export const legal: {
     cnpj: "39.821.813/0001-88",
     email: "assistenciasocial@oportal.org",
     address: "Rua José da Silva Lucena, Imbiribeira, Recife, PE, CEP 51150-430",
+    president: "Igor Sacha Florentino Cruz",
   },
   version: "0.1",
   effectiveDate: "2026-10-14",

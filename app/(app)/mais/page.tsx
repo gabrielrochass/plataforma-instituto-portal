@@ -1,6 +1,7 @@
 import {
   FileTextIcon,
   LogOutIcon,
+  MegaphoneIcon,
   SettingsIcon,
   ShieldCheckIcon,
 } from "lucide-react";
@@ -25,6 +26,17 @@ export default async function MorePage() {
     <>
       <PageHeader title={m.more.title} />
       <div className="flex flex-col gap-6">
+        <LinkList
+          links={[
+            {
+              href: "/avisos",
+              title: m.announcements.title,
+              hint: m.announcements.hint,
+              icon: MegaphoneIcon,
+              color: "chart-2",
+            },
+          ]}
+        />
         {admin.length > 0 && <LinkList links={admin} />}
         <LinkList
           links={[

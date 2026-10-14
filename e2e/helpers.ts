@@ -58,6 +58,7 @@ export async function createClass(
     from?: string;
     to?: string;
     concepts?: boolean;
+    attendanceOnly?: boolean;
   } = {},
 ) {
   const check = options.check ?? false;
@@ -107,6 +108,9 @@ export async function createClass(
         "Aprovado quem tiver conceito Ótimo, Bom ou Regular e pelo menos 75% de presença.",
       ),
     ).toBeVisible();
+  }
+  if (options.attendanceOnly) {
+    await page.locator("label", { hasText: "Só frequência" }).click();
   }
   if (check) await expectNoAxeViolations(page);
   await page.getByRole("button", { name: "Continuar" }).click();
@@ -170,4 +174,15 @@ export async function registerMinor(
   await page.getByRole("button", { name: "Cadastrar aluno" }).click();
   await expect(page).toHaveURL(/\/alunos\/[0-9a-f-]{36}$/);
   return page.url().split("/").at(-1) as string;
+}
+
+export async function markAllPresent(page: Page) {
+  await expect(async () => {
+    await page
+      .getByRole("button", { name: "Marcar todos como presentes" })
+      .click();
+    await expect(page.getByRole("status")).not.toContainText("sem marcação", {
+      timeout: 1000,
+    });
+  }).toPass();
 }

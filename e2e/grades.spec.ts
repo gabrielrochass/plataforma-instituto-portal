@@ -3,6 +3,7 @@ import { expectNoAxeViolations } from "./axe";
 import {
   createClass,
   createCourse,
+  markAllPresent,
   newPage,
   registerMinor,
   signIn,
@@ -34,9 +35,7 @@ test("a teacher grades, reviews and closes the class", async ({
   const betoId = await registerMinor(page, classId, beto);
 
   await page.goto("/chamada");
-  await page
-    .getByRole("button", { name: "Marcar todos como presentes" })
-    .click();
+  await markAllPresent(page);
   await page.getByRole("button", { name: "Salvar chamada" }).click();
   await expect(page).not.toHaveURL(/chamada/);
 

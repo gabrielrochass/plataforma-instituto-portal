@@ -60,7 +60,10 @@ test("a teacher grades, reviews and closes the class", async ({
   await expect(page).toHaveURL(`/turmas/${classId}/notas`);
 
   await page.getByRole("link", { name: "Lançar notas de Projeto" }).click();
-  const missed = page.getByRole("checkbox", { name: "Não fez" }).nth(1);
+  const missed = page
+    .getByRole("listitem")
+    .filter({ hasText: beto })
+    .getByRole("checkbox", { name: "Não fez" });
   await expect(async () => {
     await missed.click();
     await expect(missed).toBeChecked({ timeout: 1000 });

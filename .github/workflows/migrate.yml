@@ -1,0 +1,31 @@
+name: Migrate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.109.0
+      - run: supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
+      - run: supabase db push --db-url "$SUPABASE_DB_URL" --yes
+      - run: supabase migration list --db-url "$SUPABASE_DB_URL"

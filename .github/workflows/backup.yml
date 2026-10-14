@@ -1,0 +1,73 @@
+name: Backup
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.109.0
+      - name: Dump production
+        id: dump
+        run: |
+          set -euo pipefail
+          : "${SUPABASE_DB_URL:?Set the SUPABASE_DB_URL secret}"
+          : "${BACKUP_AGE_RECIPIENT:?Set the BACKUP_AGE_RECIPIENT variable}"
+          supabase db dump --db-url "$SUPABASE_DB_URL" --schema public,private -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --use-copy --schema public,private,auth \
+            -x auth.sessions,auth.refresh_tokens,auth.mfa_amr_claims,auth.flow_state,auth.one_time_tokens,auth.audit_log_entries \
+            -f data.sql
+          echo "$GITHUB_SHA" > commit.txt
+      - name: Test the restore
+        env:
+          COUNT_PUBLIC_ROWS: |
+            select format('select %L, count(*) from public.%I', tablename, tablename)
+            from pg_tables where schemaname = 'public' order by tablename
+            \gexec
+        run: |
+          set -euo pipefail
+          psql "$SUPABASE_DB_URL" -X -At -v ON_ERROR_STOP=1 <<<"$COUNT_PUBLIC_ROWS" > production-counts.txt
+          supabase start -x realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+          local_db_url="$(supabase status -o env | grep '^DB_URL=' | cut -d= -f2- | tr -d '"')"
+          psql "$local_db_url" -X --single-transaction -v ON_ERROR_STOP=1 -v VERBOSITY=terse -f data.sql > /dev/null
+          psql "$local_db_url" -X -At -v ON_ERROR_STOP=1 <<<"$COUNT_PUBLIC_ROWS" > restored-counts.txt
+          diff production-counts.txt restored-counts.txt
+      - name: Encrypt
+        id: encrypt
+        if: ${{ !cancelled() && steps.dump.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y age
+          name="backup-$(date -u +%Y%m%d)"
+          tar -czf - schema.sql data.sql commit.txt | age -r "$BACKUP_AGE_RECIPIENT" > "$name.tar.gz.age"
+          rm -f schema.sql data.sql commit.txt production-counts.txt restored-counts.txt
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && steps.encrypt.outcome == 'success' }}
+        with:
+          name: ${{ steps.encrypt.outputs.name }}
+          path: ${{ steps.encrypt.outputs.name }}.tar.gz.age
+          retention-days: 14
+          if-no-files-found: error
+      - name: Purge the undo trash
+        if: ${{ !cancelled() }}
+        run: psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from private.deleted_transactions where deleted_at < now() - interval '1 day'"

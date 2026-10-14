@@ -1,5 +1,7 @@
 import {
+  BookOpenIcon,
   Building2Icon,
+  CalendarOffIcon,
   SparklesIcon,
   UserRoundIcon,
   UsersRoundIcon,
@@ -18,6 +20,24 @@ export function adminLinks(viewer: Viewer): ListLink[] {
             hint: m.team.hint,
             icon: UsersRoundIcon,
             color: "chart-3",
+          },
+        ]
+      : []),
+    ...(can.manageTeam(viewer)
+      ? [
+          {
+            href: "/ajustes/cursos" as const,
+            title: m.courses.title,
+            hint: m.courses.hint,
+            icon: BookOpenIcon,
+            color: "chart-1",
+          },
+          {
+            href: "/ajustes/calendario" as const,
+            title: m.calendar.title,
+            hint: m.calendar.hint,
+            icon: CalendarOffIcon,
+            color: "chart-2",
           },
         ]
       : []),

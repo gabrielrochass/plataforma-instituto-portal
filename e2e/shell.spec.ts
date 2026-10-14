@@ -15,6 +15,11 @@ const settingsPaths = [
   "/ajustes/equipe",
   "/ajustes/equipe/convidar",
   "/ajustes/unidades",
+  "/ajustes/cursos",
+  "/ajustes/cursos/novo",
+  "/ajustes/calendario",
+  "/turmas/nova",
+  "/alunos/novo",
 ];
 
 for (const colorScheme of ["light", "dark"] as const) {
@@ -69,7 +74,7 @@ test("the tour shows each section once", async ({ page }) => {
   await expect(dialog).toBeVisible();
   await expectNoAxeViolations(page);
   await dialog.getByRole("button", { name: "Começar" }).click();
-  for (const title of ["Turmas", "Alunos", "Mais"]) {
+  for (const title of ["Atalho do dia", "Turmas", "Alunos", "Mais"]) {
     await expect(page.getByRole("dialog", { name: title })).toBeVisible();
     await page.getByRole("button", { name: "Próximo" }).click();
   }

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 import { m } from "@/lib/i18n";
 
 export type ActionResult =
@@ -23,10 +23,12 @@ export function failureFor(error: { code?: string }): Failure {
 }
 
 export function fieldErrors(error: z.ZodError) {
-  return z.flattenError(error).fieldErrors as Record<
-    string,
-    string[] | undefined
-  >;
+  const found: Record<string, string[] | undefined> = {};
+  for (const issue of error.issues) {
+    const key = issue.path.join(".");
+    found[key] = [...(found[key] ?? []), issue.message];
+  }
+  return found;
 }
 
 export type Failure = Extract<ActionResult, { ok: false }>;

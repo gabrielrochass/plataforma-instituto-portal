@@ -16,3 +16,22 @@ describe("failureFor", () => {
     expect(failureFor({})).toBe(failure);
   });
 });
+
+describe("fieldErrors", () => {
+  it("keeps nested paths so each field can show its own message", async () => {
+    const { z } = await import("zod");
+    const { fieldErrors } = await import("./action-result");
+    const schema = z.object({
+      name: z.string().min(1, "nome"),
+      guardians: z.array(z.object({ phone: z.string().min(1, "telefone") })),
+    });
+    const result = schema.safeParse({ name: "", guardians: [{ phone: "" }] });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(fieldErrors(result.error)).toEqual({
+        name: ["nome"],
+        "guardians.0.phone": ["telefone"],
+      });
+    }
+  });
+});

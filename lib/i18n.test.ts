@@ -4,8 +4,16 @@ import { legal, m } from "./i18n";
 function strings(value: unknown): string[] {
   if (typeof value === "string") return [value];
   if (typeof value === "function") {
-    const sample = value("Ana", 2, 3);
-    return typeof sample === "string" ? [sample] : [];
+    for (const args of [
+      ["Ana", 2, 3],
+      [["Seg", "Ter"], "8h", "10h"],
+    ]) {
+      try {
+        const sample = value(...args);
+        if (typeof sample === "string") return [sample];
+      } catch {}
+    }
+    return [];
   }
   if (Array.isArray(value)) return value.flatMap(strings);
   if (value && typeof value === "object") {

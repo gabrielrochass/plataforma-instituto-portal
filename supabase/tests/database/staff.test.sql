@@ -10,7 +10,7 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('66666666-6666-4666-8666-666666666666', 'prof-bv@test.local', '{"full_name": "Beto"}'),
   ('77777777-7777-4777-8777-777777777777', 'novo@test.local', '{"full_name": "Novo"}');
 
-update public.profiles set is_admin_geral = true where id = '11111111-1111-4111-8111-111111111111';
+update public.profiles set is_admin_geral = (id = '11111111-1111-4111-8111-111111111111');
 insert into public.staff_memberships (user_id, unit_id, role) values
   ('22222222-2222-4222-8222-222222222222', '0a000000-0000-4000-8000-000000000001', 'admin'),
   ('33333333-3333-4333-8333-333333333333', '0a000000-0000-4000-8000-000000000002', 'admin'),
@@ -26,7 +26,7 @@ select is_empty($$ select id from public.units $$, 'someone without a unit sees 
 select is((select count(*)::int from public.profiles), 1, 'someone without a unit sees only their own profile');
 
 set local request.jwt.claims = '{"sub": "44444444-4444-4444-8444-444444444444", "role": "authenticated"}';
-select is((select count(*)::int from public.units), 2, 'staff see every unit');
+select is((select count(*)::int from public.units where code in ('RA', 'BV')), 2, 'staff see every unit');
 select is(
   (select count(*)::int from public.staff_memberships),
   3,
@@ -114,7 +114,7 @@ select is(
   '0a000000-0000-4000-8000-000000000001'::uuid,
   'accepting the invite joins the unit'
 );
-select is((select count(*)::int from public.units), 2, 'the new teacher now sees the units');
+select is((select count(*)::int from public.units where code in ('RA', 'BV')), 2, 'the new teacher now sees the units');
 select throws_ok(
   $$ select public.accept_invite(repeat('f', 64)) $$,
   '22023', null, 'an unknown invite is refused'

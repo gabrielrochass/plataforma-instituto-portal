@@ -1,8 +1,17 @@
+import { UserPlusIcon } from "lucide-react";
 import { Suspense } from "react";
+import type { PrimaryAction } from "@/components/app-shell/primary-action-link";
 import { SideNav } from "@/components/app-shell/side-nav";
 import { TabBar } from "@/components/app-shell/tab-bar";
 import { Tour } from "@/components/onboarding/tour";
 import { getViewer } from "@/lib/data/viewer";
+import { m } from "@/lib/i18n";
+
+const registerStudent: PrimaryAction = {
+  href: "/alunos/novo",
+  label: m.students.new,
+  icon: UserPlusIcon,
+};
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const viewer = await getViewer();
@@ -10,7 +19,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <div className="flex min-h-dvh">
-        <SideNav />
+        <SideNav action={registerStudent} />
         <main
           id="conteudo"
           tabIndex={-1}
@@ -19,7 +28,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
       </div>
-      <TabBar />
+      <TabBar action={registerStudent} />
       <Suspense fallback={null}>
         <Tour autoStart={!viewer.onboarded} />
       </Suspense>

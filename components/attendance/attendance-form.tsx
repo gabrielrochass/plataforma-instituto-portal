@@ -129,6 +129,7 @@ export function AttendanceForm({
 
   function setMark(enrollmentId: string, patch: Partial<Mark>) {
     touched.current = true;
+    setStatus(takenLabel ?? "");
     setMarks((current) => ({
       ...current,
       [enrollmentId]: { ...current[enrollmentId], ...patch },

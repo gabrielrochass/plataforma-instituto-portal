@@ -151,3 +151,25 @@ export function fromGradingColumns(row: {
     minAttendance: row.min_attendance,
   };
 }
+
+export function parseGrade(text: string, scheme: GradingScheme) {
+  const max = maxScore[scheme];
+  const cleaned = text.trim().replace(",", ".");
+  if (cleaned === "") return { ok: true as const, value: null };
+  if (max === null || !/^\d{1,3}(\.\d{1,2})?$/.test(cleaned)) {
+    return { ok: false as const };
+  }
+  const value = Number(cleaned);
+  return value <= max ? { ok: true as const, value } : { ok: false as const };
+}
+
+export function resultOf(row: {
+  passed_score: boolean;
+  passed_attendance: boolean;
+}) {
+  if (row.passed_score && row.passed_attendance) return "approved" as const;
+  if (!row.passed_score && !row.passed_attendance) return "failedBoth" as const;
+  return row.passed_score
+    ? ("failedAttendance" as const)
+    : ("failedScore" as const);
+}

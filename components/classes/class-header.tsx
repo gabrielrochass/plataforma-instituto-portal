@@ -36,6 +36,9 @@ export function ClassHeader({ row }: { row: ClassSummary }) {
           { href: base as Route, label: m.classes.summary },
           { href: `${base}/alunos` as Route, label: m.classes.roster },
           { href: `${base}/aulas` as Route, label: m.classes.sessions },
+          ...(row.operable
+            ? [{ href: `${base}/notas` as Route, label: m.grades.tab }]
+            : []),
         ]}
       />
     </>

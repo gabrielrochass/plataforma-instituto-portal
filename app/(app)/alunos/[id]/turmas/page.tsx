@@ -15,6 +15,7 @@ import { attendanceRate } from "@/lib/attendance";
 import { getStudent, getStudentTimeline } from "@/lib/data/students";
 import { getViewer } from "@/lib/data/viewer";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
+import { formatScore } from "@/lib/grading";
 import { m } from "@/lib/i18n";
 import { can } from "@/lib/roles";
 import { cn } from "@/lib/utils";
@@ -81,6 +82,11 @@ export default async function StudentClassesPage({
                   {entry.exit_reason && entry.status !== "transferred"
                     ? `. ${m.enrollment.reasons[entry.exit_reason]}`
                     : ""}
+                  {entry.final_score !== null
+                    ? `. ${m.closing.finalScore(formatScore(entry.final_score))}`
+                    : entry.final_concept
+                      ? `. ${m.closing.finalConcept(entry.final_concept)}`
+                      : ""}
                 </span>
                 <span className="text-footnote text-muted-foreground tabular-nums">
                   {entry.ended_on

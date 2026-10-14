@@ -34,6 +34,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessments: {
+        Row: {
+          class_id: string
+          created_at: string
+          held_on: string | null
+          id: string
+          title: string
+          weight: number
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          held_on?: string | null
+          id?: string
+          title: string
+          weight?: number
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          held_on?: string | null
+          id?: string
+          title?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           class_id: string
@@ -596,13 +631,17 @@ export type Database = {
       }
       enrollments: {
         Row: {
+          attendance_pct: number | null
           class_id: string
+          closed_by: string | null
           created_at: string
           created_by: string | null
           ended_on: string | null
           enrolled_on: string
           exit_note: string | null
           exit_reason: Database["public"]["Enums"]["exit_reason"] | null
+          final_concept: string | null
+          final_score: number | null
           id: string
           status: Database["public"]["Enums"]["enrollment_status"]
           student_id: string
@@ -610,13 +649,17 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attendance_pct?: number | null
           class_id: string
+          closed_by?: string | null
           created_at?: string
           created_by?: string | null
           ended_on?: string | null
           enrolled_on?: string
           exit_note?: string | null
           exit_reason?: Database["public"]["Enums"]["exit_reason"] | null
+          final_concept?: string | null
+          final_score?: number | null
           id?: string
           status?: Database["public"]["Enums"]["enrollment_status"]
           student_id: string
@@ -624,13 +667,17 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attendance_pct?: number | null
           class_id?: string
+          closed_by?: string | null
           created_at?: string
           created_by?: string | null
           ended_on?: string | null
           enrolled_on?: string
           exit_note?: string | null
           exit_reason?: Database["public"]["Enums"]["exit_reason"] | null
+          final_concept?: string | null
+          final_score?: number | null
           id?: string
           status?: Database["public"]["Enums"]["enrollment_status"]
           student_id?: string
@@ -643,6 +690,13 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -664,6 +718,61 @@ export type Database = {
             columns: ["transferred_to_id"]
             isOneToOne: true
             referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grades: {
+        Row: {
+          assessment_id: string
+          class_id: string
+          concept: string | null
+          enrollment_id: string
+          graded_at: string
+          graded_by: string | null
+          missed: boolean
+          score: number | null
+        }
+        Insert: {
+          assessment_id: string
+          class_id: string
+          concept?: string | null
+          enrollment_id: string
+          graded_at?: string
+          graded_by?: string | null
+          missed?: boolean
+          score?: number | null
+        }
+        Update: {
+          assessment_id?: string
+          class_id?: string
+          concept?: string | null
+          enrollment_id?: string
+          graded_at?: string
+          graded_by?: string | null
+          missed?: boolean
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grades_assessment_id_class_id_fkey"
+            columns: ["assessment_id", "class_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id", "class_id"]
+          },
+          {
+            foreignKeyName: "grades_enrollment_id_class_id_fkey"
+            columns: ["enrollment_id", "class_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id", "class_id"]
+          },
+          {
+            foreignKeyName: "grades_graded_by_fkey"
+            columns: ["graded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -966,6 +1075,24 @@ export type Database = {
           workload_hours: number
         }[]
       }
+      class_results: {
+        Args: { p_class_id: string }
+        Returns: {
+          attendance_pct: number
+          enrollment_id: string
+          final_concept: string
+          final_score: number
+          missing_grades: number
+          passed_attendance: boolean
+          passed_score: boolean
+          student_id: string
+          student_name: string
+        }[]
+      }
+      close_class: {
+        Args: { p_class_id: string; p_overrides?: Json }
+        Returns: undefined
+      }
       consume_password_reset: {
         Args: { p_token_hash: string }
         Returns: string
@@ -1129,6 +1256,7 @@ export type Database = {
         Args: { p_unit_id: string; p_user_id: string }
         Returns: undefined
       }
+      reopen_class: { Args: { p_class_id: string }; Returns: undefined }
       reopen_enrollment: {
         Args: { p_enrollment_id: string }
         Returns: undefined
@@ -1153,6 +1281,10 @@ export type Database = {
       }
       restore_session: { Args: { p_session_id: string }; Returns: undefined }
       revoke_invite: { Args: { p_id: string }; Returns: undefined }
+      save_grades: {
+        Args: { p_assessment_id: string; p_grades: Json }
+        Returns: undefined
+      }
       session_roster: {
         Args: { p_session_id: string }
         Returns: {
@@ -1215,6 +1347,8 @@ export type Database = {
           enrolled_on: string
           enrollment_id: string
           exit_reason: Database["public"]["Enums"]["exit_reason"]
+          final_concept: string
+          final_score: number
           missed: number
           operable: boolean
           status: Database["public"]["Enums"]["enrollment_status"]

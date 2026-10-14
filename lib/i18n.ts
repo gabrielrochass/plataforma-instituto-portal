@@ -244,6 +244,86 @@ export const m = {
     newRequests: (count: number) =>
       count === 1 ? "1 inscrição nova" : `${count} inscrições novas`,
   },
+  grades: {
+    tab: "Notas",
+    attendanceOnly:
+      "Esta turma é avaliada só pela frequência. Não há notas para lançar.",
+    assessments: "Avaliações",
+    newAssessment: "Nova avaliação",
+    noAssessments: "Nenhuma avaliação ainda.",
+    title: "Nome da avaliação",
+    titlePlaceholder: "Ex.: Prova 1, Projeto final",
+    titleRequired: "Dê um nome à avaliação",
+    heldOn: "Data (opcional)",
+    weight: "Peso",
+    weightHint: "Avaliações com peso 2 valem o dobro na média.",
+    weightInvalid: "Use um peso de 0,5 a 100",
+    create: "Criar avaliação",
+    created: "Avaliação criada",
+    weightLabel: (weight: string) => `Peso ${weight}`,
+    progress: (graded: number, total: number) =>
+      `${graded} de ${total} lançadas`,
+    enter: "Lançar notas",
+    enterFor: (title: string) => `Lançar notas de ${title}`,
+    remove: "Excluir avaliação",
+    removeTitle: (title: string) => `Excluir ${title}?`,
+    removeText: "As notas lançadas nesta avaliação também são excluídas.",
+    removed: "Avaliação excluída",
+    score: (name: string) => `Nota de ${name}`,
+    concept: (name: string) => `Conceito de ${name}`,
+    missed: "Não fez",
+    missedFor: (name: string) => `${name} não fez`,
+    invalidScore: (max: number) =>
+      `Use um número de 0 a ${max}, como ${max === 10 ? "7,5" : "75"}`,
+    outOfRange: "Alguma nota está fora da escala da turma.",
+    save: "Salvar notas",
+    saved: "Notas salvas",
+    enteredCount: (count: number, total: number) =>
+      `${count} de ${total} lançadas`,
+    summary: "Situação dos alunos",
+    average: "Média",
+    conceptColumn: "Conceito",
+    attendance: "Frequência",
+    noStudents: "Ninguém matriculado nesta turma.",
+    result: {
+      approved: "Aprovado",
+      failedScore: "Abaixo da média",
+      failedAttendance: "Frequência baixa",
+      failedBoth: "Abaixo da média e da frequência",
+    },
+    missingCount: (count: number) =>
+      count === 1 ? "1 nota sem lançar" : `${count} notas sem lançar`,
+  },
+  closing: {
+    action: "Encerrar turma",
+    title: "Encerrar turma",
+    intro:
+      "Confira o resultado de cada aluno. Ele é calculado pela regra da turma e pode ser ajustado com justificativa.",
+    pendingSessions: (count: number) =>
+      count === 1 ? "1 chamada sem fazer" : `${count} chamadas sem fazer`,
+    missingGrades: (count: number) =>
+      count === 1 ? "1 nota sem lançar" : `${count} notas sem lançar`,
+    warningsTitle: "Antes de encerrar",
+    warningsText:
+      "Notas sem lançar contam como zero. Chamadas sem fazer não entram na frequência.",
+    proposed: "Resultado pela regra",
+    override: "Ajustar resultado",
+    approve: "Aprovar mesmo assim",
+    fail: "Reprovar mesmo assim",
+    reason: "Justificativa",
+    reasonRequired: "Escreva a justificativa do ajuste",
+    final: (approved: number, failed: number) =>
+      `${approved === 1 ? "1 aprovado" : `${approved} aprovados`}, ${failed === 1 ? "1 não aprovado" : `${failed} não aprovados`}`,
+    confirm: "Encerrar turma",
+    confirmTitle: "Encerrar a turma?",
+    confirmText:
+      "Os resultados ficam guardados e a turma não aceita mais chamada nem notas. Só a coordenação pode reabrir.",
+    done: "Turma encerrada",
+    reopen: "Reabrir turma",
+    reopened: "Turma reaberta",
+    finalScore: (score: string) => `Média final ${score}`,
+    finalConcept: (concept: string) => `Conceito final ${concept}`,
+  },
   notes: {
     title: "Acompanhamento",
     new: "Nova anotação",

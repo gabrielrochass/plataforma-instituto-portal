@@ -128,6 +128,12 @@ export function StudentHeader({
           { href: base as Route, label: m.students.summary },
           { href: `${base}/turmas` as Route, label: m.students.classes },
           { href: `${base}/acompanhamento` as Route, label: m.notes.title },
+          ...(showSocial
+            ? [
+                { href: `${base}/ficha` as Route, label: m.social.tab },
+                { href: `${base}/dados` as Route, label: m.social.dataTab },
+              ]
+            : []),
         ]}
       />
     </>

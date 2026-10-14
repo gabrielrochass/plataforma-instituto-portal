@@ -71,6 +71,9 @@ export async function createClass(
   const select = page.getByRole("combobox", { name: "Curso" });
   if (await select.count()) await select.selectOption({ label: course });
   else await page.locator("label", { hasText: exact(course) }).click();
+  if (await page.getByRole("radio", { name: "Recife Antigo" }).count()) {
+    await page.locator("label", { hasText: exact("Recife Antigo") }).click();
+  }
   await page.getByLabel("Nome da turma").fill(name);
   await page.getByRole("button", { name: "Continuar" }).click();
 

@@ -34,6 +34,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      alumni_outcomes: {
+        Row: {
+          author_id: string | null
+          created_at: string
+          formal_job: boolean | null
+          id: string
+          kind: Database["public"]["Enums"]["outcome_kind"]
+          note: string | null
+          observed_on: string
+          organization: string | null
+          related_to_course: boolean | null
+          student_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string
+          formal_job?: boolean | null
+          id?: string
+          kind: Database["public"]["Enums"]["outcome_kind"]
+          note?: string | null
+          observed_on: string
+          organization?: string | null
+          related_to_course?: boolean | null
+          student_id: string
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string
+          formal_job?: boolean | null
+          id?: string
+          kind?: Database["public"]["Enums"]["outcome_kind"]
+          note?: string | null
+          observed_on?: string
+          organization?: string | null
+          related_to_course?: boolean | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alumni_outcomes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alumni_outcomes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           class_id: string
@@ -842,6 +896,99 @@ export type Database = {
         }
         Relationships: []
       }
+      social_profiles: {
+        Row: {
+          assessed_on: string
+          author_id: string | null
+          benefits: string[]
+          city: string | null
+          created_at: string
+          disability: string[] | null
+          gender: Database["public"]["Enums"]["gender_identity"] | null
+          has_computer: boolean | null
+          has_internet: boolean | null
+          health_notes: string | null
+          household_income_cents: number | null
+          household_size: number | null
+          housing: Database["public"]["Enums"]["housing_kind"] | null
+          id: string
+          moment: Database["public"]["Enums"]["assessment_moment"]
+          neighborhood: string | null
+          notes: string | null
+          race_color: Database["public"]["Enums"]["race_color"] | null
+          schooling: Database["public"]["Enums"]["schooling_level"] | null
+          student_id: string
+          studying_now: boolean | null
+          updated_at: string
+          work: Database["public"]["Enums"]["work_status"] | null
+        }
+        Insert: {
+          assessed_on: string
+          author_id?: string | null
+          benefits?: string[]
+          city?: string | null
+          created_at?: string
+          disability?: string[] | null
+          gender?: Database["public"]["Enums"]["gender_identity"] | null
+          has_computer?: boolean | null
+          has_internet?: boolean | null
+          health_notes?: string | null
+          household_income_cents?: number | null
+          household_size?: number | null
+          housing?: Database["public"]["Enums"]["housing_kind"] | null
+          id?: string
+          moment: Database["public"]["Enums"]["assessment_moment"]
+          neighborhood?: string | null
+          notes?: string | null
+          race_color?: Database["public"]["Enums"]["race_color"] | null
+          schooling?: Database["public"]["Enums"]["schooling_level"] | null
+          student_id: string
+          studying_now?: boolean | null
+          updated_at?: string
+          work?: Database["public"]["Enums"]["work_status"] | null
+        }
+        Update: {
+          assessed_on?: string
+          author_id?: string | null
+          benefits?: string[]
+          city?: string | null
+          created_at?: string
+          disability?: string[] | null
+          gender?: Database["public"]["Enums"]["gender_identity"] | null
+          has_computer?: boolean | null
+          has_internet?: boolean | null
+          health_notes?: string | null
+          household_income_cents?: number | null
+          household_size?: number | null
+          housing?: Database["public"]["Enums"]["housing_kind"] | null
+          id?: string
+          moment?: Database["public"]["Enums"]["assessment_moment"]
+          neighborhood?: string | null
+          notes?: string | null
+          race_color?: Database["public"]["Enums"]["race_color"] | null
+          schooling?: Database["public"]["Enums"]["schooling_level"] | null
+          student_id?: string
+          studying_now?: boolean | null
+          updated_at?: string
+          work?: Database["public"]["Enums"]["work_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_profiles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_memberships: {
         Row: {
           created_at: string
@@ -922,6 +1069,7 @@ export type Database = {
       }
       students: {
         Row: {
+          anonymized_at: string | null
           birth_date: string
           cpf: string | null
           created_at: string
@@ -938,6 +1086,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          anonymized_at?: string | null
           birth_date: string
           cpf?: string | null
           created_at?: string
@@ -954,6 +1103,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          anonymized_at?: string | null
           birth_date?: string
           cpf?: string | null
           created_at?: string
@@ -1031,6 +1181,19 @@ export type Database = {
         }[]
       }
       accept_invite: { Args: { p_token_hash: string }; Returns: string }
+      add_alumni_outcome: {
+        Args: {
+          p_formal_job?: boolean
+          p_kind: Database["public"]["Enums"]["outcome_kind"]
+          p_note?: string
+          p_observed_on: string
+          p_organization?: string
+          p_related_to_course?: boolean
+          p_student_id: string
+        }
+        Returns: undefined
+      }
+      anonymize_student: { Args: { p_student_id: string }; Returns: undefined }
       cancel_class: { Args: { p_class_id: string }; Returns: undefined }
       cancel_session: {
         Args: { p_reason: string; p_session_id: string }
@@ -1164,6 +1327,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      export_student_data: { Args: { p_student_id: string }; Returns: Json }
       find_students: {
         Args: { p_query: string }
         Returns: {
@@ -1252,6 +1416,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      remove_alumni_outcome: { Args: { p_id: string }; Returns: undefined }
       remove_membership: {
         Args: { p_unit_id: string; p_user_id: string }
         Returns: undefined
@@ -1283,6 +1448,10 @@ export type Database = {
       revoke_invite: { Args: { p_id: string }; Returns: undefined }
       save_grades: {
         Args: { p_assessment_id: string; p_grades: Json }
+        Returns: undefined
+      }
+      save_social_profile: {
+        Args: { p_profile: Json; p_student_id: string }
         Returns: undefined
       }
       session_roster: {
@@ -1317,6 +1486,37 @@ export type Database = {
         Args: { p_active: boolean; p_user_id: string }
         Returns: undefined
       }
+      student_access_log: {
+        Args: { p_student_id: string }
+        Returns: {
+          action: string
+          actor: string
+          at: string
+          columns: string[]
+          table_name: string
+        }[]
+      }
+      student_alumni_outcomes: {
+        Args: { p_student_id: string }
+        Returns: {
+          author_id: string | null
+          created_at: string
+          formal_job: boolean | null
+          id: string
+          kind: Database["public"]["Enums"]["outcome_kind"]
+          note: string | null
+          observed_on: string
+          organization: string | null
+          related_to_course: boolean | null
+          student_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "alumni_outcomes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       student_list: {
         Args: { p_query?: string; p_situation?: string; p_unit_id?: string }
         Returns: {
@@ -1333,8 +1533,43 @@ export type Database = {
       student_private: {
         Args: { p_student_id: string }
         Returns: {
+          anonymized: boolean
           cpf: string
         }[]
+      }
+      student_social_profiles: {
+        Args: { p_student_id: string }
+        Returns: {
+          assessed_on: string
+          author_id: string | null
+          benefits: string[]
+          city: string | null
+          created_at: string
+          disability: string[] | null
+          gender: Database["public"]["Enums"]["gender_identity"] | null
+          has_computer: boolean | null
+          has_internet: boolean | null
+          health_notes: string | null
+          household_income_cents: number | null
+          household_size: number | null
+          housing: Database["public"]["Enums"]["housing_kind"] | null
+          id: string
+          moment: Database["public"]["Enums"]["assessment_moment"]
+          neighborhood: string | null
+          notes: string | null
+          race_color: Database["public"]["Enums"]["race_color"] | null
+          schooling: Database["public"]["Enums"]["schooling_level"] | null
+          student_id: string
+          studying_now: boolean | null
+          updated_at: string
+          work: Database["public"]["Enums"]["work_status"] | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "social_profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       student_timeline: {
         Args: { p_student_id: string }
@@ -1432,6 +1667,7 @@ export type Database = {
       }
     }
     Enums: {
+      assessment_moment: "intake" | "follow_up" | "exit"
       attendance_status: "present" | "absent" | "excused" | "late"
       case_note_kind:
         | "family_contact"
@@ -1463,6 +1699,14 @@ export type Database = {
         | "level"
         | "class_cancelled"
         | "other"
+      gender_identity:
+        | "woman"
+        | "man"
+        | "trans_woman"
+        | "trans_man"
+        | "non_binary"
+        | "other"
+        | "undeclared"
       grading_scheme:
         | "numeric_10"
         | "numeric_100"
@@ -1476,13 +1720,51 @@ export type Database = {
         | "aunt_uncle"
         | "legal_guardian"
         | "other"
+      housing_kind:
+        | "owned"
+        | "rented"
+        | "ceded"
+        | "occupied"
+        | "shelter"
+        | "street"
+        | "other"
+      outcome_kind:
+        | "employed"
+        | "internship"
+        | "studying"
+        | "self_employed"
+        | "job_seeking"
+        | "other"
+      race_color:
+        | "white"
+        | "black"
+        | "brown"
+        | "yellow"
+        | "indigenous"
+        | "undeclared"
       request_status:
         | "pending"
         | "waitlisted"
         | "converted"
         | "declined"
         | "withdrawn"
+      schooling_level:
+        | "none"
+        | "elementary_incomplete"
+        | "elementary"
+        | "high_school_incomplete"
+        | "high_school"
+        | "higher_incomplete"
+        | "higher"
+        | "postgraduate"
       unit_role: "admin" | "teacher"
+      work_status:
+        | "formal"
+        | "informal"
+        | "self_employed"
+        | "unemployed"
+        | "not_working"
+        | "apprentice_intern"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1613,6 +1895,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      assessment_moment: ["intake", "follow_up", "exit"],
       attendance_status: ["present", "absent", "excused", "late"],
       case_note_kind: [
         "family_contact",
@@ -1647,6 +1930,15 @@ export const Constants = {
         "class_cancelled",
         "other",
       ],
+      gender_identity: [
+        "woman",
+        "man",
+        "trans_woman",
+        "trans_man",
+        "non_binary",
+        "other",
+        "undeclared",
+      ],
       grading_scheme: [
         "numeric_10",
         "numeric_100",
@@ -1662,6 +1954,31 @@ export const Constants = {
         "legal_guardian",
         "other",
       ],
+      housing_kind: [
+        "owned",
+        "rented",
+        "ceded",
+        "occupied",
+        "shelter",
+        "street",
+        "other",
+      ],
+      outcome_kind: [
+        "employed",
+        "internship",
+        "studying",
+        "self_employed",
+        "job_seeking",
+        "other",
+      ],
+      race_color: [
+        "white",
+        "black",
+        "brown",
+        "yellow",
+        "indigenous",
+        "undeclared",
+      ],
       request_status: [
         "pending",
         "waitlisted",
@@ -1669,7 +1986,25 @@ export const Constants = {
         "declined",
         "withdrawn",
       ],
+      schooling_level: [
+        "none",
+        "elementary_incomplete",
+        "elementary",
+        "high_school_incomplete",
+        "high_school",
+        "higher_incomplete",
+        "higher",
+        "postgraduate",
+      ],
       unit_role: ["admin", "teacher"],
+      work_status: [
+        "formal",
+        "informal",
+        "self_employed",
+        "unemployed",
+        "not_working",
+        "apprentice_intern",
+      ],
     },
   },
 } as const

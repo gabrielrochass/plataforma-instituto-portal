@@ -24,14 +24,31 @@ Segurança: RLS em todas as tabelas expostas, cadastro público desligado (só e
 hash bcrypt, limite de tentativas de login do Supabase, só cookies essenciais, token de acesso de 15 minutos, backup
 cifrado com chave offline e segredos só no GitHub e na Vercel.
 
-## Antes de registrar alunos
+## Alunos, dados sensíveis e menores
 
-O tratamento passa a ser de alto risco (Res. CD/ANPD 2/2022, art. 4º): dados de crianças e adolescentes e dados
-sensíveis (cor ou raça, saúde, deficiência) são critérios específicos. Por isso:
+O tratamento é de alto risco (Res. CD/ANPD 2/2022, art. 4º): há dados de crianças e adolescentes e dados sensíveis
+(cor ou raça, saúde, deficiência). O que o Portal já faz:
 
-1. Elaborar o RIPD e nomear o encarregado.
-2. Coletar consentimento específico de um dos pais ou responsável para menores (LGPD, art. 14) e consentimento
-   específico para dados sensíveis (art. 11).
-3. Limitar dados sensíveis à coordenação; professores veem só o necessário para a sala de aula.
-4. Divulgar a patrocinadores apenas números agregados, escondendo grupos com menos de 5 pessoas.
-5. Atualizar esta tabela, a Política de Privacidade e o runbook.
+| Dados | Finalidade | Base legal | Quem acessa | Retenção |
+| --- | --- | --- | --- | --- |
+| Cadastro, responsáveis, matrículas, frequência, notas | Executar os cursos | Consentimento do termo de matrícula (art. 7º, I; art. 14 para menores) | Coordenação da unidade; professores só dos próprios alunos | Enquanto houver vínculo e pelo prazo de prestação de contas das parcerias; depois, anonimização |
+| Sala de aula: acessibilidade e observações pedagógicas | Adaptar as aulas | Mesmo termo | Professores dos alunos com matrícula ativa | Idem |
+| Ficha socioeconômica versionada e egressos | Acompanhamento social e indicadores agregados | Mesmo termo | Só coordenação, com registro de cada leitura | Idem |
+| Cor ou raça, deficiência, saúde | Acompanhamento social e indicadores agregados | Consentimento específico (art. 11, I) | Só coordenação | Apagados ao revogar o termo |
+
+Controles no sistema:
+
+1. RLS no banco separa professor, coordenação da unidade e administração geral.
+2. Leituras da ficha, exportações e anonimizações vão para `private.audit_log`, só com nomes de colunas, nunca valores.
+3. Dados sensíveis só entram com termo específico ativo; revogar o termo apaga esses campos em todas as versões.
+4. Exportação completa (aba Dados do aluno) atende pedido de acesso e portabilidade.
+5. Anonimização (administração geral) atende pedido de exclusão sem perder os números agregados.
+6. A limpeza diária (`private.purge_expired()`, no workflow Backup) apaga inscrições recusadas ou desistentes após 180 dias,
+   inscrições paradas após 1 ano e convites e links vencidos.
+
+Pendências fora do sistema:
+
+1. Elaborar o RIPD e nomear o encarregado (DPO); publicar o contato na Política de Privacidade.
+2. Revisão jurídica dos termos impressos (matrícula, uso de imagem, dados sensíveis) e da Política de Privacidade.
+3. Confirmar o prazo de guarda exigido pelas parcerias (ex.: MROSC, Lei 13.019/2014, art. 68).
+4. Divulgar a patrocinadores apenas números agregados, escondendo grupos com menos de 5 pessoas (painel de impacto).

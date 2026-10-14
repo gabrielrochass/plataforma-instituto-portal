@@ -27,7 +27,7 @@ export const getStudent = cache(async (id: string) => {
   const { data, error } = await supabase
     .from("students")
     .select(
-      "id, full_name, social_name, birth_date, phone, email, registered_unit_id, last_assessed_on, units (code, name), guardians (id, full_name, relationship, phone, is_whatsapp, created_at), student_care (accessibility, accessibility_notes, notes_for_teachers), consents (kind, signed_on, revoked_on)",
+      "id, full_name, social_name, birth_date, phone, email, registered_unit_id, last_assessed_on, units (code, name), guardians (id, full_name, relationship, phone, is_whatsapp, created_at), student_care (accessibility, accessibility_notes, notes_for_teachers), consents (id, kind, signed_on, revoked_on, created_at)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -62,5 +62,5 @@ export async function getStudentCpf(id: string) {
     .rpc("student_private", { p_student_id: id })
     .maybeSingle();
   if (error) throw error;
-  return data ? { cpf: data.cpf } : null;
+  return data ? { cpf: data.cpf, anonymized: data.anonymized } : null;
 }

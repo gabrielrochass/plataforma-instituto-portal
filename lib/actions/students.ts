@@ -67,6 +67,7 @@ export async function registerStudent(
       : ["data_processing"],
     p_class_id: value.classId ?? undefined,
     p_enrollment_id: value.classId ? value.enrollmentId : undefined,
+    p_enrolled_on: value.classId ? (value.enrolledOn ?? undefined) : undefined,
   });
   if (error?.code === "23505") {
     return { ok: false, errors: { cpf: [m.studentForm.errors.cpfTaken] } };

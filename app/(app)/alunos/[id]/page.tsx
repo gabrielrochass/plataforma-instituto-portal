@@ -5,13 +5,14 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { StudentHeader } from "@/components/students/student-header";
 import { buttonVariants } from "@/components/ui/button";
+import { attendanceRate } from "@/lib/attendance";
 import {
   getStudent,
   getStudentCpf,
   getStudentTimeline,
 } from "@/lib/data/students";
 import { getViewer } from "@/lib/data/viewer";
-import { formatFullDate, todayInRecife } from "@/lib/dates";
+import { todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
 import {
   displayName,
@@ -21,6 +22,11 @@ import {
   whatsappHref,
 } from "@/lib/people";
 import { can } from "@/lib/roles";
+
+function rateLabel(entry: { attended: number; missed: number }) {
+  const rate = attendanceRate(entry);
+  return rate === null ? m.attendance.noRate : m.attendance.rate(rate);
+}
 
 export async function generateMetadata({
   params,
@@ -75,7 +81,7 @@ export default async function StudentPage({
                         {entry.class_name}
                       </span>
                       <span className="text-footnote text-muted-foreground">
-                        {`${entry.course_name}, ${entry.unit_code}. ${m.students.since(formatFullDate(entry.enrolled_on))}`}
+                        {`${entry.course_name}, ${entry.unit_code}. ${rateLabel(entry)}`}
                       </span>
                     </Link>
                   ) : (

@@ -1,4 +1,4 @@
-import { UserPlusIcon } from "lucide-react";
+import { ClipboardCheckIcon, UserPlusIcon } from "lucide-react";
 import { Suspense } from "react";
 import type { PrimaryAction } from "@/components/app-shell/primary-action-link";
 import { SideNav } from "@/components/app-shell/side-nav";
@@ -13,13 +13,20 @@ const registerStudent: PrimaryAction = {
   icon: UserPlusIcon,
 };
 
+const takeAttendance: PrimaryAction = {
+  href: "/chamada",
+  label: m.attendance.take,
+  icon: ClipboardCheckIcon,
+};
+
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const viewer = await getViewer();
+  const action = viewer.teaches ? takeAttendance : registerStudent;
 
   return (
     <>
       <div className="flex min-h-dvh">
-        <SideNav action={registerStudent} />
+        <SideNav action={action} />
         <main
           id="conteudo"
           tabIndex={-1}
@@ -28,7 +35,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
       </div>
-      <TabBar action={registerStudent} />
+      <TabBar action={action} />
       <Suspense fallback={null}>
         <Tour autoStart={!viewer.onboarded} />
       </Suspense>

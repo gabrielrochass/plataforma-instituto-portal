@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { ClassHeader } from "@/components/classes/class-header";
 import { EnrollSheet } from "@/components/enrollment/enroll-sheet";
 import { RosterList } from "@/components/enrollment/roster-list";
+import { attendanceRate } from "@/lib/attendance";
+import { getClassAttendance } from "@/lib/data/attendance";
 import { getClass, getClasses, getRoster } from "@/lib/data/classes";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
@@ -18,10 +20,11 @@ export default async function ClassRosterPage({
 }: PageProps<"/turmas/[id]/alunos">) {
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
-  const [row, roster, classes] = await Promise.all([
+  const [row, roster, classes, attendance] = await Promise.all([
     getClass(id),
     getRoster(id),
     getClasses(),
+    getClassAttendance(id),
   ]);
   if (!row) notFound();
   const today = todayInRecife();
@@ -72,16 +75,35 @@ export default async function ClassRosterPage({
               <RosterList
                 editable={editable}
                 targets={targets}
-                rows={active.map((entry) => ({
-                  enrollmentId: entry.id,
-                  studentId: entry.studentId,
-                  name: displayName({
-                    full_name: entry.fullName,
-                    social_name: entry.socialName,
-                  }),
-                  detail: m.students.age(ageOn(entry.birthDate, today)),
-                  accessibility: entry.accessibility.length > 0,
-                }))}
+                rows={active.map((entry) => {
+                  const counts = attendance.get(entry.id);
+                  const rate = counts
+                    ? attendanceRate({
+                        attended: counts.present + counts.late,
+                        missed: counts.absent + counts.excused,
+                      })
+                    : null;
+                  return {
+                    enrollmentId: entry.id,
+                    studentId: entry.studentId,
+                    name: displayName({
+                      full_name: entry.fullName,
+                      social_name: entry.socialName,
+                    }),
+                    detail: `${m.students.age(ageOn(entry.birthDate, today))}. ${
+                      rate === null
+                        ? m.attendance.noRate
+                        : m.attendance.rate(rate)
+                    }`,
+                    accessibility: entry.accessibility.length > 0,
+                    warning:
+                      counts && counts.streak >= 3
+                        ? m.attendance.streak(counts.streak)
+                        : rate !== null && rate < row.rules.minAttendance
+                          ? m.attendance.belowMinimum(row.rules.minAttendance)
+                          : undefined,
+                  };
+                })}
               />
             )}
             {past.length > 0 && (

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { StudentHeader } from "@/components/students/student-header";
+import { attendanceRate } from "@/lib/attendance";
 import { getStudent, getStudentTimeline } from "@/lib/data/students";
 import { getViewer } from "@/lib/data/viewer";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
@@ -88,6 +89,10 @@ export default async function StudentClassesPage({
                         formatFullDate(entry.ended_on),
                       )
                     : m.students.since(formatFullDate(entry.enrolled_on))}
+                  {(() => {
+                    const rate = attendanceRate(entry);
+                    return rate === null ? "" : `. ${m.attendance.rate(rate)}`;
+                  })()}
                 </span>
               </>
             );

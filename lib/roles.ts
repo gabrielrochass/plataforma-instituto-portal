@@ -11,6 +11,7 @@ export type Viewer = {
   isAdminGeral: boolean;
   memberships: readonly Membership[];
   onboarded: boolean;
+  teaches: boolean;
 };
 
 export function hasAccess(viewer: Viewer) {

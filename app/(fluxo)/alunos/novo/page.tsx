@@ -33,6 +33,7 @@ export default async function NewStudentPage({
       classes={open.map((row) => ({
         id: row.id,
         label: `${row.name} (${row.unit_code})`,
+        startsOn: row.starts_on,
       }))}
       units={adminUnits(viewer, units)}
       presetClassId={preset}

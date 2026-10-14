@@ -38,6 +38,133 @@ export const m = {
     emptyTitle: "Nada para hoje",
     emptyDescription:
       "Quando suas turmas tiverem aulas, a chamada do dia aparece aqui.",
+    today: "Aulas de hoje",
+    noClassesToday: "Nenhuma aula sua hoje.",
+    late: "Chamadas atrasadas",
+    attention: "Precisam de atenção",
+    noAttention: "Ninguém com faltas seguidas. Tudo certo por aqui.",
+    pendencies: "Pendências",
+    noPendencies: "Nada pendente. Bom trabalho!",
+    pendingSessions: (count: number) =>
+      count === 1 ? "1 chamada atrasada" : `${count} chamadas atrasadas`,
+    pendingSocial: (count: number) =>
+      count === 1
+        ? "1 ficha social pendente"
+        : `${count} fichas sociais pendentes`,
+    toClose: (count: number) =>
+      count === 1
+        ? "1 turma com período encerrado"
+        : `${count} turmas com período encerrado`,
+    stats: "Números de hoje",
+    activeStudents: "Alunos ativos",
+    currentClasses: "Turmas em andamento",
+    alerts: "Alertas de evasão",
+    lateSessions: "Chamadas atrasadas",
+    seeAll: "Ver todos",
+  },
+  attendance: {
+    title: "Chamada",
+    take: "Fazer chamada",
+    view: "Ver chamada",
+    done: (present: number, absent: number) =>
+      `${present === 1 ? "1 presente" : `${present} presentes`}, ${absent === 1 ? "1 falta" : `${absent} faltas`}`,
+    pending: "Chamada pendente",
+    cancelledSession: "Aula não aconteceu",
+    allPresent: "Marcar todos como presentes",
+    present: "Presente",
+    absent: "Falta",
+    late: "Atrasou",
+    excused: "Falta justificada",
+    unmarked: "Sem marcação",
+    status: "Marcação",
+    more: (name: string) => `Mais opções para ${name}`,
+    optionsTitle: (name: string) => name,
+    note: "Observação",
+    notePlaceholder: "Ex.: atestado médico",
+    topic: "O que foi trabalhado na aula",
+    topicHint: "Opcional. Fica no diário da turma.",
+    save: "Salvar chamada",
+    saving: "Salvando…",
+    saved: "Chamada salva",
+    summary: (present: number, absent: number, unmarked: number) =>
+      [
+        present === 1 ? "1 presente" : `${present} presentes`,
+        absent === 1 ? "1 falta" : `${absent} faltas`,
+        unmarked > 0
+          ? unmarked === 1
+            ? "1 sem marcação"
+            : `${unmarked} sem marcação`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(", "),
+    unmarkedLeft: (count: number) =>
+      count === 1 ? "Falta marcar 1 aluno." : `Falta marcar ${count} alunos.`,
+    draft: "Rascunho guardado neste aparelho",
+    takenBy: (date: string) => `Chamada feita em ${date}. Dá para corrigir.`,
+    streak: (count: number) => `${count} faltas seguidas`,
+    noStudents: "Ninguém matriculado nesta data.",
+    future: "Esta aula ainda não aconteceu. A chamada abre no dia.",
+    didNotHappen: "A aula não aconteceu",
+    cancelTitle: "A aula não aconteceu?",
+    cancelText:
+      "A aula sai da frequência de todos. Dá para desfazer depois em Aulas.",
+    reason: "Motivo",
+    reasons: [
+      "Feriado ou recesso",
+      "Chuva ou alagamento",
+      "Falta do professor",
+      "Evento do instituto",
+    ],
+    otherReason: "Outro motivo",
+    reasonRequired: "Informe o motivo",
+    confirmCancel: "Confirmar",
+    cancelled: "Aula marcada como não acontecida",
+    restore: "Desfazer",
+    restored: "Aula de volta",
+    cannotCancel: "Esta aula já tem chamada. Apague as marcações antes.",
+    alertsTitle: "Entraram em alerta",
+    alertsText:
+      "Estes alunos chegaram a 3 faltas seguidas. Um contato agora ajuda a evitar a desistência.",
+    finish: "Concluir",
+    call: "Ligar",
+    whatsapp: "WhatsApp",
+    callPerson: (name: string) => `Ligar para ${name}`,
+    whatsappPerson: (name: string) => `WhatsApp de ${name}`,
+    registerContact: "Registrar contato",
+    registerContactFor: (name: string) => `Registrar contato com ${name}`,
+    chooseSession: "Qual aula?",
+    chooseHint: "Escolha a aula para fazer a chamada.",
+    nothingToday:
+      "Nenhuma aula sua hoje e nenhuma chamada atrasada. Bom trabalho!",
+    rate: (percent: number) => `${percent}% de presença`,
+    noRate: "Sem chamada ainda",
+    belowMinimum: (minimum: number) => `Abaixo do mínimo de ${minimum}%`,
+    teachNote: "Só quem dá aula nesta turma faz a chamada.",
+  },
+  notes: {
+    title: "Acompanhamento",
+    new: "Nova anotação",
+    kind: "Tipo",
+    kinds: {
+      family_contact: "Contato com a família",
+      pedagogical: "Pedagógico",
+      incident: "Ocorrência",
+      achievement: "Conquista",
+      service: "Atendimento",
+      home_visit: "Visita domiciliar",
+      referral: "Encaminhamento",
+    },
+    happenedOn: "Data",
+    body: "O que aconteceu",
+    bodyPlaceholder: "Ex.: falei com a mãe, ele mudou de turno no trabalho",
+    bodyRequired: "Escreva o que aconteceu",
+    save: "Salvar anotação",
+    saved: "Anotação salva",
+    empty: "Nenhuma anotação ainda.",
+    by: (name: string, date: string) => `${name}, ${date}`,
+    privacy:
+      "Professores veem só as próprias anotações. A coordenação vê todas.",
   },
   classes: {
     title: "Turmas",
@@ -381,6 +508,9 @@ export const m = {
     classOptional: "Turma (opcional)",
     noClass: "Cadastrar sem turma agora",
     noClassForTeacher: "Escolha uma das suas turmas",
+    enrolledOn: "Na turma desde",
+    enrolledOnHint:
+      "Se o aluno já frequentava a turma antes do cadastro, informe a data em que começou.",
     unit: "Unidade de cadastro",
     consents: "Termos assinados",
     consentData: "Termo de matrícula e uso de dados assinado",
@@ -409,6 +539,7 @@ export const m = {
       consent: "O termo de matrícula precisa estar assinado",
       unit: "Escolha a unidade",
       classRequired: "Escolha a turma",
+      enrolledOn: "A data não pode ser no futuro",
     },
   },
   enrollment: {

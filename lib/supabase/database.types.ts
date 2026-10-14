@@ -34,6 +34,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          class_id: string
+          enrollment_id: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string | null
+          session_id: string
+          status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Insert: {
+          class_id: string
+          enrollment_id: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          session_id: string
+          status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Update: {
+          class_id?: string
+          enrollment_id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          session_id?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_enrollment_id_class_id_fkey"
+            columns: ["enrollment_id", "class_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id", "class_id"]
+          },
+          {
+            foreignKeyName: "attendance_records_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_session_id_class_id_fkey"
+            columns: ["session_id", "class_id"]
+            isOneToOne: false
+            referencedRelation: "class_sessions"
+            referencedColumns: ["id", "class_id"]
+          },
+        ]
+      }
       calendar_closures: {
         Row: {
           created_at: string
@@ -79,8 +131,57 @@ export type Database = {
           },
         ]
       }
+      case_notes: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          happened_on: string
+          id: string
+          kind: Database["public"]["Enums"]["case_note_kind"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          happened_on: string
+          id?: string
+          kind: Database["public"]["Enums"]["case_note_kind"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          happened_on?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["case_note_kind"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_notes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_sessions: {
         Row: {
+          attendance_taken_at: string | null
           cancel_reason: string | null
           cancelled_at: string | null
           class_id: string
@@ -89,9 +190,11 @@ export type Database = {
           id: string
           is_extra: boolean
           starts_at: string
+          taken_by: string | null
           topic: string | null
         }
         Insert: {
+          attendance_taken_at?: string | null
           cancel_reason?: string | null
           cancelled_at?: string | null
           class_id: string
@@ -100,9 +203,11 @@ export type Database = {
           id?: string
           is_extra?: boolean
           starts_at: string
+          taken_by?: string | null
           topic?: string | null
         }
         Update: {
+          attendance_taken_at?: string | null
           cancel_reason?: string | null
           cancelled_at?: string | null
           class_id?: string
@@ -111,6 +216,7 @@ export type Database = {
           id?: string
           is_extra?: boolean
           starts_at?: string
+          taken_by?: string | null
           topic?: string | null
         }
         Relationships: [
@@ -119,6 +225,13 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_sessions_taken_by_fkey"
+            columns: ["taken_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -643,8 +756,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      absence_alerts: {
+        Args: never
+        Returns: {
+          class_id: string
+          class_name: string
+          contact_name: string
+          contact_phone: string
+          contact_whatsapp: boolean
+          enrollment_id: string
+          streak: number
+          student_id: string
+          student_name: string
+          unit_code: string
+        }[]
+      }
       accept_invite: { Args: { p_token_hash: string }; Returns: string }
       cancel_class: { Args: { p_class_id: string }; Returns: undefined }
+      cancel_session: {
+        Args: { p_reason: string; p_session_id: string }
+        Returns: undefined
+      }
+      class_attendance: {
+        Args: { p_class_id: string }
+        Returns: {
+          absent: number
+          enrollment_id: string
+          excused: number
+          late: number
+          present: number
+          streak: number
+        }[]
+      }
       class_list: {
         Args: { p_class_id?: string }
         Returns: {
@@ -728,6 +871,7 @@ export type Database = {
       enroll_student: {
         Args: {
           p_class_id: string
+          p_enrolled_on?: string
           p_enrollment_id: string
           p_student_id: string
         }
@@ -741,6 +885,13 @@ export type Database = {
           id: string
           unit_code: string
           visible: boolean
+        }[]
+      }
+      home_counts: {
+        Args: never
+        Returns: {
+          active_students: number
+          social_pending: number
         }[]
       }
       invite_info: {
@@ -768,6 +919,19 @@ export type Database = {
           unit_id: string
         }[]
       }
+      pending_sessions: {
+        Args: { p_days?: number }
+        Returns: {
+          class_id: string
+          class_name: string
+          ends_at: string
+          held_on: string
+          session_id: string
+          starts_at: string
+          teaches: boolean
+          unit_code: string
+        }[]
+      }
       register_student: {
         Args: {
           p_accessibility: unknown
@@ -777,6 +941,7 @@ export type Database = {
           p_consents: Database["public"]["Enums"]["consent_kind"][]
           p_cpf?: string
           p_email?: string
+          p_enrolled_on?: string
           p_enrollment_id?: string
           p_full_name: string
           p_guardians: Json
@@ -796,7 +961,24 @@ export type Database = {
         Args: { p_enrollment_id: string }
         Returns: undefined
       }
+      restore_session: { Args: { p_session_id: string }; Returns: undefined }
       revoke_invite: { Args: { p_id: string }; Returns: undefined }
+      session_roster: {
+        Args: { p_session_id: string }
+        Returns: {
+          contact_name: string
+          contact_phone: string
+          contact_whatsapp: boolean
+          enrollment_id: string
+          full_name: string
+          needs_accessibility: boolean
+          note: string
+          social_name: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          streak: number
+          student_id: string
+        }[]
+      }
       set_admin_geral: {
         Args: { p_user_id: string; p_value: boolean }
         Returns: undefined
@@ -835,6 +1017,7 @@ export type Database = {
       student_timeline: {
         Args: { p_student_id: string }
         Returns: {
+          attended: number
           class_id: string
           class_name: string
           course_name: string
@@ -842,11 +1025,16 @@ export type Database = {
           enrolled_on: string
           enrollment_id: string
           exit_reason: Database["public"]["Enums"]["exit_reason"]
+          missed: number
           operable: boolean
           status: Database["public"]["Enums"]["enrollment_status"]
           transferred_to_class: string
           unit_code: string
         }[]
+      }
+      take_attendance: {
+        Args: { p_marks: Json; p_session_id: string; p_topic?: string }
+        Returns: undefined
       }
       team_members: {
         Args: never
@@ -858,6 +1046,21 @@ export type Database = {
           is_admin_geral: boolean
           manageable: boolean
           memberships: Json
+        }[]
+      }
+      today_sessions: {
+        Args: never
+        Returns: {
+          absent: number
+          cancelled: boolean
+          class_id: string
+          class_name: string
+          ends_at: string
+          present: number
+          session_id: string
+          starts_at: string
+          taken: boolean
+          unit_code: string
         }[]
       }
       transfer_enrollment: {
@@ -890,6 +1093,15 @@ export type Database = {
       }
     }
     Enums: {
+      attendance_status: "present" | "absent" | "excused" | "late"
+      case_note_kind:
+        | "family_contact"
+        | "pedagogical"
+        | "incident"
+        | "achievement"
+        | "service"
+        | "home_visit"
+        | "referral"
       class_status: "open" | "finished" | "cancelled"
       consent_kind: "data_processing" | "image_use" | "sensitive_data"
       enrollment_status:
@@ -1056,6 +1268,16 @@ export const Constants = {
   },
   public: {
     Enums: {
+      attendance_status: ["present", "absent", "excused", "late"],
+      case_note_kind: [
+        "family_contact",
+        "pedagogical",
+        "incident",
+        "achievement",
+        "service",
+        "home_visit",
+        "referral",
+      ],
       class_status: ["open", "finished", "cancelled"],
       consent_kind: ["data_processing", "image_use", "sensitive_data"],
       enrollment_status: [

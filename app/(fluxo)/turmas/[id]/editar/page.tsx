@@ -44,7 +44,9 @@ export default async function EditClassPage({
           heldOn: session.held_on,
           startsAt: session.starts_at,
           endsAt: session.ends_at,
-          locked: session.cancelled_at !== null,
+          locked:
+            session.cancelled_at !== null ||
+            session.attendance_taken_at !== null,
         }))}
       staff={staff.map((person) => ({ id: person.id, name: person.name }))}
       closures={closures

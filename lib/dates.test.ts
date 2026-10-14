@@ -9,6 +9,7 @@ import {
   formatShortDate,
   formatShortMonth,
   localToday,
+  minutesInRecife,
   monthRange,
   todayInRecife,
 } from "./dates";
@@ -17,6 +18,13 @@ describe("todayInRecife", () => {
   it("uses Recife time, not UTC, near midnight", () => {
     expect(todayInRecife(new Date("2026-10-01T02:30:00Z"))).toBe("2026-09-30");
     expect(todayInRecife(new Date("2026-10-01T03:00:00Z"))).toBe("2026-10-01");
+  });
+});
+
+describe("minutesInRecife", () => {
+  it("reads the clock in Recife time", () => {
+    expect(minutesInRecife(new Date("2026-10-14T11:30:00Z"))).toBe(8 * 60 + 30);
+    expect(minutesInRecife(new Date("2026-10-14T03:05:00Z"))).toBe(5);
   });
 });
 

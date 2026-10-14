@@ -13,7 +13,7 @@ import { requireUser } from "@/lib/supabase/server";
 
 export const getViewer = cache(async (): Promise<Viewer> => {
   const { supabase, userId, claims } = await requireUser();
-  const [profile, memberships] = await Promise.all([
+  const [profile, memberships, teaching] = await Promise.all([
     supabase
       .from("profiles")
       .select(
@@ -25,6 +25,14 @@ export const getViewer = cache(async (): Promise<Viewer> => {
       .from("staff_memberships")
       .select("role, units (id, code, name)")
       .eq("user_id", userId),
+    supabase
+      .from("class_teachers")
+      .select("class_id, classes!inner (status)", {
+        count: "exact",
+        head: true,
+      })
+      .eq("user_id", userId)
+      .eq("classes.status", "open"),
   ]);
   if (profile.error) throw profile.error;
   if (memberships.error) throw memberships.error;
@@ -41,6 +49,7 @@ export const getViewer = cache(async (): Promise<Viewer> => {
       )
       .sort((a, b) => a.unit.code.localeCompare(b.unit.code)),
     onboarded: profile.data.onboarding_done_at !== null,
+    teaches: (teaching.count ?? 0) > 0,
   };
   if (!hasAccess(viewer)) redirect("/sem-acesso");
   return viewer;

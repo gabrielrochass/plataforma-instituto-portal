@@ -3,6 +3,7 @@
 import {
   AccessibilityIcon,
   ArrowRightLeftIcon,
+  CircleAlertIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
   UserRoundIcon,
@@ -32,6 +33,7 @@ export type RosterRow = {
   name: string;
   detail: string;
   accessibility: boolean;
+  warning?: string;
 };
 
 const itemClass = "min-h-11 px-3 text-body";
@@ -67,6 +69,12 @@ export function RosterList({
               <span className="text-body font-medium">{row.name}</span>
               <span className="flex flex-wrap items-center gap-x-2 text-footnote text-muted-foreground">
                 {row.detail}
+                {row.warning && (
+                  <span className="inline-flex items-center gap-1 text-warning">
+                    <CircleAlertIcon aria-hidden="true" className="size-4" />
+                    {row.warning}
+                  </span>
+                )}
                 {row.accessibility && (
                   <span className="inline-flex items-center gap-1 text-link">
                     <AccessibilityIcon aria-hidden="true" className="size-4" />

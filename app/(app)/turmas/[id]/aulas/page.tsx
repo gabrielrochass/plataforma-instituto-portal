@@ -1,9 +1,12 @@
-import { CalendarXIcon } from "lucide-react";
+import { CalendarXIcon, CircleAlertIcon, CircleCheckIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { RestoreSessionButton } from "@/components/attendance/restore-session-button";
 import { ClassHeader } from "@/components/classes/class-header";
 import { MonthStepper } from "@/components/forms/month-stepper";
+import { buttonVariants } from "@/components/ui/button";
 import { getClass, getClassSessions } from "@/lib/data/classes";
 import { formatDayHeading, parseMonth, todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
@@ -34,6 +37,7 @@ export default async function ClassSessionsPage({
   const inMonth = sessions.filter((session) =>
     session.held_on.startsWith(month),
   );
+  const editable = row.operable && row.status === "open";
 
   return (
     <>
@@ -49,29 +53,83 @@ export default async function ClassSessionsPage({
           </p>
         ) : (
           <ul className="divide-y overflow-hidden rounded-2xl bg-card">
-            {inMonth.map((session) => (
-              <li
-                key={session.id}
-                className="flex min-h-15 flex-col justify-center gap-0.5 px-4 py-2"
-              >
-                <span className="text-body font-medium first-letter:uppercase">
-                  {formatDayHeading(session.held_on, today)}
-                </span>
-                <span className="text-footnote text-muted-foreground tabular-nums">
-                  {m.classes.timeRange(
-                    formatTime(session.starts_at),
-                    formatTime(session.ends_at),
+            {inMonth.map((session) => {
+              const day = formatDayHeading(session.held_on, today);
+              const past = session.held_on <= today;
+              return (
+                <li
+                  key={session.id}
+                  className="flex min-h-15 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3"
+                >
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-body font-medium first-letter:uppercase">
+                      {day}
+                    </span>
+                    <span className="text-footnote text-muted-foreground tabular-nums">
+                      {m.classes.timeRange(
+                        formatTime(session.starts_at),
+                        formatTime(session.ends_at),
+                      )}
+                    </span>
+                    {session.cancel_reason ? (
+                      <span className="flex items-center gap-1.5 text-footnote text-muted-foreground">
+                        <CalendarXIcon aria-hidden="true" className="size-4" />
+                        {m.classes.cancelledSession(session.cancel_reason)}
+                      </span>
+                    ) : session.attendance_taken_at ? (
+                      <span className="flex items-center gap-1.5 text-footnote text-success">
+                        <CircleCheckIcon
+                          aria-hidden="true"
+                          className="size-4"
+                        />
+                        {m.attendance.saved}
+                      </span>
+                    ) : (
+                      past && (
+                        <span className="flex items-center gap-1.5 text-footnote text-warning">
+                          <CircleAlertIcon
+                            aria-hidden="true"
+                            className="size-4"
+                          />
+                          {m.attendance.pending}
+                        </span>
+                      )
+                    )}
+                    {session.topic && (
+                      <span className="text-footnote">{session.topic}</span>
+                    )}
+                  </div>
+                  {editable && session.cancel_reason && (
+                    <RestoreSessionButton
+                      sessionId={session.id}
+                      label={`${m.attendance.restore}: ${day}`}
+                    />
                   )}
-                </span>
-                {session.cancel_reason && (
-                  <span className="flex items-center gap-1.5 text-footnote text-warning">
-                    <CalendarXIcon aria-hidden="true" className="size-4" />
-                    {m.classes.cancelledSession(session.cancel_reason)}
-                  </span>
-                )}
-              </li>
-            ))}
+                  {editable && !session.cancel_reason && past && (
+                    <Link
+                      href={`/turmas/${id}/chamada/${session.id}` as Route}
+                      aria-label={`${session.attendance_taken_at ? m.attendance.view : m.attendance.take}: ${day}`}
+                      className={buttonVariants({
+                        variant: session.attendance_taken_at
+                          ? "secondary"
+                          : "default",
+                        size: "lg",
+                      })}
+                    >
+                      {session.attendance_taken_at
+                        ? m.attendance.view
+                        : m.attendance.take}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
+        )}
+        {!row.operable && (
+          <p className="text-footnote text-muted-foreground">
+            {m.attendance.teachNote}
+          </p>
         )}
       </div>
     </>

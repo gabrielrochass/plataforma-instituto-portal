@@ -72,7 +72,7 @@ export const getClassSessions = cache(async (classId: string) => {
   const { data, error } = await supabase
     .from("class_sessions")
     .select(
-      "id, held_on, starts_at, ends_at, is_extra, cancelled_at, cancel_reason",
+      "id, held_on, starts_at, ends_at, is_extra, topic, cancelled_at, cancel_reason, attendance_taken_at",
     )
     .eq("class_id", classId)
     .order("held_on")

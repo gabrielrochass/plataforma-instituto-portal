@@ -19,6 +19,7 @@ function viewer(overrides: Partial<Viewer>): Viewer {
     isAdminGeral: false,
     memberships: [],
     onboarded: true,
+    teaches: false,
     ...overrides,
   };
 }

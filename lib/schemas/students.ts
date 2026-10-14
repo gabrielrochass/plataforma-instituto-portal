@@ -120,6 +120,12 @@ export const studentInput = z
     unitId: z.uuid(m.studentForm.errors.unit).nullable(),
     classId: z.uuid().nullable(),
     enrollmentId: z.uuid(),
+    enrolledOn: isoDate
+      .refine(
+        (value) => value <= todayInRecife(),
+        m.studentForm.errors.enrolledOn,
+      )
+      .nullable(),
     consentData: z.literal(true, m.studentForm.errors.consent),
     consentImage: z.boolean(),
   })

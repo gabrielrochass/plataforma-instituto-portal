@@ -34,11 +34,11 @@ const stepFields: Record<Step, string[]> = {
   1: ["fullName", "socialName", "birthDate", "cpf"],
   2: ["phone", "email", "guardians"],
   3: ["accessibilityNotes", "notesForTeachers"],
-  4: ["classId", "unitId"],
+  4: ["classId", "unitId", "enrolledOn"],
   5: ["consentData"],
 };
 
-export type ClassChoice = { id: string; label: string };
+export type ClassChoice = { id: string; label: string; startsOn: string };
 
 export function StudentWizard({
   classes,
@@ -69,6 +69,7 @@ export function StudentWizard({
   const [notesForTeachers, setNotesForTeachers] = useState("");
   const [classId, setClassId] = useState(presetClassId ?? "");
   const [unitId, setUnitId] = useState(units.length === 1 ? units[0].id : "");
+  const [enrolledOn, setEnrolledOn] = useState("");
   const [consentData, setConsentData] = useState(false);
   const [consentImage, setConsentImage] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
@@ -97,6 +98,7 @@ export function StudentWizard({
       unitId: classId ? null : unitId || null,
       classId: classId || null,
       enrollmentId,
+      enrolledOn: classId ? enrolledOn || today : null,
       consentData: consentData as true,
       consentImage,
     };
@@ -450,6 +452,19 @@ export function StudentWizard({
                 </p>
               )}
             </div>
+            {chosenClass && (
+              <TextField
+                label={m.studentForm.enrolledOn}
+                hint={m.studentForm.enrolledOnHint}
+                type="date"
+                min={chosenClass.startsOn}
+                max={today}
+                value={enrolledOn || today}
+                onChange={(event) => setEnrolledOn(event.target.value)}
+                error={errors.enrolledOn}
+                className="max-w-56"
+              />
+            )}
             {!classId && canSkipClass && units.length > 1 && (
               <div className="flex flex-col gap-2">
                 <label

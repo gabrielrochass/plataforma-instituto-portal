@@ -33,5 +33,14 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
+    shortcuts: [
+      {
+        name: m.attendance.take,
+        url: "/chamada",
+        icons: [
+          { src: "/icons/chamada-96.png", sizes: "96x96", type: "image/png" },
+        ],
+      },
+    ],
   };
 }

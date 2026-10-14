@@ -79,6 +79,18 @@ export function todayInRecife(now = new Date()) {
   return isoDateInRecife.format(now);
 }
 
+const clockInRecife = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+export function minutesInRecife(now = new Date()) {
+  const [hours, minutes] = clockInRecife.format(now).split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
 export function localToday(now = new Date()) {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }

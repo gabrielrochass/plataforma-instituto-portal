@@ -5,7 +5,7 @@ import "./env";
 
 const password = "dev-only-local-password";
 const options = { auth: { persistSession: false, autoRefreshToken: false } };
-const publicPages = ["/entrar", "/termos", "/privacidade"];
+const publicPages = ["/entrar", "/termos", "/privacidade", "/inscricao"];
 
 function emailOf(alias: string) {
   return `e2e-${alias}@portal.local`;

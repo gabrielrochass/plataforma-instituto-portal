@@ -12,12 +12,14 @@ export function ShareLink({
   hint,
   link,
   message,
+  focusOnMount = true,
   children,
 }: {
   title: string;
   hint: string;
   link: string;
   message: string;
+  focusOnMount?: boolean;
   children?: React.ReactNode;
 }) {
   const id = useId();
@@ -39,7 +41,9 @@ export function ShareLink({
       <h2
         id={`${id}-title`}
         tabIndex={-1}
-        ref={(element) => element?.focus()}
+        ref={(element) => {
+          if (focusOnMount) element?.focus();
+        }}
         className="flex items-start gap-2 text-headline font-semibold"
       >
         <CircleCheckIcon

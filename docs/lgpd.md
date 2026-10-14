@@ -17,6 +17,7 @@ Proteção de Dados (RIPD) antes de entrar qualquer dado real de aluno.
 | Sessão: cookies essenciais com token de acesso de 15 minutos e token de renovação; IP e navegador da sessão | Manter o login seguro | Legítimo interesse (art. 7º, IX) | Token de acesso: 15 minutos; sessão: até sair | Supabase (Auth) | Não |
 | Backup cifrado, sem sessões | Recuperar o serviço depois de falha ou incidente | Dever de segurança (art. 46) | 14 dias | GitHub (artefato do Actions) | Sim, EUA: gerado e testado num servidor temporário do GitHub, guardado cifrado com chave offline |
 | Registros técnicos de acesso: IP, navegador, data e hora | Segurança e diagnóstico | Legítimo interesse (art. 7º, IX) | Padrão de cada fornecedor | Vercel, Supabase | Sim, EUA |
+| Inscrição online: nome, data de nascimento, telefone, e-mail e bairro opcionais, responsável de menores | Selecionar participantes e entrar em contato | Consentimento (art. 7º, I; art. 14 para menores) | Até a matrícula ou até o fim da seleção; recusadas e desistentes são apagadas na limpeza periódica (a implementar na fase de LGPD) | Supabase (banco) | Banco no Brasil; cópia nos EUA pelo backup |
 | Registro de incidentes ([runbook](runbook.md)) | Cumprir a Res. CD/ANPD 15/2024 | Obrigação legal (art. 7º, II) | 5 anos | ANPD, quando o incidente for comunicado | Não |
 
 Segurança: RLS em todas as tabelas expostas, cadastro público desligado (só entra quem recebe convite), senha só como

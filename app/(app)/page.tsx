@@ -2,6 +2,7 @@ import {
   CalendarCheckIcon,
   ClipboardListIcon,
   HourglassIcon,
+  InboxIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import { EmptyState } from "@/components/app-shell/empty-state";
@@ -20,6 +21,7 @@ import {
   getTodaySessions,
 } from "@/lib/data/attendance";
 import { getClasses } from "@/lib/data/classes";
+import { getRequests } from "@/lib/data/requests";
 import { getViewer } from "@/lib/data/viewer";
 import { formatFullDate, todayInRecife } from "@/lib/dates";
 import { m } from "@/lib/i18n";
@@ -29,13 +31,16 @@ export default async function HomePage() {
   const viewer = await getViewer();
   const admin = can.manageTeam(viewer);
   const today = todayInRecife();
-  const [sessions, pending, alerts, classes, counts] = await Promise.all([
-    viewer.teaches ? getTodaySessions() : [],
-    getPendingSessions(),
-    getAbsenceAlerts(),
-    admin ? getClasses() : [],
-    admin ? getHomeCounts() : null,
-  ]);
+  const [sessions, pending, alerts, classes, counts, requests] =
+    await Promise.all([
+      viewer.teaches ? getTodaySessions() : [],
+      getPendingSessions(),
+      getAbsenceAlerts(),
+      admin ? getClasses() : [],
+      admin ? getHomeCounts() : null,
+      admin ? getRequests() : [],
+    ]);
+  const newRequests = requests.filter((row) => row.status === "pending").length;
   const firstName = viewer.name?.split(" ")[0] ?? null;
   const late = pending.filter((session) => session.held_on < today);
   const myLate = late.filter((session) => session.teaches);
@@ -49,6 +54,16 @@ export default async function HomePage() {
 
   const pendencies: ListLink[] = admin
     ? [
+        ...(newRequests > 0
+          ? [
+              {
+                href: "/inscricoes" as Route,
+                title: m.requests.newRequests(newRequests),
+                icon: InboxIcon,
+                color: "chart-5",
+              },
+            ]
+          : []),
         ...(counts && counts.social_pending > 0
           ? [
               {

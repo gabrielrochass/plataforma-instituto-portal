@@ -5,6 +5,7 @@ const publicPaths = [
   "/convite",
   "/redefinir",
   "/sem-acesso",
+  "/inscricao",
   "/termos",
   "/privacidade",
   "/dev/entrar",

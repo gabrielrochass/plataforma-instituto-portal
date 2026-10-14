@@ -444,6 +444,156 @@ export type Database = {
         }
         Relationships: []
       }
+      enrollment_offers: {
+        Row: {
+          closes_on: string | null
+          course_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_open: boolean
+          unit_id: string
+        }
+        Insert: {
+          closes_on?: string | null
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_open?: boolean
+          unit_id: string
+        }
+        Update: {
+          closes_on?: string | null
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_open?: boolean
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_offers_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_offers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_offers_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enrollment_requests: {
+        Row: {
+          birth_date: string
+          consented_at: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          email: string | null
+          enrollment_id: string | null
+          full_name: string
+          guardian_name: string | null
+          guardian_phone: string | null
+          id: string
+          neighborhood: string | null
+          note: string | null
+          offer_id: string
+          phone: string
+          protocol: string
+          social_name: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          student_id: string | null
+        }
+        Insert: {
+          birth_date: string
+          consented_at: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string | null
+          enrollment_id?: string | null
+          full_name: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          neighborhood?: string | null
+          note?: string | null
+          offer_id: string
+          phone: string
+          protocol: string
+          social_name?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          student_id?: string | null
+        }
+        Update: {
+          birth_date?: string
+          consented_at?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          email?: string | null
+          enrollment_id?: string | null
+          full_name?: string
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          neighborhood?: string | null
+          note?: string | null
+          offer_id?: string
+          phone?: string
+          protocol?: string
+          social_name?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_requests_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_requests_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "enrollment_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           class_id: string
@@ -820,6 +970,16 @@ export type Database = {
         Args: { p_token_hash: string }
         Returns: string
       }
+      convert_enrollment_request: {
+        Args: {
+          p_class_id: string
+          p_enrollment_id: string
+          p_new_student_id?: string
+          p_request_id: string
+          p_student_id?: string
+        }
+        Returns: string
+      }
       create_class: {
         Args: {
           p_capacity?: number
@@ -902,6 +1062,18 @@ export type Database = {
           unit_name: string
         }[]
       }
+      open_offers: {
+        Args: never
+        Returns: {
+          closes_on: string
+          course_description: string
+          course_name: string
+          description: string
+          id: string
+          unit_name: string
+          workload_hours: number
+        }[]
+      }
       password_reset_info: {
         Args: { p_token_hash: string }
         Returns: {
@@ -960,6 +1132,24 @@ export type Database = {
       reopen_enrollment: {
         Args: { p_enrollment_id: string }
         Returns: undefined
+      }
+      request_list: {
+        Args: never
+        Returns: {
+          birth_date: string
+          course_name: string
+          created_at: string
+          full_name: string
+          id: string
+          offer_id: string
+          phone: string
+          protocol: string
+          queue_position: number
+          social_name: string
+          status: Database["public"]["Enums"]["request_status"]
+          unit_code: string
+          unit_id: string
+        }[]
       }
       restore_session: { Args: { p_session_id: string }; Returns: undefined }
       revoke_invite: { Args: { p_id: string }; Returns: undefined }
@@ -1031,6 +1221,21 @@ export type Database = {
           transferred_to_class: string
           unit_code: string
         }[]
+      }
+      submit_enrollment_request: {
+        Args: {
+          p_birth_date: string
+          p_consent: boolean
+          p_email?: string
+          p_full_name: string
+          p_guardian_name?: string
+          p_guardian_phone?: string
+          p_neighborhood?: string
+          p_offer_id: string
+          p_phone: string
+          p_social_name?: string
+        }
+        Returns: string
       }
       take_attendance: {
         Args: { p_marks: Json; p_session_id: string; p_topic?: string }
@@ -1137,6 +1342,12 @@ export type Database = {
         | "aunt_uncle"
         | "legal_guardian"
         | "other"
+      request_status:
+        | "pending"
+        | "waitlisted"
+        | "converted"
+        | "declined"
+        | "withdrawn"
       unit_role: "admin" | "teacher"
     }
     CompositeTypes: {
@@ -1316,6 +1527,13 @@ export const Constants = {
         "aunt_uncle",
         "legal_guardian",
         "other",
+      ],
+      request_status: [
+        "pending",
+        "waitlisted",
+        "converted",
+        "declined",
+        "withdrawn",
       ],
       unit_role: ["admin", "teacher"],
     },

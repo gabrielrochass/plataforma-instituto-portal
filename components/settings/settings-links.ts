@@ -2,6 +2,7 @@ import {
   BookOpenIcon,
   Building2Icon,
   CalendarOffIcon,
+  InboxIcon,
   SparklesIcon,
   UserRoundIcon,
   UsersRoundIcon,
@@ -25,6 +26,13 @@ export function adminLinks(viewer: Viewer): ListLink[] {
       : []),
     ...(can.manageTeam(viewer)
       ? [
+          {
+            href: "/inscricoes" as const,
+            title: m.requests.title,
+            hint: m.requests.hint,
+            icon: InboxIcon,
+            color: "chart-5",
+          },
           {
             href: "/ajustes/cursos" as const,
             title: m.courses.title,

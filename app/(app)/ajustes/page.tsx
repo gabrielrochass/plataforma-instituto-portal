@@ -1,33 +1,25 @@
-import { SparklesIcon, UserRoundIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { LinkList } from "@/components/app-shell/link-list";
 import { PageHeader } from "@/components/app-shell/page-header";
+import {
+  adminLinks,
+  personalLinks,
+} from "@/components/settings/settings-links";
+import { getViewer } from "@/lib/data/viewer";
 import { m } from "@/lib/i18n";
 
 export const metadata: Metadata = { title: m.nav.settings };
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const admin = adminLinks(await getViewer());
+
   return (
     <>
       <PageHeader title={m.nav.settings} />
-      <LinkList
-        links={[
-          {
-            href: "/ajustes/conta",
-            title: m.account.title,
-            hint: m.account.hint,
-            icon: UserRoundIcon,
-            color: "chart-1",
-          },
-          {
-            href: "/?tour=1",
-            title: m.tour.replay,
-            hint: m.tour.replayHint,
-            icon: SparklesIcon,
-            color: "chart-5",
-          },
-        ]}
-      />
+      <div className="flex flex-col gap-6">
+        {admin.length > 0 && <LinkList links={admin} />}
+        <LinkList links={personalLinks} />
+      </div>
     </>
   );
 }

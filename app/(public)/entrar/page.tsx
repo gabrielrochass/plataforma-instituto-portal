@@ -1,3 +1,4 @@
+import { CircleCheckIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { AuthLegal } from "@/components/auth/auth-legal";
 import { CredentialsForm } from "@/components/auth/credentials-form";
@@ -26,6 +27,16 @@ export default async function SignInPage({
           </p>
         </div>
       </header>
+
+      {params.senha === "nova" && (
+        <output className="flex items-start gap-2 rounded-xl bg-card px-4 py-3 text-subhead">
+          <CircleCheckIcon
+            aria-hidden="true"
+            className="mt-0.5 size-5 shrink-0 text-success"
+          />
+          {m.reset.done}
+        </output>
+      )}
 
       <div className="flex flex-col gap-3">
         <CredentialsForm next={next} />

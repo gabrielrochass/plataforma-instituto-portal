@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { SideNav } from "@/components/app-shell/side-nav";
 import { TabBar } from "@/components/app-shell/tab-bar";
 import { Tour } from "@/components/onboarding/tour";
-import { getProfile } from "@/lib/data/account";
+import { getViewer } from "@/lib/data/viewer";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
-  const profile = await getProfile();
+  const viewer = await getViewer();
 
   return (
     <>
@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       </div>
       <TabBar />
       <Suspense fallback={null}>
-        <Tour autoStart={!profile?.onboarding_done_at} />
+        <Tour autoStart={!viewer.onboarded} />
       </Suspense>
     </>
   );

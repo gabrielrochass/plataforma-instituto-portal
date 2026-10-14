@@ -3,23 +3,29 @@ import {
   LogOutIcon,
   SettingsIcon,
   ShieldCheckIcon,
-  SparklesIcon,
-  UserRoundIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { LinkList } from "@/components/app-shell/link-list";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { SubmitButton } from "@/components/forms/submit-button";
+import {
+  adminLinks,
+  personalLinks,
+} from "@/components/settings/settings-links";
 import { signOut } from "@/lib/actions/account";
+import { getViewer } from "@/lib/data/viewer";
 import { m } from "@/lib/i18n";
 
 export const metadata: Metadata = { title: m.more.title };
 
-export default function MorePage() {
+export default async function MorePage() {
+  const admin = adminLinks(await getViewer());
+
   return (
     <>
       <PageHeader title={m.more.title} />
       <div className="flex flex-col gap-6">
+        {admin.length > 0 && <LinkList links={admin} />}
         <LinkList
           links={[
             {
@@ -28,20 +34,7 @@ export default function MorePage() {
               icon: SettingsIcon,
               color: "chart-other",
             },
-            {
-              href: "/ajustes/conta",
-              title: m.account.title,
-              hint: m.account.hint,
-              icon: UserRoundIcon,
-              color: "chart-1",
-            },
-            {
-              href: "/?tour=1",
-              title: m.tour.replay,
-              hint: m.tour.replayHint,
-              icon: SparklesIcon,
-              color: "chart-5",
-            },
+            ...personalLinks,
           ]}
         />
         <LinkList

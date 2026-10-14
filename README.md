@@ -67,6 +67,11 @@ Configure nesta ordem. `<ref>` é o ID do projeto no Supabase e `<domínio>` é 
    - nunca `DEV_AUTH`, `DEV_UI` nem `DEV_AUTH_EMAIL`;
    - Vercel Toolbar desligada nos previews.
 
+5. **Primeira pessoa da administração geral**: em Authentication > Users, crie o usuário com e-mail e senha
+   ("Auto Confirm User" ligado) e, no SQL Editor, rode
+   `update public.profiles set is_admin_geral = true where id = (select id from auth.users where email = '<e-mail>');`.
+   Depois disso, todo o resto da equipe entra por convite em Ajustes, Equipe.
+
 Os workflows fixam a CLI do Supabase em 2.109.0, a mesma da máquina local; atualize as duas juntas. Se o teste de
 restauração do Backup falhar por coluna ou tabela do schema `auth`, o Auth da nuvem ficou mais novo que essa CLI e é
 hora de subir a versão.

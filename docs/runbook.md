@@ -40,24 +40,28 @@ medidas tomadas e as comunicações feitas, ou por que não comunicou.
 
 ## Redefinir a senha de alguém
 
-Não há envio de e-mail, então quem esquece a senha pede à coordenação da unidade.
+Quem esquece a senha pede à coordenação da unidade. Em Ajustes, Equipe, a coordenação abre a pessoa e toca em
+"Gerar link para nova senha". O link vale por 24 horas, serve uma vez só e deve ir direto para a pessoa, por um canal
+já conhecido. A administração geral redefine a senha de qualquer pessoa, inclusive da coordenação.
 
-1. Confirme a identidade da pessoa com a coordenação antes de qualquer troca.
-2. Gere uma senha provisória longa e aleatória, por exemplo com o gerador do gerenciador de senhas.
-3. Ache o id no SQL Editor (`select id from auth.users where email = '<e-mail>';`) e, na raiz do repositório, rode
-   com a secret key de produção:
+Se ninguém da administração geral conseguir entrar, troque a senha com a secret key de
+produção, na raiz do repositório:
 
-   ```bash
-   SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SECRET_KEY=<secret> node --input-type=module -e '
-   import { createClient } from "@supabase/supabase-js";
-   const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
-   const { error } = await admin.auth.admin.updateUserById(process.argv[1], { password: process.argv[2] });
-   console.log(error ?? "ok");' <id> <senha-provisória>
-   ```
+```bash
+SUPABASE_URL=https://<ref>.supabase.co SUPABASE_SECRET_KEY=<secret> node --input-type=module -e '
+import { createClient } from "@supabase/supabase-js";
+const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
+const { error } = await admin.auth.admin.updateUserById(process.argv[1], { password: process.argv[2] });
+console.log(error ?? "ok");' <id> <senha-provisória>
+```
 
-4. Encerre as sessões antigas: no SQL Editor, `delete from auth.sessions where user_id = '<id>';`.
-5. Entregue a senha provisória pessoalmente ou por um canal já conhecido da pessoa e peça que ela troque em Ajustes,
-   Conta, "Alterar senha".
+O id sai de `select id from auth.users where email = '<e-mail>';` no SQL Editor. Entregue a senha provisória
+pessoalmente e peça a troca em Ajustes, Conta, "Alterar senha".
+
+## Desativar alguém
+
+Em Ajustes, Equipe, "Desativar acesso" tira a pessoa do Portal na hora: as permissões no banco deixam de valer no
+mesmo instante e a conta fica bloqueada no login. O histórico do que ela registrou continua guardado.
 
 ## Restaurar o backup
 

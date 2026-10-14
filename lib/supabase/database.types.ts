@@ -37,21 +37,87 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          deactivated_at: string | null
           display_name: string | null
           id: string
+          is_admin_geral: boolean
           onboarding_done_at: string | null
         }
         Insert: {
           created_at?: string
+          deactivated_at?: string | null
           display_name?: string | null
           id: string
+          is_admin_geral?: boolean
           onboarding_done_at?: string | null
         }
         Update: {
           created_at?: string
+          deactivated_at?: string | null
           display_name?: string | null
           id?: string
+          is_admin_geral?: boolean
           onboarding_done_at?: string | null
+        }
+        Relationships: []
+      }
+      staff_memberships: {
+        Row: {
+          created_at: string
+          role: Database["public"]["Enums"]["unit_role"]
+          unit_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: Database["public"]["Enums"]["unit_role"]
+          unit_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: Database["public"]["Enums"]["unit_role"]
+          unit_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_memberships_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      units: {
+        Row: {
+          archived_at: string | null
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          archived_at?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          archived_at?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -60,10 +126,90 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_invite: { Args: { p_token_hash: string }; Returns: string }
+      consume_password_reset: {
+        Args: { p_token_hash: string }
+        Returns: string
+      }
+      create_invite: {
+        Args: {
+          p_display_name: string
+          p_id: string
+          p_role: Database["public"]["Enums"]["unit_role"]
+          p_token_hash: string
+          p_unit_id: string
+        }
+        Returns: undefined
+      }
+      create_password_reset: {
+        Args: { p_token_hash: string; p_user_id: string }
+        Returns: undefined
+      }
+      dev_set_persona: {
+        Args: { p_persona: string; p_user_id: string }
+        Returns: undefined
+      }
+      invite_info: {
+        Args: { p_token_hash: string }
+        Returns: {
+          display_name: string
+          role: Database["public"]["Enums"]["unit_role"]
+          unit_name: string
+        }[]
+      }
+      password_reset_info: {
+        Args: { p_token_hash: string }
+        Returns: {
+          display_name: string
+        }[]
+      }
+      pending_invites: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          expires_at: string
+          id: string
+          role: Database["public"]["Enums"]["unit_role"]
+          unit_id: string
+        }[]
+      }
+      remove_membership: {
+        Args: { p_unit_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      revoke_invite: { Args: { p_id: string }; Returns: undefined }
+      set_admin_geral: {
+        Args: { p_user_id: string; p_value: boolean }
+        Returns: undefined
+      }
+      set_membership: {
+        Args: {
+          p_role: Database["public"]["Enums"]["unit_role"]
+          p_unit_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      set_staff_active: {
+        Args: { p_active: boolean; p_user_id: string }
+        Returns: undefined
+      }
+      team_members: {
+        Args: never
+        Returns: {
+          deactivated_at: string
+          display_name: string
+          email: string
+          id: string
+          is_admin_geral: boolean
+          manageable: boolean
+          memberships: Json
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      unit_role: "admin" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -193,7 +339,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      unit_role: ["admin", "teacher"],
+    },
   },
 } as const
 

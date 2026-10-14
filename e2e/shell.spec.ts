@@ -8,7 +8,14 @@ const tabs = [
   { name: "Mais", path: "/mais", heading: "Mais" },
 ];
 
-const settingsPaths = ["/ajustes", "/ajustes/conta", "/ajustes/conta/senha"];
+const settingsPaths = [
+  "/ajustes",
+  "/ajustes/conta",
+  "/ajustes/conta/senha",
+  "/ajustes/equipe",
+  "/ajustes/equipe/convidar",
+  "/ajustes/unidades",
+];
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} theme`, () => {

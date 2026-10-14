@@ -17,7 +17,7 @@ const messages: Record<string, string> = {
   "54000": m.errors.limit,
 };
 
-export function failureFor(error: { code?: string }): ActionResult {
+export function failureFor(error: { code?: string }): Failure {
   const message = error.code ? messages[error.code] : undefined;
   return message ? { ok: false, message } : failure;
 }
@@ -28,3 +28,7 @@ export function fieldErrors(error: z.ZodError) {
     string[] | undefined
   >;
 }
+
+export type Failure = Extract<ActionResult, { ok: false }>;
+
+export type LinkResult = { ok: true; token: string } | Failure;

@@ -2,6 +2,9 @@ import type { Route } from "next";
 
 const publicPaths = [
   "/entrar",
+  "/convite",
+  "/redefinir",
+  "/sem-acesso",
   "/termos",
   "/privacidade",
   "/dev/entrar",

@@ -31,16 +31,8 @@ async function createPerson(email: string) {
     user_metadata: { full_name: "Ana Souza" },
   });
   if (error) throw error;
-  const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string,
-    options,
-  );
-  await client.auth.signInWithPassword({ email, password });
-  await client
-    .from("profiles")
-    .update({ onboarding_done_at: new Date().toISOString() })
-    .eq("id", data.user.id)
+  await admin()
+    .rpc("dev_set_persona", { p_user_id: data.user.id, p_persona: "prof-ra" })
     .throwOnError();
 }
 

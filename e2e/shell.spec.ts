@@ -91,7 +91,12 @@ test("the tour shows each section once", async ({ page }) => {
 
 test("no horizontal scroll at 320px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
-  for (const path of [...tabs.map((tab) => tab.path), ...settingsPaths]) {
+  for (const path of [
+    ...tabs.map((tab) => tab.path),
+    ...settingsPaths,
+    "/impacto",
+    "/impacto/relatorio",
+  ]) {
     await page.goto(path);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,

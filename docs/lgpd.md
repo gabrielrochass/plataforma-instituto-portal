@@ -52,3 +52,11 @@ Pendências fora do sistema:
 2. Revisão jurídica dos termos impressos (matrícula, uso de imagem, dados sensíveis) e da Política de Privacidade.
 3. Confirmar o prazo de guarda exigido pelas parcerias (ex.: MROSC, Lei 13.019/2014, art. 68).
 4. Divulgar a patrocinadores apenas números agregados, escondendo grupos com menos de 5 pessoas (painel de impacto).
+
+## Impacto e patrocinadores
+
+- O painel Impacto e o relatório impresso mostram só números agregados, calculados no banco (`impact_report`).
+- Grupos com menos de 5 pessoas saem ocultos do banco, junto com o próximo menor do mesmo recorte, para que o total
+  não revele o valor escondido.
+- Só a coordenação acessa; o adm de unidade vê apenas as próprias unidades.
+- Pessoas anonimizadas continuam nos números, sem identificação.

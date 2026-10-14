@@ -2,6 +2,7 @@ import {
   BookOpenIcon,
   Building2Icon,
   CalendarOffIcon,
+  ChartColumnIcon,
   InboxIcon,
   SparklesIcon,
   UserRoundIcon,
@@ -15,6 +16,13 @@ export function adminLinks(viewer: Viewer): ListLink[] {
   return [
     ...(can.manageTeam(viewer)
       ? [
+          {
+            href: "/impacto" as const,
+            title: m.impact.title,
+            hint: m.impact.hint,
+            icon: ChartColumnIcon,
+            color: "chart-1",
+          },
           {
             href: "/ajustes/equipe" as const,
             title: m.team.title,

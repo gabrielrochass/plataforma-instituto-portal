@@ -1345,6 +1345,15 @@ export type Database = {
           social_pending: number
         }[]
       }
+      impact_report: {
+        Args: {
+          p_course_id?: string
+          p_from: string
+          p_to: string
+          p_unit_id?: string
+        }
+        Returns: Json
+      }
       invite_info: {
         Args: { p_token_hash: string }
         Returns: {

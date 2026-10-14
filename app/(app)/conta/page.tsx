@@ -5,13 +5,16 @@ import {
   ShieldCheckIcon,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { LinkList } from "@/components/app-shell/link-list";
 import { PageHeader } from "@/components/app-shell/page-header";
+import { ThemePicker } from "@/components/app-shell/theme-picker";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { SignOutEverywhereForm } from "@/components/settings/sign-out-everywhere-form";
 import { signOut } from "@/lib/actions/account";
 import { m } from "@/lib/i18n";
 import { requireUser } from "@/lib/supabase/server";
+import { parseTheme, themeCookie } from "@/lib/theme";
 
 export const metadata: Metadata = { title: m.account.title };
 
@@ -43,6 +46,9 @@ export default async function AccountPage() {
           </p>
         </section>
 
+        <ThemePicker
+          initial={parseTheme((await cookies()).get(themeCookie)?.value)}
+        />
         <LinkList
           links={[
             {

@@ -80,12 +80,12 @@ export default async function StudentClassesPage({
                     ? m.students.transferredTo(entry.transferred_to_class)
                     : m.students.enrollmentStatus[entry.status]}
                   {entry.exit_reason && entry.status !== "transferred"
-                    ? `. ${m.enrollment.reasons[entry.exit_reason]}`
+                    ? `, ${m.enrollment.reasons[entry.exit_reason]}`
                     : ""}
                   {entry.final_score !== null
-                    ? `. ${m.closing.finalScore(formatScore(entry.final_score))}`
+                    ? `, ${m.closing.finalScore(formatScore(entry.final_score))}`
                     : entry.final_concept
-                      ? `. ${m.closing.finalConcept(entry.final_concept)}`
+                      ? `, ${m.closing.finalConcept(entry.final_concept)}`
                       : ""}
                 </span>
                 <span className="text-footnote text-muted-foreground tabular-nums">
@@ -97,7 +97,7 @@ export default async function StudentClassesPage({
                     : m.students.since(formatFullDate(entry.enrolled_on))}
                   {(() => {
                     const rate = attendanceRate(entry);
-                    return rate === null ? "" : `. ${m.attendance.rate(rate)}`;
+                    return rate === null ? "" : `, ${m.attendance.rate(rate)}`;
                   })()}
                 </span>
               </>

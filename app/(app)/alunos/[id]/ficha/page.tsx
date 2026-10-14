@@ -86,7 +86,7 @@ export default async function SocialProfilePage({
                     <dd className="text-body tabular-nums">
                       {fieldValue(latest, field)}
                       {field === "household_income_cents" && perCapita !== null
-                        ? `. ${m.social.perCapita(formatBRL(perCapita))}`
+                        ? `, ${m.social.perCapita(formatBRL(perCapita))}`
                         : ""}
                     </dd>
                   </div>
@@ -160,7 +160,7 @@ export default async function SocialProfilePage({
                 <ul className="divide-y overflow-hidden rounded-2xl bg-card">
                   {profiles.slice(1).map((profile) => (
                     <li key={profile.id} className="px-4 py-3 text-body">
-                      {`${formatFullDate(profile.assessed_on)}. ${m.social.moments[profile.moment]}`}
+                      {`${formatFullDate(profile.assessed_on)}, ${m.social.moments[profile.moment]}`}
                     </li>
                   ))}
                 </ul>
@@ -190,7 +190,7 @@ export default async function SocialProfilePage({
                 outcome.related_to_course ? m.alumni.relatedToCourse : null,
               ]
                 .filter(Boolean)
-                .join(". "),
+                .join(", "),
             }))}
           />
           <OutcomeForm studentId={id} />

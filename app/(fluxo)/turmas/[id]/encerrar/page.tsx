@@ -60,7 +60,7 @@ export default async function CloseClassPage({
           }`,
         ]
           .filter(Boolean)
-          .join(". "),
+          .join(", "),
         result: resultOf(result),
       }))}
     />

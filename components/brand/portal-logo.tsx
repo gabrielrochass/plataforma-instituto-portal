@@ -26,7 +26,7 @@ export function PortalMark({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-[22%] bg-primary text-white shadow-xs ring-1 ring-black/10 dark:ring-white/10",
+        "flex shrink-0 items-center justify-center rounded-[22%] bg-primary text-white ring-1 ring-black/10 dark:ring-white/10",
         className,
       )}
     >

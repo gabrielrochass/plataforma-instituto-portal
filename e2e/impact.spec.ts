@@ -16,25 +16,27 @@ test("coordination sees the impact of a class and prints the report", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Impacto" }),
   ).toBeVisible();
-  await page.getByLabel("Turma").selectOption({ label: `${course}, RA` });
-  await page.getByRole("button", { name: "Aplicar" }).click();
+  await page
+    .getByLabel("Turma", { exact: true })
+    .selectOption({ label: `${course}, RA` });
+  await page.getByRole("button", { name: "Ver números" }).click();
   await expect(page).toHaveURL(/turma=/);
 
   const served = page
-    .getByText("Pessoas atendidas", { exact: true })
+    .getByText("Alunos atendidos", { exact: true })
     .locator("..");
   await expect(served.getByRole("definition").first()).toHaveText("1");
   await expect(
     page.getByRole("listitem").filter({ hasText: "15 a 17 anos" }),
-  ).toContainText("Oculto");
+  ).toContainText("Protegido");
   await expectNoAxeViolations(page);
 
-  await page.getByRole("link", { name: "Relatório" }).click();
+  await page.getByRole("link", { name: "Relatório para imprimir" }).click();
   await expect(
     page.getByRole("heading", { level: 1, name: "Relatório de impacto" }),
   ).toBeVisible();
   await expect(
-    page.getByText(`Recorte: Últimos 12 meses, Todas as unidades, ${course}`),
+    page.getByText(`Filtros: Últimos 12 meses, Todas as unidades, ${course}`),
   ).toBeVisible();
   await expectNoAxeViolations(page);
   expect(

@@ -3,47 +3,48 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { PrintButton } from "@/components/app-shell/print-button";
 import { PortalLogo } from "@/components/brand/portal-logo";
-import { BarTrend } from "@/components/impact/bar-trend";
+import { ClassRanking } from "@/components/impact/class-ranking";
+import { MonthlyCharts } from "@/components/impact/monthly-charts";
 import {
-  FunnelBreakdown,
-  GroupTables,
+  AfterCourse,
   ImpactStats,
   Methodology,
-  monthlyBars,
-  OutcomeBreakdowns,
-  ProfileBreakdowns,
+  monthPoints,
+  ProfileCharts,
+  SectionTitle,
 } from "@/components/impact/sections";
 import { loadImpact } from "@/lib/data/impact";
 import { addDays, formatFullDate } from "@/lib/dates";
 import { legal, m } from "@/lib/i18n";
 import { lastTwelveMonths } from "@/lib/impact";
 
-export const metadata: Metadata = { title: m.impact.reportTitle };
+const i = m.impact;
+
+export const metadata: Metadata = { title: i.reportTitle };
 
 export default async function ImpactReportPage({
   searchParams,
 }: PageProps<"/impacto/relatorio">) {
   const impact = await loadImpact(await searchParams);
   const { report, period } = impact;
-  const monthly = monthlyBars(report, impact.today);
   const query = new URLSearchParams({ periodo: period.key });
   if (impact.unitId) query.set("unidade", impact.unitId);
   if (impact.classId) query.set("turma", impact.classId);
   const scope = [
-    period.key === lastTwelveMonths ? m.impact.lastTwelveMonths : period.key,
-    impact.unit?.name ?? m.impact.allUnits,
-    impact.selectedClass?.name ?? m.impact.allClasses,
+    period.key === lastTwelveMonths ? i.lastTwelveMonths : period.key,
+    impact.unit?.name ?? i.allUnits,
+    impact.selectedClass?.name ?? i.allClasses,
   ].join(", ");
 
   return (
-    <article className="mx-auto flex max-w-[210mm] flex-col gap-6 print:max-w-none">
+    <article className="mx-auto flex max-w-[210mm] flex-col gap-8 print:max-w-none">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link
           href={`/impacto?${query}` as Route}
           className="-ml-1 flex min-h-11 items-center gap-0.5 text-body text-link"
         >
           <ChevronLeftIcon aria-hidden="true" className="size-5" />
-          {m.impact.backToPanel}
+          {i.backToPanel}
         </Link>
         <PrintButton />
       </div>
@@ -51,70 +52,61 @@ export default async function ImpactReportPage({
         <PortalLogo className="h-14 w-auto shrink-0 text-foreground" />
         <div className="flex flex-col gap-1">
           <h1 className="text-title1 font-bold tracking-tight">
-            {m.impact.reportTitle}
+            {i.reportTitle}
           </h1>
           <p className="text-subhead">
             {legal.controller.name}, CNPJ {legal.controller.cnpj}
           </p>
           <p className="text-subhead text-muted-foreground">
-            {m.impact.range(
+            {i.range(
               formatFullDate(period.from),
               formatFullDate(addDays(period.to, -1)),
             )}
           </p>
           <p className="text-subhead text-muted-foreground">
-            {m.impact.scope}: {scope}
+            {i.scope}: {scope}
           </p>
         </div>
       </header>
-      <ImpactStats
-        report={report}
-        previous={impact.previous}
-        reference={impact.reference}
-      />
-      <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
-        <h2 id="mes-a-mes" className="text-title3 font-semibold">
-          {m.impact.monthly}
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2">
-          <BarTrend
-            title={m.impact.activeChart}
-            bars={monthly.active}
-            valueHeader={m.impact.people}
-          />
-          <BarTrend
-            title={m.impact.attendanceChart}
-            bars={monthly.attendance}
-            max={100}
-            valueHeader={m.impact.columns.attendance}
-          />
-        </div>
-        {monthly.hasPartial && (
-          <p className="text-footnote text-muted-foreground">
-            {m.impact.partialMonth}
-          </p>
-        )}
-        <GroupTables report={report} showUnits={impact.units.length > 1} />
-        <FunnelBreakdown report={report} />
+      <section aria-labelledby="resumo" className="flex flex-col gap-3">
+        <SectionTitle
+          id="resumo"
+          title={i.summary}
+          hint={i.compared(impact.reference)}
+        />
+        <ImpactStats report={report} previous={impact.previous} />
       </section>
+      <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
+        <SectionTitle id="mes-a-mes" title={i.monthly} />
+        <MonthlyCharts months={monthPoints(report, impact.today)} />
+      </section>
+      {!impact.classId && (
+        <section
+          aria-labelledby="turmas"
+          className="flex flex-col gap-3 print:break-before-page"
+        >
+          <SectionTitle id="turmas" title={i.classes} />
+          <ClassRanking groups={report.by_class} linkable={false} />
+        </section>
+      )}
       <section
         aria-labelledby="perfil"
         className="flex flex-col gap-3 print:break-before-page"
       >
-        <div className="flex flex-col gap-0.5">
-          <h2 id="perfil" className="text-title3 font-semibold">
-            {m.impact.profile}
-          </h2>
-          <p className="text-subhead text-muted-foreground">
-            {m.impact.profileHint(report.profiled, report.served)}
-          </p>
-        </div>
-        <ProfileBreakdowns report={report} />
-        <OutcomeBreakdowns report={report} />
+        <SectionTitle
+          id="perfil"
+          title={i.profile}
+          hint={i.profileHint(report.profiled, report.served)}
+        />
+        <ProfileCharts report={report} />
       </section>
-      <Methodology />
+      <section aria-labelledby="depois" className="flex flex-col gap-3">
+        <SectionTitle id="depois" title={i.after} />
+        <AfterCourse report={report} />
+      </section>
+      <Methodology open />
       <p className="text-footnote text-muted-foreground">
-        {m.impact.generatedOn(formatFullDate(impact.today))}
+        {i.generatedOn(formatFullDate(impact.today))}
       </p>
     </article>
   );

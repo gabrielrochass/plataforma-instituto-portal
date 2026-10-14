@@ -8,12 +8,12 @@ professor; aluno só na fase de atividades. Next.js 16 + Supabase + Vercel (regi
 
 ## Comandos
 
-- `npm run dev` — servidor local
-- `npm run lint` / `npm run format` — Biome (checar / corrigir)
-- `npm run typecheck` — tipos de rota + `tsc`
-- `npm test` — Vitest (`lib/**/*.test.ts`)
-- `supabase test db` — pgTAP (`supabase/tests/database`)
-- `npm run test:e2e` — Playwright + axe (`e2e/`), sobe o build com `DEV_UI=1`
+- `npm run dev`: servidor local
+- `npm run lint` / `npm run format`: Biome (checar / corrigir)
+- `npm run typecheck`: tipos de rota + `tsc`
+- `npm test`: Vitest (`lib/**/*.test.ts`)
+- `supabase test db`: pgTAP (`supabase/tests/database`)
+- `npm run test:e2e`: Playwright + axe (`e2e/`), sobe o build com `DEV_UI=1`
 
 ## Princípios
 

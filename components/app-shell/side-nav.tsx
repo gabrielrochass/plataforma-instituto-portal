@@ -47,7 +47,7 @@ function SideNavItem({ item }: { item: NavItem }) {
       <NavLink
         href={item.href}
         tour={item.tour}
-        className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-subhead text-muted-foreground transition-colors hover:bg-card/60 hover:text-foreground aria-[current=page]:bg-card aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:shadow-xs [&_svg]:stroke-[1.75] aria-[current=page]:[&_svg]:stroke-[2.25]"
+        className="flex min-h-10 items-center gap-3 rounded-lg px-3 text-subhead text-muted-foreground transition-colors hover:bg-card/60 hover:text-foreground aria-[current=page]:bg-card aria-[current=page]:font-semibold aria-[current=page]:text-foreground [&_svg]:stroke-[1.75] aria-[current=page]:[&_svg]:stroke-[2.25]"
       >
         <Icon aria-hidden="true" className="size-5" />
         {item.label}

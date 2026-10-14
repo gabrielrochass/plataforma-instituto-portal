@@ -70,7 +70,7 @@ export function StudentHeader({
               </p>
             )}
             <p className="text-subhead text-muted-foreground tabular-nums">
-              {`${m.students.age(ageOn(student.birth_date, today))}. ${student.units?.name ?? ""}`}
+              {`${m.students.age(ageOn(student.birth_date, today))}, ${student.units?.name ?? ""}`}
             </p>
             <p className="flex flex-wrap gap-x-3 gap-y-1 text-footnote font-medium">
               {isMinor(student.birth_date, today) && (

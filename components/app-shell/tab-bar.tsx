@@ -18,7 +18,7 @@ export function TabBar({ add }: { add: readonly AddOption[] }) {
           <AddMenu
             items={add}
             compact
-            className="rounded-full shadow-sm ring-1 ring-black/10"
+            className="rounded-full ring-1 ring-black/10"
           />
         </li>
         {rest.map((item) => (

@@ -2,29 +2,30 @@ import { PrinterIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/app-shell/page-header";
-import { BarTrend } from "@/components/impact/bar-trend";
+import { ClassRanking } from "@/components/impact/class-ranking";
 import { ImpactFilters } from "@/components/impact/impact-filters";
+import { MonthlyCharts } from "@/components/impact/monthly-charts";
 import {
-  FunnelBreakdown,
-  GroupTables,
+  AfterCourse,
   ImpactStats,
   Methodology,
-  monthlyBars,
-  OutcomeBreakdowns,
-  ProfileBreakdowns,
+  monthPoints,
+  ProfileCharts,
+  SectionTitle,
 } from "@/components/impact/sections";
 import { buttonVariants } from "@/components/ui/button";
 import { loadImpact } from "@/lib/data/impact";
 import { m } from "@/lib/i18n";
 
-export const metadata: Metadata = { title: m.impact.title };
+const i = m.impact;
+
+export const metadata: Metadata = { title: i.title };
 
 export default async function ImpactPage({
   searchParams,
 }: PageProps<"/impacto">) {
   const impact = await loadImpact(await searchParams);
   const { report } = impact;
-  const monthly = monthlyBars(report, impact.today);
   const query = new URLSearchParams({ periodo: impact.period.key });
   if (impact.unitId) query.set("unidade", impact.unitId);
   if (impact.classId) query.set("turma", impact.classId);
@@ -32,18 +33,20 @@ export default async function ImpactPage({
   return (
     <div data-wide className="flex flex-col">
       <PageHeader
-        title={m.impact.title}
+        title={i.title}
+        subtitle={i.intro}
         action={
           <Link
             href={`/impacto/relatorio?${query}` as Route}
+            aria-label={i.report}
             className={buttonVariants({ variant: "secondary", size: "lg" })}
           >
             <PrinterIcon aria-hidden="true" />
-            {m.impact.report}
+            <span className="hidden sm:inline">{i.report}</span>
           </Link>
         }
       />
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         <ImpactFilters
           periods={impact.periods}
           period={impact.period.key}
@@ -52,47 +55,46 @@ export default async function ImpactPage({
           classes={impact.classes}
           classId={impact.classId}
         />
-        <ImpactStats
-          report={report}
-          previous={impact.previous}
-          reference={impact.reference}
-        />
-        <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
-          <h2 id="mes-a-mes" className="text-title3 font-semibold">
-            {m.impact.monthly}
-          </h2>
-          <div className="grid gap-3 md:grid-cols-2">
-            <BarTrend
-              title={m.impact.activeChart}
-              bars={monthly.active}
-              valueHeader={m.impact.people}
-              note={monthly.hasPartial ? m.impact.partialMonth : undefined}
-            />
-            <BarTrend
-              title={m.impact.attendanceChart}
-              bars={monthly.attendance}
-              max={100}
-              valueHeader={m.impact.columns.attendance}
-              note={monthly.hasPartial ? m.impact.partialMonth : undefined}
-            />
-          </div>
-          <GroupTables report={report} showUnits={impact.units.length > 1} />
-          <FunnelBreakdown report={report} />
+        <section aria-labelledby="resumo" className="flex flex-col gap-3">
+          <SectionTitle
+            id="resumo"
+            title={i.summary}
+            hint={i.compared(impact.reference)}
+          />
+          <ImpactStats report={report} previous={impact.previous} />
         </section>
+        <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
+          <SectionTitle id="mes-a-mes" title={i.monthly} hint={i.monthlyHint} />
+          <MonthlyCharts months={monthPoints(report, impact.today)} />
+        </section>
+        {!impact.classId && (
+          <section aria-labelledby="turmas" className="flex flex-col gap-3">
+            <SectionTitle id="turmas" title={i.classes} hint={i.classesHint} />
+            <ClassRanking groups={report.by_class} linkable />
+          </section>
+        )}
+        {impact.units.length > 1 && !impact.unitId && (
+          <section aria-labelledby="unidades" className="flex flex-col gap-3">
+            <SectionTitle id="unidades" title={i.units} />
+            <ClassRanking
+              groups={report.by_unit}
+              linkable={false}
+              sortable={false}
+            />
+          </section>
+        )}
         <section aria-labelledby="perfil" className="flex flex-col gap-3">
-          <div className="flex flex-col gap-0.5">
-            <h2 id="perfil" className="text-title3 font-semibold">
-              {m.impact.profile}
-            </h2>
-            <p className="text-subhead text-muted-foreground">
-              {m.impact.profileHint(report.profiled, report.served)}
-            </p>
-            <p className="text-footnote text-muted-foreground">
-              {m.impact.hiddenNote}
-            </p>
-          </div>
-          <ProfileBreakdowns report={report} />
-          <OutcomeBreakdowns report={report} />
+          <SectionTitle
+            id="perfil"
+            title={i.profile}
+            hint={i.profileHint(report.profiled, report.served)}
+          />
+          <ProfileCharts report={report} />
+          <p className="text-footnote text-muted-foreground">{i.hiddenNote}</p>
+        </section>
+        <section aria-labelledby="depois" className="flex flex-col gap-3">
+          <SectionTitle id="depois" title={i.after} />
+          <AfterCourse report={report} />
         </section>
         <Methodology />
       </div>

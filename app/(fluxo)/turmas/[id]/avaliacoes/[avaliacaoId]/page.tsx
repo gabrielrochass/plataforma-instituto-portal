@@ -44,7 +44,7 @@ export default async function GradeEntryPage({
       classId={id}
       assessmentId={assessment.id}
       title={assessment.title}
-      subtitle={`${row.name}. ${m.grades.weightLabel(formatScore(assessment.weight))}`}
+      subtitle={`${row.name}, ${m.grades.weightLabel(formatScore(assessment.weight))}`}
       scheme={row.rules.scheme}
       concepts={row.rules.conceptLabels ?? []}
       rows={roster

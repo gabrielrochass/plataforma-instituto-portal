@@ -1,6 +1,7 @@
 import { expect, type Page, type TestInfo, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { expectNoAxeViolations } from "./axe";
+import { useTheme } from "./helpers";
 import "./env";
 
 const password = "dev-only-local-password";
@@ -61,7 +62,7 @@ for (const colorScheme of ["light", "dark"] as const) {
   test(`public pages meet WCAG in the ${colorScheme} theme`, async ({
     page,
   }) => {
-    await page.emulateMedia({ colorScheme });
+    await useTheme(page, colorScheme);
     for (const path of publicPages) {
       await page.goto(path);
       await expectNoAxeViolations(page);

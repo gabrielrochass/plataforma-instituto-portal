@@ -68,7 +68,7 @@ export async function createClass(
     await page.getByText("Ajustar regras de avaliação").click();
     await page
       .locator("label", {
-        hasText: options.concepts ? "Conceitos" : "Só frequência",
+        hasText: options.concepts ? "Conceitos" : "Só presença",
       })
       .click();
   }
@@ -139,4 +139,10 @@ export async function takeAttendance(
   await markAllPresent(page);
   await page.getByRole("button", { name: "Salvar chamada" }).click();
   await expect(page).toHaveURL(`/turmas/${classId}`);
+}
+
+export async function useTheme(page: Page, theme: "light" | "dark") {
+  await page
+    .context()
+    .addCookies([{ name: "tema", value: theme, url: "http://localhost:3100" }]);
 }

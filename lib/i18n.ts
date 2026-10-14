@@ -3,7 +3,7 @@ export const m = {
     name: "Portal",
     shortName: "Portal",
     description:
-      "Turmas, alunos, frequência e impacto do Instituto Portal em um só lugar.",
+      "Turmas, alunos, presença e impacto do Instituto Portal em um só lugar.",
   },
   common: {
     back: "Voltar",
@@ -72,7 +72,7 @@ export const m = {
     teacher: "Professor",
     teacherHint: "Convite pelo WhatsApp",
     unitAdmin: "Adm da unidade",
-    unitAdminHint: "Coordenação de uma unidade",
+    unitAdminHint: "Cuida de uma unidade",
     adminGeral: "Adm geral",
     adminGeralHint: "Acesso a todas as unidades",
     announcement: "Aviso",
@@ -116,7 +116,7 @@ export const m = {
     stopScan: "Concluir leitura",
     delete: "Apagar chamada deste dia",
     deleteTitle: "Apagar a chamada deste dia?",
-    deleteText: "As presenças e faltas deste dia saem da frequência.",
+    deleteText: "As presenças e faltas deste dia deixam de contar.",
     deleted: "Chamada apagada",
     alertsTitle: "Entraram em alerta",
     alertsText:
@@ -246,7 +246,7 @@ export const m = {
   grades: {
     tab: "Notas",
     attendanceOnly:
-      "Esta turma é avaliada só pela frequência. Não há notas para lançar.",
+      "Esta turma é avaliada só pela presença. Não há notas para lançar.",
     assessments: "Avaliações",
     newAssessment: "Nova avaliação",
     noAssessments: "Nenhuma avaliação ainda.",
@@ -282,13 +282,13 @@ export const m = {
     summary: "Situação dos alunos",
     average: "Média",
     conceptColumn: "Conceito",
-    attendance: "Frequência",
+    attendance: "Presença",
     noStudents: "Ninguém matriculado nesta turma.",
     result: {
       approved: "Aprovado",
       failedScore: "Abaixo da média",
-      failedAttendance: "Frequência baixa",
-      failedBoth: "Abaixo da média e da frequência",
+      failedAttendance: "Presença baixa",
+      failedBoth: "Abaixo da média e da presença",
     },
     missingCount: (count: number) =>
       count === 1 ? "1 nota sem lançar" : `${count} notas sem lançar`,
@@ -304,7 +304,7 @@ export const m = {
       count === 1 ? "1 nota sem lançar" : `${count} notas sem lançar`,
     warningsTitle: "Antes de encerrar",
     warningsText:
-      "Notas sem lançar contam como zero. Chamadas sem fazer não entram na frequência.",
+      "Notas sem lançar contam como zero. Dias sem chamada não contam na presença.",
     proposed: "Resultado pela regra",
     override: "Ajustar resultado",
     approve: "Aprovar mesmo assim",
@@ -316,7 +316,7 @@ export const m = {
     confirm: "Encerrar turma",
     confirmTitle: "Encerrar a turma?",
     confirmText:
-      "Os resultados ficam guardados e a turma não aceita mais chamada nem notas. Só a coordenação pode reabrir.",
+      "Os resultados ficam guardados e a turma não aceita mais chamada nem notas. Só o adm da unidade pode reabrir.",
     done: "Turma encerrada",
     reopen: "Reabrir turma",
     reopened: "Turma reaberta",
@@ -328,7 +328,7 @@ export const m = {
     dataTab: "Dados",
     title: "Ficha socioeconômica",
     intro:
-      "Só a coordenação vê esta ficha. Cada leitura e cada mudança ficam registradas.",
+      "Só os administradores veem esta ficha. Cada leitura e cada mudança ficam registradas.",
     empty: "Ficha ainda não preenchida.",
     fill: "Preencher ficha",
     reassess: "Nova avaliação",
@@ -447,7 +447,7 @@ export const m = {
     choose: "Escolha",
   },
   alumni: {
-    title: "Egressos",
+    title: "Depois do curso",
     intro:
       "Como está a pessoa depois do curso. Ajuda a mostrar o impacto do instituto.",
     empty: "Nenhuma informação ainda.",
@@ -505,7 +505,7 @@ export const m = {
     },
     tables: {
       social_profiles: "a ficha social",
-      alumni_outcomes: "os egressos",
+      alumni_outcomes: "o que fez depois do curso",
       consents: "um termo",
       students: "o cadastro",
       "students.cpf": "o CPF",
@@ -514,7 +514,7 @@ export const m = {
       `${who || "Sistema"} ${action.toLowerCase()} ${what}, ${when}`,
     anonymize: "Anonimizar",
     anonymizeHint:
-      "Atende a um pedido de exclusão. Apaga nome, contatos, responsáveis, ficha e anotações. Matrículas e frequência ficam sem identificação, para os números do instituto.",
+      "Atende a um pedido de exclusão. Apaga nome, contatos, responsáveis, ficha e anotações. Matrículas e presenças ficam sem identificação, para os números do instituto.",
     anonymizeTitle: "Anonimizar este aluno?",
     anonymizeText: "Não dá para desfazer. Digite ANONIMIZAR para confirmar.",
     anonymizeConfirmLabel: "Confirmação",
@@ -544,7 +544,7 @@ export const m = {
     empty: "Nenhuma anotação ainda.",
     by: (name: string, date: string) => `${name}, ${date}`,
     privacy:
-      "Professores veem só as próprias anotações. A coordenação vê todas.",
+      "Professores veem só as próprias anotações. Os administradores veem todas.",
   },
   classes: {
     title: "Turmas",
@@ -643,7 +643,7 @@ export const m = {
       numeric_10: "Nota de 0 a 10",
       numeric_100: "Nota de 0 a 100",
       concept: "Conceitos",
-      attendance_only: "Só frequência",
+      attendance_only: "Só presença",
     },
     schemeHints: {
       numeric_10: "Média mínima 6",
@@ -651,7 +651,7 @@ export const m = {
       concept: "Ótimo, Bom, Regular, Insuficiente",
       attendance_only: "Sem nota, só presença",
     },
-    minAttendance: "Frequência mínima",
+    minAttendance: "Presença mínima",
     advanced: "Ajustar regras",
     passingScore: "Média mínima",
     conceptLabels: "Conceitos, do melhor para o pior",
@@ -701,7 +701,7 @@ export const m = {
     title: "Alunos",
     emptyTitle: "Nenhum aluno ainda",
     emptyDescription:
-      "Cada aluno tem um perfil com as turmas que já fez, a frequência e as notas.",
+      "Cada aluno tem um perfil com as turmas que já fez, a presença e as notas.",
     new: "Cadastrar aluno",
     search: "Buscar aluno",
     searchPlaceholder: "Nome ou CPF",
@@ -752,8 +752,8 @@ export const m = {
     saved: "Dados salvos",
     registered: (name: string) => `${name} cadastrado`,
     pendingNotice:
-      "A ficha social fica pendente. A coordenação completa depois.",
-    cpfHidden: "Visível só para a coordenação",
+      "A ficha social fica pendente. O adm da unidade completa depois.",
+    cpfHidden: "Visível só para os administradores",
   },
   studentForm: {
     whoQuestion: "Quem é o aluno",
@@ -829,7 +829,7 @@ export const m = {
       `Nasceu em ${year}, unidade ${unit}`,
     openExisting: "Abrir perfil",
     enrollExisting: "Matricular este",
-    notVisible: "Peça à coordenação para matricular este cadastro.",
+    notVisible: "Peça ao adm da unidade para matricular este cadastro.",
     notTheSame: "Não é a mesma pessoa, continuar",
     errors: {
       fullName: "Informe o nome completo",
@@ -863,7 +863,7 @@ export const m = {
     transferOn: "A partir de",
     transferReason: "Motivo",
     transferHint:
-      "A frequência e as notas até a data ficam no histórico da turma de origem.",
+      "A presença e as notas até essa data ficam guardadas na turma antiga.",
     transferred: (name: string) => `${name} transferido`,
     noTargets: "Não há outra turma aberta para onde transferir.",
     end: "Encerrar matrícula",
@@ -896,73 +896,99 @@ export const m = {
   },
   impact: {
     title: "Impacto",
-    hint: "Números para patrocinadores e relatórios",
-    filters: "Filtros",
+    hint: "Números do instituto para mostrar a patrocinadores",
+    intro:
+      "Um retrato do que o instituto fez no período: quantas pessoas atendeu, como foi a presença e o que aconteceu depois do curso.",
+    filters: "Escolha o que ver",
     period: "Período",
     lastTwelveMonths: "Últimos 12 meses",
     unit: "Unidade",
     allUnits: "Todas as unidades",
     class: "Turma",
     allClasses: "Todas as turmas",
-    apply: "Aplicar",
-    report: "Relatório",
+    apply: "Ver números",
+    report: "Relatório para imprimir",
     previousTwelveMonths: "os 12 meses anteriores",
-    moreThan: (value: string, reference: string) =>
-      `${value} a mais que ${reference}`,
-    lessThan: (value: string, reference: string) =>
-      `${value} a menos que ${reference}`,
-    sameAs: (reference: string) => `Igual a ${reference}`,
+    compared: (reference: string) => `Comparado com ${reference}`,
+    moreThan: (value: string) => `${value} a mais`,
+    lessThan: (value: string) => `${value} a menos`,
+    sameAs: "Sem mudança",
     points: (value: number) => (value === 1 ? "1 ponto" : `${value} pontos`),
-    noBase: "Sem base para calcular",
+    noBase: "Ainda sem dados",
     noData: "Sem dados",
     percent: (value: number) => `${value}%`,
+    summary: "Resumo do período",
     stats: {
-      served: "Pessoas atendidas",
-      enrollments: "Matrículas novas",
-      completion: "Taxa de conclusão",
-      attendance: "Frequência média",
-      hours: "Horas certificadas",
+      served: "Alunos atendidos",
+      enrollments: "Novas matrículas",
+      completion: "Concluíram o curso",
+      attendance: "Presença média",
+      hours: "Horas de curso concluídas",
       dropouts: "Desistências",
     },
-    servedDetail: "Com matrícula ativa em algum momento do período",
+    servedDetail: "Alunos que estudaram aqui em algum momento do período",
     enrollmentsDetail: (transfers: number) =>
       transfers === 0
-        ? "Transferências não contam como matrícula nova"
-        : `Mais ${transfers} ${transfers === 1 ? "transferência" : "transferências"} entre turmas`,
+        ? "Entradas em turmas no período"
+        : `Entradas em turmas no período, sem contar ${transfers === 1 ? "1 troca de turma" : `${transfers} trocas de turma`}`,
     completionDetail: (completed: number, finished: number) =>
-      `${completed} de ${finished} que terminaram uma turma`,
-    attendanceDetail: (records: number) =>
-      `${records.toLocaleString("pt-BR")} registros de chamada`,
-    hoursDetail: "Carga horária de cada conclusão no período",
-    dropoutsDetail: (rate: string) => `${rate} de quem terminou uma turma`,
+      `${completed} de ${finished} alunos que terminaram uma turma`,
+    attendanceDetail: "Média de todas as chamadas do período",
+    hoursDetail: "Soma da carga horária de quem concluiu",
+    dropoutsDetail: (rate: string) =>
+      `${rate} dos alunos que terminaram uma turma`,
     monthly: "Mês a mês",
-    activeChart: "Pessoas com matrícula ativa",
-    attendanceChart: "Frequência por mês",
-    partialMonth: "O mês atual ainda está em andamento.",
-    seeData: "Ver dados",
-    month: "Mês",
-    people: "Pessoas",
-    noClasses: "Sem aulas",
-    funnel: "Da inscrição à conclusão",
-    funnelHint:
-      "Inscrições online feitas no período e o que aconteceu com elas.",
-    funnelSteps: {
-      requests: "Inscrições",
-      converted: "Viraram matrícula",
-      completed: "Concluíram o curso",
+    monthlyHint:
+      "Toque ou passe o mouse sobre um mês para ver os números. A barra deslizante também escolhe o mês.",
+    activeChart: "Alunos estudando",
+    activeValue: (count: number) =>
+      count === 1 ? "1 aluno estudando" : `${count} alunos estudando`,
+    attendanceChart: "Presença nas aulas",
+    attendanceValue: (value: number) => `${value}% de presença`,
+    noClasses: "Sem aulas neste mês",
+    chooseMonth: "Escolha o mês",
+    goal: (value: number) => `Meta: ${value}%`,
+    statuses: {
+      good: "Na meta",
+      attention: "Atenção",
+      low: "Baixa",
     },
-    profile: "Quem atendemos",
+    statusRanges: {
+      good: (goal: number) => `${goal}% ou mais`,
+      attention: (goal: number) => `de 60% a ${goal - 1}%`,
+      low: "menos de 60%",
+    },
+    partialMonth: "O mês atual ainda não terminou.",
+    seeData: "Ver os números em tabela",
+    month: "Mês",
+    people: "Alunos",
+    classes: "Turmas",
+    classesHint: "Compare as turmas. Toque no nome para abrir a turma.",
+    sortBy: "Ordenar por",
+    showAll: (count: number) => `Mostrar todas (${count})`,
+    showLess: "Mostrar menos",
+    sorts: {
+      attendance: "Presença",
+      completion: "Conclusão",
+      served: "Alunos",
+    },
+    classLine: (served: number, completion: string | null) =>
+      `${served === 1 ? "1 aluno" : `${served} alunos`}, ${completion === null ? "ninguém terminou ainda" : `${completion} concluíram`}`,
+    units: "Unidades",
+    profile: "Quem são os alunos",
     profileHint: (profiled: number, served: number) =>
-      `Idade de todas as ${served} pessoas. Demais dados das ${profiled} com ficha social.`,
-    hidden: "Oculto",
+      profiled === served
+        ? `Todos os ${served} alunos têm ficha social.`
+        : `A idade vale para os ${served} alunos. O restante vem dos ${profiled} que já têm ficha social.`,
+    hidden: "Protegido",
     hiddenNote:
-      "Grupos com menos de 5 pessoas ficam ocultos, junto com o próximo menor, para que ninguém seja identificado.",
+      "Para proteger a privacidade, grupos com menos de 5 pessoas não aparecem. Nesses casos, outro grupo pequeno também fica de fora, para que ninguém descubra o número pela soma.",
     dimensions: {
       age: "Idade",
       gender: "Gênero",
       race_color: "Cor ou raça",
-      income: "Renda por pessoa da família",
-      benefits: "Recebe benefício social",
+      income: "Renda por pessoa da família, por mês",
+      benefits: "Recebe benefício do governo",
     },
     ages: {
       under_15: "Até 14 anos",
@@ -975,58 +1001,55 @@ export const m = {
       up_to_300: "Até R$ 300",
       up_to_700: "De R$ 300 a R$ 700",
       up_to_1500: "De R$ 700 a R$ 1.500",
-      above_1500: "Acima de R$ 1.500",
+      above_1500: "Mais de R$ 1.500",
     },
     yes: "Sim",
     no: "Não",
     unknown: "Não informado",
-    byClass: "Por turma",
-    byUnit: "Por unidade",
-    columns: {
-      class: "Turma",
-      unit: "Unidade",
-      served: "Pessoas",
-      completion: "Conclusão",
-      attendance: "Frequência",
-    },
-    alumni: "Egressos",
+    after: "Depois do curso",
+    alumni: "O que os alunos fazem hoje",
     alumniHint: (count: number) =>
-      `Situação mais recente de ${count} ${count === 1 ? "pessoa que concluiu" : "pessoas que concluíram"} no período.`,
+      `Informação mais recente de ${count === 1 ? "1 aluno que concluiu" : `${count} alunos que concluíram`} no período.`,
+    alumniHeadline: (value: number) =>
+      `${value}% estão trabalhando, estudando ou empreendendo`,
     outcomes: {
-      employed_formal: "Trabalhando com carteira",
-      employed: "Trabalhando, outros vínculos",
-      internship: "Estágio ou aprendiz",
+      employed_formal: "Trabalhando com carteira assinada",
+      employed: "Trabalhando sem carteira",
+      internship: "Estágio ou jovem aprendiz",
       studying: "Estudando",
       self_employed: "Empreendendo",
       job_seeking: "Procurando trabalho",
       other: "Outra situação",
-      unknown: "Sem informação",
+      unknown: "Ainda sem informação",
     },
-    exits: "Motivos de desistência",
+    exits: "Por que alunos desistiram",
     exitsHint: (count: number) =>
-      `${count} ${count === 1 ? "desistência" : "desistências"} no período.`,
+      count === 1
+        ? "1 desistência no período."
+        : `${count} desistências no período.`,
     empty: "Nada registrado neste período.",
-    methodology: "Como calculamos",
+    methodology: "Como os números são calculados",
     methods: [
-      "Pessoas atendidas: quem teve matrícula ativa em qualquer dia do período, contada uma vez mesmo com várias turmas.",
-      "Matrículas novas: matrículas que começaram no período. A turma de destino de uma transferência não conta de novo.",
-      "Taxa de conclusão: concluídos divididos por quem terminou uma turma no período (concluídos, reprovados e desistentes). Transferidos e cancelados ficam de fora.",
-      "Frequência: presenças divididas por todos os registros de chamada do período.",
-      "Horas certificadas: carga horária da turma somada para cada pessoa que concluiu no período.",
-      "Perfil: ficha social mais recente de cada pessoa até o fim do período. Idade calculada no último dia do período.",
-      "Comparação: mesmo cálculo no período anterior de mesmo tamanho. Em taxas, a diferença está em pontos percentuais.",
-      "Pessoas anonimizadas a pedido continuam nos números, sem identificação.",
+      "Alunos atendidos: cada pessoa conta uma vez, mesmo que tenha feito mais de uma turma.",
+      "Novas matrículas: entradas em turmas no período. Quem trocou de turma não conta de novo.",
+      "Concluíram o curso: entre os alunos que terminaram uma turma no período, quantos foram aprovados. Quem trocou de turma ou teve a matrícula cancelada fica de fora.",
+      "Presença média: presenças divididas pelo total de marcações de chamada do período.",
+      "Horas de curso concluídas: carga horária da turma somada para cada aluno que concluiu.",
+      "Quem são os alunos: dados da ficha social mais recente de cada pessoa. A idade é calculada no fim do período.",
+      "Comparação: o mesmo cálculo feito no período anterior, de mesmo tamanho.",
+      "Pessoas que pediram para apagar seus dados continuam nos números, sem identificação.",
     ],
     reportTitle: "Relatório de impacto",
     print: "Imprimir ou salvar em PDF",
     backToPanel: "Voltar ao painel",
     generatedOn: (date: string) => `Gerado em ${date}.`,
     range: (from: string, to: string) => `De ${from} a ${to}`,
-    scope: "Recorte",
+    scope: "Filtros",
   },
   badges: {
     title: "Crachás",
     cardLabel: (name: string) => `Crachá de ${name}`,
+    code: (unit: string, token: string) => `${unit}, código ${token}`,
     qrLabel: (name: string) => `QR de presença de ${name}`,
     print: "Imprimir ou salvar em PDF",
     hint: "Cada folha A4 traz até 9 crachás. Recorte na linha pontilhada.",
@@ -1102,10 +1125,10 @@ export const m = {
   },
   announcements: {
     title: "Avisos",
-    hint: "Recados da coordenação e das turmas",
+    hint: "Recados para a equipe e para as turmas",
     new: "Novo aviso",
     empty: "Nenhum aviso por enquanto.",
-    emptyHint: "Quando a coordenação ou um professor publicar, aparece aqui.",
+    emptyHint: "Quando alguém da equipe publicar, aparece aqui.",
     unread: "Novo",
     markRead: "Marcar como lido",
     read: "Lido",
@@ -1143,12 +1166,18 @@ export const m = {
   more: {
     title: "Mais",
   },
+  theme: {
+    title: "Aparência",
+    light: "Claro",
+    dark: "Escuro",
+    hint: "O modo claro é o mais fácil de ler na maioria das telas.",
+  },
   settings: {
     nameRequired: "Informe um nome",
   },
   auth: {
     title: "Entrar",
-    tagline: "Turmas, alunos e frequência do instituto em um só lugar.",
+    tagline: "Turmas, alunos e presença do instituto em um só lugar.",
     email: "E-mail",
     password: "Senha",
     passwordHint:
@@ -1157,10 +1186,8 @@ export const m = {
     signIn: "Entrar",
     signingIn: "Entrando…",
     forgot: "Esqueci a senha",
-    forgotHelp:
-      "Peça à coordenação da sua unidade um link para criar uma senha nova.",
-    noAccess:
-      "Ainda não tem acesso? Peça um convite à coordenação da sua unidade.",
+    forgotHelp: "Peça ao adm da sua unidade um link para criar uma senha nova.",
+    noAccess: "Ainda não tem acesso? Peça um convite ao adm da sua unidade.",
     errors: {
       emailInvalid: "Digite um e-mail válido, como nome@exemplo.com.",
       passwordRequired: "Digite sua senha.",
@@ -1244,13 +1271,13 @@ export const m = {
     privacy: "Política de Privacidade",
   },
   roles: {
-    admin: "Coordenação",
+    admin: "Adm da unidade",
     teacher: "Professor",
-    adminGeral: "Administração geral",
+    adminGeral: "Adm geral",
   },
   team: {
     title: "Equipe",
-    hint: "Convide professores e coordenação",
+    hint: "Professores e administradores",
     invite: "Convidar",
     inviteTitle: "Convidar para a equipe",
     kind: "Quem você vai convidar",
@@ -1320,7 +1347,7 @@ export const m = {
     lastAdmin: "É preciso manter ao menos uma pessoa na administração geral.",
     saved: "Alterações salvas",
     readOnly:
-      "Esta pessoa também trabalha em outra unidade ou é da coordenação. Só a administração geral muda o acesso dela.",
+      "Esta pessoa também trabalha em outra unidade ou é administradora. Só o adm geral muda o acesso dela.",
   },
   units: {
     title: "Unidades",
@@ -1348,7 +1375,7 @@ export const m = {
     accepting: "Criando seu acesso…",
     invalidTitle: "Este convite não vale mais",
     invalidText:
-      "Ele pode ter expirado, já ter sido usado ou cancelado. Peça um novo link à coordenação.",
+      "Ele pode ter expirado, já ter sido usado ou cancelado. Peça um novo link ao adm da sua unidade.",
     signedInAs: (email: string) => `Você está conectado como ${email}.`,
     acceptSignedIn: "Aceitar convite",
     emailTaken:
@@ -1364,12 +1391,12 @@ export const m = {
     saving: "Salvando…",
     invalidTitle: "Este link não vale mais",
     invalidText:
-      "Ele pode ter expirado ou já ter sido usado. Peça um novo link à coordenação.",
+      "Ele pode ter expirado ou já ter sido usado. Peça um novo link ao adm da sua unidade.",
     done: "Senha nova salva. Entre com ela.",
   },
   noAccess: {
     title: "Sem acesso ao Portal",
-    text: "Sua conta não está ligada a nenhuma unidade ou o acesso foi desativado. Fale com a coordenação da sua unidade.",
+    text: "Sua conta não está ligada a nenhuma unidade ou o acesso foi desativado. Fale com o adm da sua unidade.",
   },
   errors: {
     title: "Algo deu errado",
@@ -1380,12 +1407,11 @@ export const m = {
     notFoundDescription:
       "O endereço pode estar errado ou este item não está disponível para você.",
     forbiddenTitle: "Você não tem acesso a esta página",
-    forbiddenDescription:
-      "Se precisar dela, fale com a coordenação da sua unidade.",
+    forbiddenDescription: "Se precisar dela, fale com o adm da sua unidade.",
     home: "Ir para o Início",
     forbidden: "Você não tem permissão para isso.",
     locked: "Este registro está fechado e não pode mais ser alterado.",
-    limit: "Limite atingido. Fale com a coordenação da sua unidade.",
+    limit: "Limite atingido. Fale com o adm da sua unidade.",
   },
 } as const;
 

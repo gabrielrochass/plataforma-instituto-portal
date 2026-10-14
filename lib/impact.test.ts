@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { orderedCounts, percent, periodKeys, resolvePeriod } from "./impact";
+import {
+  niceMax,
+  orderedCounts,
+  percent,
+  periodKeys,
+  presenceStatus,
+  resolvePeriod,
+} from "./impact";
 
 describe("resolvePeriod", () => {
   it("defaults to the last twelve months including the current one", () => {
@@ -43,5 +50,21 @@ describe("orderedCounts", () => {
       { key: "woman", value: 12 },
       { key: "man", value: null },
     ]);
+  });
+});
+
+describe("presenceStatus", () => {
+  it("uses the goal and a lower attention band", () => {
+    expect(presenceStatus(75)).toBe("good");
+    expect(presenceStatus(60)).toBe("attention");
+    expect(presenceStatus(59)).toBe("low");
+  });
+});
+
+describe("niceMax", () => {
+  it("rounds the top of the scale up to a clean number", () => {
+    expect(niceMax(3)).toBe(5);
+    expect(niceMax(21)).toBe(25);
+    expect(niceMax(130)).toBe(200);
   });
 });

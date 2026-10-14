@@ -75,7 +75,7 @@ export default async function ClassGradesPage({
                           ),
                         ]
                           .filter(Boolean)
-                          .join(". ")}
+                          .join(", ")}
                       </span>
                     </span>
                     {open && (
@@ -155,7 +155,7 @@ export default async function ClassGradesPage({
                           : null,
                       ]
                         .filter(Boolean)
-                        .join(". ")}
+                        .join(", ")}
                     </span>
                     <ResultLabel result={resultOf(result)} />
                   </li>

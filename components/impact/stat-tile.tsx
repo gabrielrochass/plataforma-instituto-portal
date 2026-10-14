@@ -5,47 +5,34 @@ import {
   MinusIcon,
 } from "lucide-react";
 import { m } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export type Comparison = { difference: number | null; text: string };
 
-export function compareCount(
-  current: number,
-  previous: number,
-  reference: string,
-): Comparison {
-  const difference = current - previous;
-  const value = Math.abs(difference).toLocaleString("pt-BR");
+function compare(difference: number, amount: string): Comparison {
   return {
     difference,
     text:
       difference === 0
-        ? m.impact.sameAs(reference)
-        : (difference > 0 ? m.impact.moreThan : m.impact.lessThan)(
-            value,
-            reference,
-          ),
+        ? m.impact.sameAs
+        : (difference > 0 ? m.impact.moreThan : m.impact.lessThan)(amount),
   };
+}
+
+export function compareCount(current: number, previous: number): Comparison {
+  const difference = current - previous;
+  return compare(difference, Math.abs(difference).toLocaleString("pt-BR"));
 }
 
 export function compareRate(
   current: number | null,
   previous: number | null,
-  reference: string,
 ): Comparison {
   if (current === null || previous === null) {
     return { difference: null, text: m.impact.noBase };
   }
   const difference = current - previous;
-  return {
-    difference,
-    text:
-      difference === 0
-        ? m.impact.sameAs(reference)
-        : (difference > 0 ? m.impact.moreThan : m.impact.lessThan)(
-            m.impact.points(Math.abs(difference)),
-            reference,
-          ),
-  };
+  return compare(difference, m.impact.points(Math.abs(difference)));
 }
 
 export function StatTile({
@@ -53,36 +40,52 @@ export function StatTile({
   value,
   detail,
   comparison,
+  upIsGood = true,
 }: {
   label: string;
   value: string;
   detail: string;
   comparison?: Comparison;
+  upIsGood?: boolean;
 }) {
-  const Icon =
-    comparison?.difference == null
+  const difference = comparison?.difference ?? null;
+  const Arrow =
+    difference === null
       ? MinusIcon
-      : comparison.difference > 0
+      : difference > 0
         ? ArrowUpRightIcon
-        : comparison.difference < 0
+        : difference < 0
           ? ArrowDownRightIcon
           : EqualIcon;
+  const better =
+    difference === null || difference === 0
+      ? null
+      : difference > 0 === upIsGood;
 
   return (
-    <div className="flex flex-col gap-1 rounded-2xl bg-card p-4 break-inside-avoid">
+    <div className="flex flex-col rounded-2xl bg-card p-4 break-inside-avoid">
       <dt className="text-subhead font-medium text-muted-foreground">
         {label}
       </dt>
-      <dd className="text-title1 font-bold tracking-tight tabular-nums">
+      <dd className="mt-1 text-title1 font-bold tracking-tight tabular-nums">
         {value}
       </dd>
-      <dd className="text-footnote text-muted-foreground">{detail}</dd>
       {comparison && (
-        <dd className="flex items-start gap-1.5 text-footnote text-muted-foreground">
-          <Icon aria-hidden="true" className="mt-px size-4 shrink-0" />
+        <dd className="mt-1 flex items-start gap-1 text-footnote text-muted-foreground">
+          <Arrow
+            aria-hidden="true"
+            className={cn(
+              "mt-px size-4 shrink-0",
+              better === true && "text-success",
+              better === false && "text-destructive",
+            )}
+          />
           {comparison.text}
         </dd>
       )}
+      <dd className="mt-3 hidden border-t pt-3 text-footnote text-muted-foreground sm:block print:block">
+        {detail}
+      </dd>
     </div>
   );
 }

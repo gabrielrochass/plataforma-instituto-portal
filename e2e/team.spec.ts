@@ -23,7 +23,9 @@ test("a unit admin invites a teacher who joins from the link", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "Convidar professor" }),
   ).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Coordenação" })).toHaveCount(0);
+  await expect(page.getByRole("radio", { name: "Adm da unidade" })).toHaveCount(
+    0,
+  );
   await page.getByRole("button", { name: "Gerar link de convite" }).click();
   await expect(page.getByLabel("Nome")).toHaveAccessibleDescription(
     "Informe o nome da pessoa",

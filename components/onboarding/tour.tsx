@@ -196,7 +196,7 @@ export function Tour({ autoStart }: { autoStart: boolean }) {
         aria-labelledby={titleId}
         aria-describedby={textId}
         className={cn(
-          "fixed flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 rounded-2xl bg-popover p-5 text-popover-foreground shadow-xl transition-[top,left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "fixed flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 rounded-2xl bg-popover p-5 text-popover-foreground ring-1 ring-border transition-[top,left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           !placement && "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
         )}
         style={placement ? { top: placement.top, left: placement.left } : {}}

@@ -57,7 +57,7 @@ export default async function ClassSessionsPage({
                       <span className="text-footnote text-muted-foreground tabular-nums">
                         {m.attendance.done(session.present, session.absent)}
                         {session.taken_by_name &&
-                          `. ${m.attendance.takenByName(session.taken_by_name)}`}
+                          `, ${m.attendance.takenByName(session.taken_by_name)}`}
                       </span>
                       {session.note && (
                         <span className="text-footnote text-muted-foreground">

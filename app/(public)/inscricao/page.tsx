@@ -46,7 +46,7 @@ export default async function PublicOffersPage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarDaysIcon aria-hidden="true" className="size-4" />
-                  {`${weekdaysSummary(offer.weekdays)}. ${m.classes.periodRange(formatFullDate(offer.starts_on), formatFullDate(offer.ends_on))}`}
+                  {`${weekdaysSummary(offer.weekdays)}, ${m.classes.periodRange(formatFullDate(offer.starts_on), formatFullDate(offer.ends_on))}`}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <ClockIcon aria-hidden="true" className="size-4" />

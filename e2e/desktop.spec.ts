@@ -1,5 +1,6 @@
 import { test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
+import { useTheme } from "./helpers";
 
 const appPaths = [
   "/",
@@ -26,7 +27,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     page,
   }) => {
     test.slow();
-    await page.emulateMedia({ colorScheme });
+    await useTheme(page, colorScheme);
     for (const path of ["/entrar", "/termos", "/dev/ui"]) {
       await page.goto(path);
       await expectNoAxeViolations(page);

@@ -1,6 +1,5 @@
-import type { TrendBar } from "@/components/impact/bar-trend";
-import { Breakdown, type BreakdownRow } from "@/components/impact/breakdown";
-import { GroupTable } from "@/components/impact/group-table";
+import { BarList, type BarRow } from "@/components/impact/bar-list";
+import type { MonthPoint } from "@/components/impact/monthly-charts";
 import {
   type Comparison,
   compareCount,
@@ -18,7 +17,7 @@ import {
 
 const i = m.impact;
 
-function rows(counts: Counts, labels: Record<string, string>): BreakdownRow[] {
+function rows(counts: Counts, labels: Record<string, string>): BarRow[] {
   const order = [...new Set([...Object.keys(labels), "unknown"])];
   return orderedCounts(counts, order).map(({ key, value }) => ({
     key,
@@ -31,14 +30,31 @@ function rateText(value: number | null) {
   return value === null ? i.noBase : i.percent(value);
 }
 
+export function SectionTitle({
+  id,
+  title,
+  hint,
+}: {
+  id: string;
+  title: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <h2 id={id} className="text-title3 font-semibold">
+        {title}
+      </h2>
+      {hint && <p className="text-subhead text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
 export function ImpactStats({
   report,
   previous,
-  reference,
 }: {
   report: ImpactReport;
   previous?: ImpactReport;
-  reference: string;
 }) {
   const finished = report.completed + report.failed + report.dropped_out;
   const completion = percent(report.completed, finished);
@@ -47,13 +63,13 @@ export function ImpactStats({
   const compare = (
     count: (r: ImpactReport) => number,
   ): Comparison | undefined =>
-    previous && compareCount(count(report), count(previous), reference);
+    previous && compareCount(count(report), count(previous));
   const previousFinished = previous
     ? previous.completed + previous.failed + previous.dropped_out
     : 0;
 
   return (
-    <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-3">
+    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-3 print:grid-cols-3">
       <StatTile
         label={i.stats.served}
         value={report.served.toLocaleString("pt-BR")}
@@ -72,24 +88,16 @@ export function ImpactStats({
         detail={i.completionDetail(report.completed, finished)}
         comparison={
           previous &&
-          compareRate(
-            completion,
-            percent(previous.completed, previousFinished),
-            reference,
-          )
+          compareRate(completion, percent(previous.completed, previousFinished))
         }
       />
       <StatTile
         label={i.stats.attendance}
         value={rateText(attendance)}
-        detail={i.attendanceDetail(report.recorded)}
+        detail={i.attendanceDetail}
         comparison={
           previous &&
-          compareRate(
-            attendance,
-            percent(previous.attended, previous.recorded),
-            reference,
-          )
+          compareRate(attendance, percent(previous.attended, previous.recorded))
         }
       />
       <StatTile
@@ -103,90 +111,52 @@ export function ImpactStats({
         value={report.dropped_out.toLocaleString("pt-BR")}
         detail={i.dropoutsDetail(rateText(dropoutRate))}
         comparison={compare((r) => r.dropped_out)}
+        upIsGood={false}
       />
     </dl>
   );
 }
 
-export function monthlyBars(report: ImpactReport, today: string) {
+export function monthPoints(report: ImpactReport, today: string): MonthPoint[] {
   const current = today.slice(0, 7);
-  const base = report.monthly.map((month) => ({
-    key: month.month,
-    label: formatShortMonth(month.month),
-    fullLabel: formatMonth(month.month.slice(0, 7)),
-    partial: month.month.slice(0, 7) === current,
-    future: month.month.slice(0, 7) > current,
-  }));
-  const active: TrendBar[] = report.monthly.map((month, index) => ({
-    ...base[index],
-    value: base[index].future ? null : month.active,
-    display: base[index].future
-      ? i.noClasses
-      : month.active.toLocaleString("pt-BR"),
-  }));
-  const attendance: TrendBar[] = report.monthly.map((month, index) => {
-    const value = percent(month.attended, month.recorded);
+  return report.monthly.map((month) => {
+    const key = month.month.slice(0, 7);
+    const future = key > current;
     return {
-      ...base[index],
-      value,
-      display: value === null ? i.noClasses : i.percent(value),
+      key,
+      short: formatShortMonth(month.month),
+      full: formatMonth(key),
+      active: future ? null : month.active,
+      presence: percent(month.attended, month.recorded),
+      partial: key === current,
     };
   });
-  const hasPartial = base.some((month) => month.partial);
-  return { active, attendance, hasPartial };
 }
 
-export function FunnelBreakdown({ report }: { report: ImpactReport }) {
-  return (
-    <Breakdown
-      title={i.funnel}
-      hint={i.funnelHint}
-      total={report.requests}
-      rows={[
-        {
-          key: "requests",
-          label: i.funnelSteps.requests,
-          value: report.requests,
-        },
-        {
-          key: "converted",
-          label: i.funnelSteps.converted,
-          value: report.requests_converted,
-        },
-        {
-          key: "completed",
-          label: i.funnelSteps.completed,
-          value: report.requests_completed,
-        },
-      ]}
-    />
-  );
-}
-
-export function ProfileBreakdowns({ report }: { report: ImpactReport }) {
+export function ProfileCharts({ report }: { report: ImpactReport }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 print:grid-cols-2">
-      <Breakdown
+      <BarList
         title={i.dimensions.age}
         rows={rows(report.age, i.ages)}
         total={report.served}
       />
-      <Breakdown
+      <BarList
         title={i.dimensions.gender}
         rows={rows(report.gender, m.social.genders)}
         total={report.profiled}
       />
-      <Breakdown
+      <BarList
         title={i.dimensions.race_color}
         rows={rows(report.race_color, m.social.races)}
         total={report.profiled}
       />
-      <Breakdown
+      <BarList
         title={i.dimensions.income}
         rows={rows(report.income, i.incomes)}
         total={report.profiled}
       />
-      <Breakdown
+      <BarList
         title={i.dimensions.benefits}
         rows={rows(report.benefits, { yes: i.yes, no: i.no })}
         total={report.profiled}
@@ -195,16 +165,33 @@ export function ProfileBreakdowns({ report }: { report: ImpactReport }) {
   );
 }
 
-export function OutcomeBreakdowns({ report }: { report: ImpactReport }) {
+const positiveOutcomes = [
+  "employed_formal",
+  "employed",
+  "internship",
+  "studying",
+  "self_employed",
+];
+
+export function AfterCourse({ report }: { report: ImpactReport }) {
+  const outcomes = rows(report.outcomes, i.outcomes);
+  const positive = outcomes.filter((row) => positiveOutcomes.includes(row.key));
+  const positiveTotal = positive.every((row) => row.value !== null)
+    ? positive.reduce((total, row) => total + (row.value ?? 0), 0)
+    : null;
+  const share =
+    positiveTotal === null ? null : percent(positiveTotal, report.alumni);
+
   return (
     <div className="grid gap-3 md:grid-cols-2 print:grid-cols-2">
-      <Breakdown
+      <BarList
         title={i.alumni}
         hint={i.alumniHint(report.alumni)}
-        rows={rows(report.outcomes, i.outcomes)}
+        headline={share === null ? undefined : i.alumniHeadline(share)}
+        rows={outcomes}
         total={report.alumni}
       />
-      <Breakdown
+      <BarList
         title={i.exits}
         hint={i.exitsHint(report.dropped_out)}
         rows={rows(report.exit_reasons, m.enrollment.reasons)}
@@ -214,46 +201,21 @@ export function OutcomeBreakdowns({ report }: { report: ImpactReport }) {
   );
 }
 
-export function GroupTables({
-  report,
-  showUnits,
-}: {
-  report: ImpactReport;
-  showUnits: boolean;
-}) {
+export function Methodology({ open = false }: { open?: boolean }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2 print:grid-cols-1">
-      <GroupTable
-        title={i.byClass}
-        nameHeader={i.columns.class}
-        groups={report.by_class}
-      />
-      {showUnits && (
-        <GroupTable
-          title={i.byUnit}
-          nameHeader={i.columns.unit}
-          groups={report.by_unit}
-        />
-      )}
-    </div>
-  );
-}
-
-export function Methodology() {
-  return (
-    <section
-      aria-labelledby="como-calculamos"
-      className="flex flex-col gap-3 rounded-2xl bg-card p-4 break-inside-avoid"
+    <details
+      open={open}
+      className="rounded-2xl bg-card px-4 break-inside-avoid"
     >
-      <h2 id="como-calculamos" className="text-title3 font-semibold">
+      <summary className="flex min-h-13 cursor-pointer items-center text-headline font-semibold">
         {i.methodology}
-      </h2>
-      <ul className="flex list-disc flex-col gap-2 pl-5 text-subhead">
+      </summary>
+      <ul className="flex list-disc flex-col gap-2 pb-4 pl-5 text-subhead">
         {i.methods.map((method) => (
           <li key={method}>{method}</li>
         ))}
         <li>{i.hiddenNote}</li>
       </ul>
-    </section>
+    </details>
   );
 }

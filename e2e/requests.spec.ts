@@ -74,10 +74,10 @@ test("someone signs up online and the coordination enrolls them", async ({
   await expect(row).toContainText("º na fila");
   await expectNoAxeViolations(page);
   await row.click();
-  await expect(page.getByText("Rosa Melo. (81) 97777-6666")).toBeVisible();
+  await expect(page.getByText("Rosa Melo, (81) 97777-6666")).toBeVisible();
   await page.getByRole("button", { name: "Pôr na lista de espera" }).click();
   await expect(
-    page.getByText(`${course}, Recife Antigo. Lista de espera`),
+    page.getByText(`${course}, Recife Antigo, Lista de espera`),
   ).toBeVisible();
   const requestUrl = page.url();
 

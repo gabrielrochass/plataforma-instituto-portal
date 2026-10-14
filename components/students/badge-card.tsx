@@ -45,7 +45,7 @@ export function BadgeCard({ badge }: { badge: Badge }) {
         className="mt-auto size-[24mm] shrink-0"
       />
       <p className="font-mono text-[2.4mm] tracking-wider">
-        {badge.unit}. {badge.token}
+        {m.badges.code(badge.unit, badge.token)}
       </p>
     </article>
   );

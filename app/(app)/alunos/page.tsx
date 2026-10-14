@@ -123,7 +123,7 @@ export default async function StudentsPage({
                       <span className="text-body font-medium">{name}</span>
                       <span className="flex flex-wrap items-center gap-x-2 text-footnote text-muted-foreground">
                         <span className="tabular-nums">
-                          {`${m.students.age(ageOn(student.birth_date, today))}, ${student.unit_code}. ${m.students.activeClasses(student.active_count)}`}
+                          {`${m.students.age(ageOn(student.birth_date, today))}, ${student.unit_code}, ${m.students.activeClasses(student.active_count)}`}
                         </span>
                         {student.needs_accessibility && (
                           <span className="inline-flex items-center gap-1 text-link">

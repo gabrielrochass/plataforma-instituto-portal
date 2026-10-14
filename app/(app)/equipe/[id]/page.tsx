@@ -50,7 +50,7 @@ export default async function MemberPage({
             links={taught.map((row) => ({
               href: `/turmas/${row.id}` as Route,
               title: row.name,
-              hint: `${row.unit_code}. ${m.classes.students(row.active_count, row.capacity)}`,
+              hint: `${row.unit_code}, ${m.classes.students(row.active_count, row.capacity)}`,
               icon: UsersRoundIcon,
             }))}
           />

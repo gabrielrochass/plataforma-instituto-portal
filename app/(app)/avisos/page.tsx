@@ -84,9 +84,9 @@ export default async function AnnouncementsPage() {
                         formatDate(item.created_at.slice(0, 10), today),
                       )}
                       {item.expires_on &&
-                        `. ${a.expires(formatDate(item.expires_on, today))}`}
+                        `, ${a.expires(formatDate(item.expires_on, today))}`}
                       {item.read_count !== null &&
-                        `. ${a.readCount(item.read_count)}`}
+                        `, ${a.readCount(item.read_count)}`}
                     </p>
                   </header>
                   <p className="text-body whitespace-pre-line">{item.body}</p>

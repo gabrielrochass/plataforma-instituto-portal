@@ -38,7 +38,7 @@ test("coordination keeps a versioned social profile with consent and audit", asy
   await page.getByRole("button", { name: "Salvar ficha" }).click();
   await expect(page).toHaveURL(`/alunos/${studentId}/ficha`);
   await expect(
-    page.getByText("R$ 1.500,00. R$ 375,00 por pessoa"),
+    page.getByText("R$ 1.500,00, R$ 375,00 por pessoa"),
   ).toBeVisible();
   await expect(page.getByText("Ficha social pendente")).toHaveCount(0);
 

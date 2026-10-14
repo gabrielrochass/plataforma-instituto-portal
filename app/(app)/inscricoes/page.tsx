@@ -99,7 +99,7 @@ export default async function RequestsPage({
                           {displayName(row)}
                         </span>
                         <span className="text-footnote text-muted-foreground tabular-nums">
-                          {`${m.requests.age(ageOn(row.birth_date, today))}. ${formatPhone(row.phone)}. ${m.requests.received(formatDate(todayInRecife(new Date(row.created_at)), today))}`}
+                          {`${m.requests.age(ageOn(row.birth_date, today))}, ${formatPhone(row.phone)}, ${m.requests.received(formatDate(todayInRecife(new Date(row.created_at)), today))}`}
                         </span>
                       </span>
                       <ChevronRightIcon

@@ -63,6 +63,12 @@ select throws_ok(
 );
 
 reset role;
+update public.enrollment_requests r set created_at = r.created_at + make_interval(secs => s.n)
+from (
+  select id, row_number() over (order by birth_date) as n
+  from public.enrollment_requests where offer_id = '0f000000-0000-4000-8000-000000000001'
+) s
+where r.id = s.id;
 set local role authenticated;
 set local request.jwt.claims = '{"sub": "44444444-4444-4444-8444-444444444444", "role": "authenticated"}';
 select is_empty($$ select id from public.enrollment_requests $$, 'a teacher does not see requests');

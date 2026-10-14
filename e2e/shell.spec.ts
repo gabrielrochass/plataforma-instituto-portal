@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { expectNoAxeViolations } from "./axe";
+import { useTheme } from "./helpers";
 
 const tabs = [
   { name: "Início", path: "/", heading: /^Olá/ },
@@ -23,7 +24,9 @@ const settingsPaths = [
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} theme`, () => {
-    test.use({ colorScheme });
+    test.beforeEach(async ({ page }) => {
+      await useTheme(page, colorScheme);
+    });
 
     test("tab bar navigates between sections", async ({ page }) => {
       test.slow();
@@ -77,6 +80,25 @@ for (const colorScheme of ["light", "dark"] as const) {
         ).toBeVisible();
       }
       await expectNoAxeViolations(page);
+      await sheet.getByRole("button", { name: "Fechar" }).click();
+      const other = colorScheme === "light" ? "Escuro" : "Claro";
+      await page.locator("label", { hasText: other }).click();
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme",
+        colorScheme === "light" ? "dark" : "light",
+      );
+      await expect
+        .poll(
+          async () =>
+            (await page.context().cookies()).find(
+              (cookie) => cookie.name === "tema",
+            )?.value,
+        )
+        .toBe(colorScheme === "light" ? "dark" : "light");
+      await page.reload();
+      await expect(page.getByRole("radio", { name: other })).toBeChecked();
+      await useTheme(page, colorScheme);
+      await page.getByRole("button", { name: "Adicionar" }).click();
       await sheet.getByRole("link", { name: /^Adm geral/ }).click();
       await expect(page).toHaveURL("/equipe/convidar?papel=adm-geral");
       await expect(

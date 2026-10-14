@@ -95,7 +95,7 @@ export default async function ClassRosterPage({
                     photo: entry.photoPath
                       ? (photos.get(entry.photoPath) ?? null)
                       : null,
-                    detail: `${m.students.age(ageOn(entry.birthDate, today))}. ${
+                    detail: `${m.students.age(ageOn(entry.birthDate, today))}, ${
                       rate === null
                         ? m.attendance.noRate
                         : m.attendance.rate(rate)
@@ -131,7 +131,7 @@ export default async function ClassRosterPage({
                       : null,
                     detail: `${m.students.enrollmentStatus[entry.status]}, ${formatFullDate(
                       entry.endedOn ?? entry.enrolledOn,
-                    )}${entry.exitReason ? `. ${m.enrollment.reasons[entry.exitReason]}` : ""}`,
+                    )}${entry.exitReason ? `, ${m.enrollment.reasons[entry.exitReason]}` : ""}`,
                     accessibility: false,
                   }))}
                 />

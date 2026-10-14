@@ -21,7 +21,7 @@ export function SegmentedNav({
             <Link
               href={item.href}
               aria-current={pathname === item.href ? "page" : undefined}
-              className="flex min-h-10 items-center rounded-full px-4 text-subhead font-medium text-secondary-foreground transition-colors hover:bg-card/60 aria-[current=page]:bg-card aria-[current=page]:font-semibold aria-[current=page]:shadow-xs"
+              className="flex min-h-10 items-center rounded-full px-4 text-subhead font-medium text-secondary-foreground transition-colors hover:bg-card/60 aria-[current=page]:bg-card aria-[current=page]:font-semibold"
             >
               {item.label}
             </Link>

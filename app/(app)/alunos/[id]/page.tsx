@@ -108,7 +108,7 @@ export default async function StudentPage({
                         {entry.class_name}
                       </span>
                       <span className="text-footnote text-muted-foreground">
-                        {`${entry.unit_code}. ${rateLabel(entry)}`}
+                        {`${entry.unit_code}, ${rateLabel(entry)}`}
                       </span>
                     </Link>
                   ) : (
@@ -184,7 +184,7 @@ export default async function StudentPage({
                       {guardian.full_name}
                     </span>
                     <span className="text-footnote text-muted-foreground tabular-nums">
-                      {`${m.studentForm.relationships[guardian.relationship]}. ${formatPhone(guardian.phone)}`}
+                      {`${m.studentForm.relationships[guardian.relationship]}, ${formatPhone(guardian.phone)}`}
                     </span>
                   </span>
                   <span className="flex gap-1">

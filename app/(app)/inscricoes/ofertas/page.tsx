@@ -66,7 +66,7 @@ export default async function OffersPage() {
                       <span className="text-footnote text-muted-foreground">
                         {offer.units?.name}
                         {offer.closes_on
-                          ? `. ${m.requests.closesOn(formatFullDate(offer.closes_on))}`
+                          ? `, ${m.requests.closesOn(formatFullDate(offer.closes_on))}`
                           : ""}
                       </span>
                     </span>

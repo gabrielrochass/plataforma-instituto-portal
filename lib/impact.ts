@@ -101,3 +101,21 @@ export function orderedCounts(counts: Counts, order: readonly string[]) {
 export function hiddenCount(counts: Counts) {
   return Object.values(counts).filter((value) => value === null).length;
 }
+
+export const attendanceGoal = 75;
+
+export type PresenceStatus = "good" | "attention" | "low";
+
+export function presenceStatus(value: number, goal = attendanceGoal) {
+  if (value >= goal) return "good";
+  return value >= 60 ? "attention" : "low";
+}
+
+export function niceMax(value: number) {
+  if (value <= 5) return 5;
+  const step = 10 ** Math.floor(Math.log10(value));
+  for (const multiple of [1, 2, 2.5, 5, 10]) {
+    if (multiple * step >= value) return multiple * step;
+  }
+  return 10 * step;
+}

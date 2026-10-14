@@ -48,7 +48,7 @@ export default async function RequestPage({
   const details = [
     [
       m.requests.birthDate,
-      `${formatFullDate(request.birth_date)}. ${m.requests.age(ageOn(request.birth_date, today))}`,
+      `${formatFullDate(request.birth_date)}, ${m.requests.age(ageOn(request.birth_date, today))}`,
     ],
     [m.requests.phone, formatPhone(request.phone)],
     ...(request.email ? [[m.studentForm.email, request.email]] : []),
@@ -59,7 +59,7 @@ export default async function RequestPage({
       ? [
           [
             m.requests.guardianTitle,
-            `${request.guardian_name}. ${formatPhone(request.guardian_phone)}`,
+            `${request.guardian_name}, ${formatPhone(request.guardian_phone)}`,
           ],
         ]
       : []),
@@ -74,7 +74,7 @@ export default async function RequestPage({
     <>
       <PageHeader
         title={name}
-        subtitle={`${course}, ${offer.units?.name ?? ""}. ${m.requests.status[request.status]}`}
+        subtitle={`${course}, ${offer.units?.name ?? ""}, ${m.requests.status[request.status]}`}
         back={{ href: "/inscricoes", label: m.requests.title }}
       />
       <div className="flex flex-col gap-8">
@@ -132,7 +132,7 @@ export default async function RequestPage({
                     }))}
                     matches={matches.map((match) => ({
                       id: match.id,
-                      label: `${match.name}. ${m.studentForm.matchDetail(match.birthYear, match.unitCode)}`,
+                      label: `${match.name}, ${m.studentForm.matchDetail(match.birthYear, match.unitCode)}`,
                     }))}
                   />
                 </section>

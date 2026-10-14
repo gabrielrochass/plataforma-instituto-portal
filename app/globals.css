@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -134,8 +136,8 @@
   --swatch-foreground: #ffffff;
 }
 
-@media screen and (prefers-color-scheme: dark) {
-  :root {
+@media screen {
+  :root[data-theme="dark"] {
     --background: #15120d;
     --foreground: #f5f0e6;
     --card: #211d16;
@@ -174,10 +176,14 @@
 
   html {
     @apply font-sans antialiased;
-    color-scheme: light dark;
+    color-scheme: light;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     scroll-padding-bottom: calc(var(--bottom-inset) + 0.5rem);
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
   }
 
   body {

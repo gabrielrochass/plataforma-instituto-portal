@@ -26,9 +26,9 @@ test("coordination sees the impact of a class and prints the report", async ({
     .getByText("Alunos atendidos", { exact: true })
     .locator("..");
   await expect(served.getByRole("definition").first()).toHaveText("1");
-  await expect(
-    page.getByRole("listitem").filter({ hasText: "15 a 17 anos" }),
-  ).toContainText("Protegido");
+  const age = page.getByRole("figure", { name: "Idade" });
+  await expect(age).toContainText("Protegido");
+  await expect(age).not.toContainText("15 a 17 anos");
   await expectNoAxeViolations(page);
 
   await page.getByRole("link", { name: "Relatório para imprimir" }).click();

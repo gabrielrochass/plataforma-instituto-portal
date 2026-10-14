@@ -6,7 +6,6 @@ import { ClassRanking } from "@/components/impact/class-ranking";
 import { ImpactFilters } from "@/components/impact/impact-filters";
 import { MonthlyCharts } from "@/components/impact/monthly-charts";
 import {
-  AfterCourse,
   ImpactStats,
   Methodology,
   monthPoints,
@@ -61,7 +60,11 @@ export default async function ImpactPage({
             title={i.summary}
             hint={i.compared(impact.reference)}
           />
-          <ImpactStats report={report} previous={impact.previous} />
+          <ImpactStats
+            report={report}
+            previous={impact.previous}
+            reference={impact.reference}
+          />
         </section>
         <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
           <SectionTitle id="mes-a-mes" title={i.monthly} hint={i.monthlyHint} />
@@ -91,10 +94,6 @@ export default async function ImpactPage({
           />
           <ProfileCharts report={report} />
           <p className="text-footnote text-muted-foreground">{i.hiddenNote}</p>
-        </section>
-        <section aria-labelledby="depois" className="flex flex-col gap-3">
-          <SectionTitle id="depois" title={i.after} />
-          <AfterCourse report={report} />
         </section>
         <Methodology />
       </div>

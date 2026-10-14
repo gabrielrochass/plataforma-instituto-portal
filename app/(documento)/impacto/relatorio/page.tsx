@@ -6,7 +6,6 @@ import { PortalLogo } from "@/components/brand/portal-logo";
 import { ClassRanking } from "@/components/impact/class-ranking";
 import { MonthlyCharts } from "@/components/impact/monthly-charts";
 import {
-  AfterCourse,
   ImpactStats,
   Methodology,
   monthPoints,
@@ -74,7 +73,11 @@ export default async function ImpactReportPage({
           title={i.summary}
           hint={i.compared(impact.reference)}
         />
-        <ImpactStats report={report} previous={impact.previous} />
+        <ImpactStats
+          report={report}
+          previous={impact.previous}
+          reference={impact.reference}
+        />
       </section>
       <section aria-labelledby="mes-a-mes" className="flex flex-col gap-3">
         <SectionTitle id="mes-a-mes" title={i.monthly} />
@@ -99,10 +102,6 @@ export default async function ImpactReportPage({
           hint={i.profileHint(report.profiled, report.served)}
         />
         <ProfileCharts report={report} />
-      </section>
-      <section aria-labelledby="depois" className="flex flex-col gap-3">
-        <SectionTitle id="depois" title={i.after} />
-        <AfterCourse report={report} />
       </section>
       <Methodology open />
       <p className="text-footnote text-muted-foreground">

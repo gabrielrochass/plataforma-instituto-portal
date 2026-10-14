@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { m } from "@/lib/i18n";
 import { attendanceGoal, niceMax, presenceStatus } from "@/lib/impact";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ function LineChart({
   max,
   suffix = "",
   goal,
+  variant = "line",
   active,
   onPick,
 }: {
@@ -38,6 +39,7 @@ function LineChart({
   max: number;
   suffix?: string;
   goal?: number;
+  variant?: "line" | "bar";
   active: number;
   onPick: (index: number) => void;
 }) {
@@ -90,50 +92,92 @@ function LineChart({
               className="absolute inset-x-0 border-t border-dashed border-muted-foreground"
               style={{ top: `${yOf(goal)}%` }}
             >
-              <span className="absolute right-0 -top-5 text-caption font-medium text-muted-foreground">
+              <span className="absolute left-0 -top-5 rounded bg-card pr-1 text-caption font-medium text-muted-foreground">
                 {i.goal(goal)}
               </span>
             </div>
           )}
-          <svg
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            className="absolute inset-0 size-full overflow-visible"
-          >
-            {lines.map((segment) => (
-              <polyline
-                key={`${segment[0].x}`}
-                points={segment
-                  .map((point) => `${point.x},${point.y}`)
-                  .join(" ")}
-                fill="none"
-                className="stroke-chart-1"
-                strokeWidth={2}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            ))}
-          </svg>
-          <span
-            aria-hidden="true"
-            className="absolute inset-y-0 w-px bg-foreground/20"
-            style={{ left: `${xOf(active)}%` }}
-          />
-          {values.map((value, index) =>
-            value === null ? null : (
-              <span
-                key={months[index].key}
+          {variant === "bar" ? (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 grid items-end"
+              style={{
+                gridTemplateColumns: `repeat(${months.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {values.map((value, index) => (
+                <div
+                  key={months[index].key}
+                  className="relative flex h-full items-end justify-center"
+                >
+                  {value !== null && (
+                    <>
+                      {index === active && (
+                        <span
+                          className="absolute -translate-y-full pb-1 text-caption font-semibold text-foreground tabular-nums"
+                          style={{ bottom: `${(value / max) * 100}%` }}
+                        >
+                          {`${value}${suffix}`}
+                        </span>
+                      )}
+                      <span
+                        className={cn(
+                          "w-3/5 max-w-6 rounded-t-[4px] bg-chart-1 transition-opacity forced-color-adjust-none print:[print-color-adjust:exact]",
+                          index !== active && "opacity-40",
+                        )}
+                        style={{
+                          height: `${(value / max) * 100}%`,
+                          minHeight: value > 0 ? 3 : 0,
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
                 aria-hidden="true"
-                className={cn(
-                  "absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart-1 ring-2 ring-card forced-color-adjust-none print:[print-color-adjust:exact]",
-                  index === active && "size-3",
-                  months[index].partial && "bg-card ring-chart-1",
-                )}
-                style={{ left: `${xOf(index)}%`, top: `${yOf(value)}%` }}
+                className="absolute inset-0 size-full overflow-visible"
+              >
+                {lines.map((segment) => (
+                  <polyline
+                    key={`${segment[0].x}`}
+                    points={segment
+                      .map((point) => `${point.x},${point.y}`)
+                      .join(" ")}
+                    fill="none"
+                    className="stroke-chart-1"
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ))}
+              </svg>
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-0 w-px bg-foreground/20"
+                style={{ left: `${xOf(active)}%` }}
               />
-            ),
+              {values.map((value, index) =>
+                value === null ? null : (
+                  <span
+                    key={months[index].key}
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart-1 ring-2 ring-card forced-color-adjust-none print:[print-color-adjust:exact]",
+                      index === active && "size-3",
+                      months[index].partial && "bg-card ring-chart-1",
+                    )}
+                    style={{ left: `${xOf(index)}%`, top: `${yOf(value)}%` }}
+                  />
+                ),
+              )}
+            </>
           )}
           <div
             aria-hidden="true"
@@ -176,7 +220,6 @@ function LineChart({
 }
 
 export function MonthlyCharts({ months }: { months: readonly MonthPoint[] }) {
-  const sliderId = useId();
   const last = Math.max(
     0,
     months.findLastIndex(
@@ -234,27 +277,9 @@ export function MonthlyCharts({ months }: { months: readonly MonthPoint[] }) {
           max={100}
           suffix="%"
           goal={attendanceGoal}
+          variant="bar"
           active={active}
           onPick={setActive}
-        />
-      </div>
-      <div className="flex flex-col gap-1 print:hidden">
-        <label
-          htmlFor={sliderId}
-          className="text-footnote font-medium text-muted-foreground"
-        >
-          {i.chooseMonth}
-        </label>
-        <input
-          id={sliderId}
-          type="range"
-          min={0}
-          max={months.length - 1}
-          step={1}
-          value={active}
-          aria-valuetext={current?.full}
-          onChange={(event) => setActive(Number(event.target.value))}
-          className="h-11 w-full accent-[var(--chart-1)]"
         />
       </div>
       {months.some((month) => month.partial) && (

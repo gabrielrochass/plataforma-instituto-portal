@@ -62,6 +62,6 @@ export async function loadImpact(params: Record<string, unknown>) {
     reference:
       period.key === lastTwelveMonths
         ? m.impact.previousTwelveMonths
-        : String(Number(period.key) - 1),
+        : m.impact.previousYear(String(Number(period.key) - 1)),
   };
 }

@@ -898,7 +898,7 @@ export const m = {
     title: "Impacto",
     hint: "Números do instituto para mostrar a patrocinadores",
     intro:
-      "Um retrato do que o instituto fez no período: quantas pessoas atendeu, como foi a presença e o que aconteceu depois do curso.",
+      "Um retrato do que o instituto fez no período: quantas pessoas atendeu, como foi a presença nas aulas e quem são os alunos.",
     filters: "Escolha o que ver",
     period: "Período",
     lastTwelveMonths: "Últimos 12 meses",
@@ -908,13 +908,18 @@ export const m = {
     allClasses: "Todas as turmas",
     apply: "Ver números",
     report: "Relatório para imprimir",
-    previousTwelveMonths: "os 12 meses anteriores",
-    compared: (reference: string) => `Comparado com ${reference}`,
-    moreThan: (value: string) => `${value} a mais`,
-    lessThan: (value: string) => `${value} a menos`,
-    sameAs: "Sem mudança",
+    previousTwelveMonths: "nos 12 meses anteriores",
+    previousYear: (year: string) => `em ${year}`,
+    compared: (reference: string) =>
+      `Comparado com o que aconteceu ${reference}`,
+    moreThan: (value: string, reference: string) =>
+      `${value} a mais que ${reference}`,
+    lessThan: (value: string, reference: string) =>
+      `${value} a menos que ${reference}`,
+    sameAs: (reference: string) => `O mesmo que ${reference}`,
     points: (value: number) => (value === 1 ? "1 ponto" : `${value} pontos`),
     noBase: "Ainda sem dados",
+    noComparison: "Sem dados para comparar",
     noData: "Sem dados",
     percent: (value: number) => `${value}%`,
     summary: "Resumo do período",
@@ -939,7 +944,7 @@ export const m = {
       `${rate} dos alunos que terminaram uma turma`,
     monthly: "Mês a mês",
     monthlyHint:
-      "Toque ou passe o mouse sobre um mês para ver os números. A barra deslizante também escolhe o mês.",
+      "Toque ou passe o mouse sobre um mês para ver os números dele nos dois gráficos.",
     activeChart: "Alunos estudando",
     activeValue: (count: number) =>
       count === 1 ? "1 aluno estudando" : `${count} alunos estudando`,
@@ -981,6 +986,7 @@ export const m = {
         ? `Todos os ${served} alunos têm ficha social.`
         : `A idade vale para os ${served} alunos. O restante vem dos ${profiled} que já têm ficha social.`,
     hidden: "Protegido",
+    otherGroups: "Outros",
     hiddenNote:
       "Para proteger a privacidade, grupos com menos de 5 pessoas não aparecem. Nesses casos, outro grupo pequeno também fica de fora, para que ninguém descubra o número pela soma.",
     dimensions: {

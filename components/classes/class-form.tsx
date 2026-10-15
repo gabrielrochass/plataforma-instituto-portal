@@ -18,12 +18,7 @@ import { useToday } from "@/hooks/use-today";
 import { createClass, updateClass } from "@/lib/actions/classes";
 import { attempt, failed } from "@/lib/attempt";
 import { addDays } from "@/lib/dates";
-import {
-  type GradingRules,
-  gradingRules,
-  presets,
-  ruleSentence,
-} from "@/lib/grading";
+import { type GradingRules, gradingRules, presets } from "@/lib/grading";
 import { m } from "@/lib/i18n";
 import type { Unit } from "@/lib/roles";
 import { type Weekday, weekdays } from "@/lib/schedule";
@@ -338,20 +333,10 @@ export function ClassForm({
           <h2 id={`${sectionId}-grading`} className="text-title3 font-semibold">
             {f.grading}
           </h2>
-          <details className="group rounded-2xl bg-card">
-            <summary className="flex min-h-15 cursor-pointer flex-col justify-center gap-1 px-4 py-3">
-              <span className="text-body">{ruleSentence(value.rules)}</span>
-              <span className="text-subhead text-link group-open:hidden">
-                {f.moreRules}
-              </span>
-            </summary>
-            <div className="px-4 pt-2 pb-4">
-              <GradingFields
-                value={value.rules}
-                onChange={(next) => set("rules", next)}
-              />
-            </div>
-          </details>
+          <GradingFields
+            value={value.rules}
+            onChange={(next) => set("rules", next)}
+          />
           {errors.rules && (
             <p className="text-footnote text-destructive">{errors.rules}</p>
           )}

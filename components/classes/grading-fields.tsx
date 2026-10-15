@@ -42,7 +42,7 @@ export function GradingFields({
   }
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-6">
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-footnote font-medium text-muted-foreground">
           {m.grading.scheme}
@@ -51,7 +51,7 @@ export function GradingFields({
           {gradingSchemes.map((scheme) => (
             <label
               key={scheme}
-              className="flex min-h-15 cursor-pointer flex-col justify-center gap-0.5 rounded-2xl border-2 border-transparent bg-card px-4 py-3 has-checked:border-foreground has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring forced-colors:border-[CanvasText] forced-colors:has-checked:border-[Highlight]"
+              className="flex min-h-15 cursor-pointer flex-col justify-center gap-0.5 rounded-2xl border border-input bg-card px-4 py-3 has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring forced-colors:border-[CanvasText] forced-colors:has-checked:border-[Highlight]"
             >
               <input
                 type="radio"
@@ -72,116 +72,99 @@ export function GradingFields({
         </div>
       </fieldset>
 
-      <ChoiceChips
-        legend={m.grading.minAttendance}
-        name={`${id}-attendance`}
-        value={String(value.minAttendance)}
-        onChange={(next) => onChange({ ...value, minAttendance: Number(next) })}
-        options={[...new Set([...attendanceOptions, value.minAttendance])]
-          .sort((a, b) => a - b)
-          .map((option) => ({ value: String(option), label: `${option}%` }))}
-      />
-
       {value.scheme !== "attendance_only" && (
-        <details className="group rounded-2xl bg-card">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center px-4 text-body font-medium text-link [&::-webkit-details-marker]:hidden">
-            {m.grading.advanced}
-          </summary>
-          <div className="flex flex-col gap-4 px-4 pb-4">
-            {max !== null && (
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor={`${id}-passing`}
-                  className="text-footnote font-medium text-muted-foreground"
-                >
-                  {m.grading.passingScore}
-                </label>
-                <Input
-                  id={`${id}-passing`}
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  max={max}
-                  step={max === 10 ? 0.5 : 1}
-                  value={value.passingScore ?? ""}
-                  onChange={(event) =>
-                    onChange({
-                      ...value,
-                      passingScore:
-                        event.target.value === ""
-                          ? null
-                          : Math.min(
-                              max,
-                              Math.max(0, Number(event.target.value)),
-                            ),
-                    })
-                  }
-                  className="max-w-32 tabular-nums"
-                />
-              </div>
-            )}
-            {value.scheme === "concept" && (
-              <>
-                <fieldset className="flex flex-col gap-2">
-                  <legend className="mb-2 text-footnote font-medium text-muted-foreground">
-                    {m.grading.conceptLabels}
-                  </legend>
-                  {labels.map((label, index) => (
-                    <div
-                      key={`${index}-${labels.length}`}
-                      className="flex gap-2"
-                    >
-                      <Input
-                        aria-label={m.grading.conceptLabel(index + 1)}
-                        value={label}
-                        maxLength={20}
-                        onChange={(event) =>
+        <div className="flex flex-col gap-5">
+          {max !== null && (
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor={`${id}-passing`}
+                className="text-footnote font-medium text-muted-foreground"
+              >
+                {m.grading.passingScore}
+              </label>
+              <Input
+                id={`${id}-passing`}
+                type="number"
+                inputMode="decimal"
+                min={0}
+                max={max}
+                step={max === 10 ? 0.5 : 1}
+                value={value.passingScore ?? ""}
+                onChange={(event) =>
+                  onChange({
+                    ...value,
+                    passingScore:
+                      event.target.value === ""
+                        ? null
+                        : Math.min(
+                            max,
+                            Math.max(0, Number(event.target.value)),
+                          ),
+                  })
+                }
+                className="max-w-32 bg-card tabular-nums dark:bg-card"
+              />
+            </div>
+          )}
+          {value.scheme === "concept" && (
+            <>
+              <fieldset className="flex flex-col gap-2">
+                <legend className="mb-2 text-footnote font-medium text-muted-foreground">
+                  {m.grading.conceptLabels}
+                </legend>
+                {labels.map((label, index) => (
+                  <div key={`${index}-${labels.length}`} className="flex gap-2">
+                    <Input
+                      className="bg-card dark:bg-card"
+                      aria-label={m.grading.conceptLabel(index + 1)}
+                      value={label}
+                      maxLength={20}
+                      onChange={(event) =>
+                        setLabels(
+                          labels.map((current, position) =>
+                            position === index ? event.target.value : current,
+                          ),
+                        )
+                      }
+                    />
+                    {labels.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label={m.grading.removeConcept(label)}
+                        onClick={() =>
                           setLabels(
-                            labels.map((current, position) =>
-                              position === index ? event.target.value : current,
-                            ),
+                            labels.filter((_, position) => position !== index),
                           )
                         }
-                      />
-                      {labels.length > 2 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={m.grading.removeConcept(label)}
-                          onClick={() =>
-                            setLabels(
-                              labels.filter(
-                                (_, position) => position !== index,
-                              ),
-                            )
-                          }
-                        >
-                          <XIcon aria-hidden="true" className="size-5" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  {labels.length < 10 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="lg"
-                      className="self-start text-link"
-                      onClick={() => setLabels([...labels, ""])}
-                    >
-                      <PlusIcon aria-hidden="true" />
-                      {m.grading.addConcept}
-                    </Button>
-                  )}
-                </fieldset>
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor={`${id}-concept-passing`}
-                    className="text-footnote font-medium text-muted-foreground"
+                      >
+                        <XIcon aria-hidden="true" className="size-5" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                {labels.length < 10 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="lg"
+                    className="self-start text-link"
+                    onClick={() => setLabels([...labels, ""])}
                   >
-                    {m.grading.conceptPassing}
-                  </label>
+                    <PlusIcon aria-hidden="true" />
+                    {m.grading.addConcept}
+                  </Button>
+                )}
+              </fieldset>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor={`${id}-concept-passing`}
+                  className="text-footnote font-medium text-muted-foreground"
+                >
+                  {m.grading.conceptPassing}
+                </label>
+                <div className="max-w-32">
                   <NativeSelect
                     id={`${id}-concept-passing`}
                     value={value.conceptPassing ?? 1}
@@ -191,7 +174,6 @@ export function GradingFields({
                         conceptPassing: Number(event.target.value),
                       })
                     }
-                    className="max-w-32"
                   >
                     {labels.map((_, index) => (
                       <option key={String(index)} value={index + 1}>
@@ -200,11 +182,21 @@ export function GradingFields({
                     ))}
                   </NativeSelect>
                 </div>
-              </>
-            )}
-          </div>
-        </details>
+              </div>
+            </>
+          )}
+        </div>
       )}
+
+      <ChoiceChips
+        legend={m.grading.minAttendance}
+        name={`${id}-attendance`}
+        value={String(value.minAttendance)}
+        onChange={(next) => onChange({ ...value, minAttendance: Number(next) })}
+        options={[...new Set([...attendanceOptions, value.minAttendance])]
+          .sort((a, b) => a - b)
+          .map((option) => ({ value: String(option), label: `${option}%` }))}
+      />
 
       <p
         aria-live="polite"

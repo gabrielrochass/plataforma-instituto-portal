@@ -65,7 +65,6 @@ export async function createClass(
   }
   await page.getByLabel("Carga horária (horas)").fill("8");
   if (options.concepts || options.attendanceOnly) {
-    await page.getByText("Ajustar regras de avaliação").click();
     await page
       .locator("label", {
         hasText: options.concepts ? "Conceitos" : "Só presença",

@@ -26,6 +26,7 @@ export default async function AnnouncementsPage() {
   return (
     <>
       <PageHeader
+        back={{ href: "/mais", mobileOnly: true }}
         title={a.title}
         action={
           can.postAnnouncement(viewer) ? (

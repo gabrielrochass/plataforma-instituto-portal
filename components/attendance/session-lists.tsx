@@ -47,7 +47,7 @@ export function ClassDayList({ items }: { items: readonly ClassDay[] }) {
                     .join(", ")}
                 </span>
               </span>
-              <span className="text-subhead font-medium text-link">
+              <span className="hidden text-subhead font-medium text-link sm:inline">
                 {item.takenToday ? m.attendance.view : m.attendance.take}
               </span>
               <ChevronRightIcon

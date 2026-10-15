@@ -20,10 +20,7 @@ export default async function UnitPage({
 
   return (
     <>
-      <PageHeader
-        title={unit.name}
-        back={{ href: "/unidades", label: m.units.title }}
-      />
+      <PageHeader title={unit.name} back={{ href: "/unidades" }} />
       <UnitForm unit={unit} />
     </>
   );

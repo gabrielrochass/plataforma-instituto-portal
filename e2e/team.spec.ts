@@ -78,7 +78,7 @@ test("a pending invite can be cancelled", async ({ page }) => {
   const name = `Pessoa ${Date.now()}`;
   await page.getByLabel("Nome").fill(name);
   await page.getByRole("button", { name: "Gerar link de convite" }).click();
-  await page.getByRole("link", { name: "Equipe" }).click();
+  await page.goto("/equipe");
   const cancel = page.getByRole("button", {
     name: `Cancelar convite de ${name}`,
   });

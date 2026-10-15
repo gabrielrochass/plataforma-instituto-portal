@@ -3,6 +3,7 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { FilterLinks } from "@/components/app-shell/filter-links";
+import { FilterSelect } from "@/components/app-shell/filter-select";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { ClassStatus } from "@/components/classes/class-status";
 import { buttonVariants } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export default async function ClassesPage({
         />
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <FilterLinks
               label={m.classes.situation}
               items={situations.map((option) => ({
@@ -85,18 +86,19 @@ export default async function ClassesPage({
               }))}
             />
             {visibleUnits.length > 1 && (
-              <FilterLinks
+              <FilterSelect
                 label={m.classes.unit}
-                items={[
+                value={unitCode ?? ""}
+                options={[
                   {
                     href: href(situation, null),
                     label: m.classes.allUnits,
-                    current: unitCode === null,
+                    value: "",
                   },
                   ...visibleUnits.map((unit) => ({
                     href: href(situation, unit.code),
                     label: unit.name,
-                    current: unit.code === unitCode,
+                    value: unit.code,
                   })),
                 ]}
               />

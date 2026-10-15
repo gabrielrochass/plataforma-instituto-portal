@@ -1,6 +1,5 @@
-import { ChevronLeftIcon } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
+import { BackLink } from "./back-link";
 
 export function PageHeader({
   title,
@@ -10,19 +9,17 @@ export function PageHeader({
 }: {
   title: string;
   subtitle?: string;
-  back?: { href: Route; label: string };
+  back?: { href: Route; label?: string; mobileOnly?: boolean };
   action?: React.ReactNode;
 }) {
   return (
     <header className="flex flex-col gap-1 pb-6">
       {back && (
-        <Link
+        <BackLink
           href={back.href}
-          className="-ml-1 flex w-fit min-h-11 items-center gap-0.5 text-body text-link"
-        >
-          <ChevronLeftIcon aria-hidden="true" className="size-5" />
-          {back.label}
-        </Link>
+          label={back.label}
+          mobileOnly={back.mobileOnly}
+        />
       )}
       <div className="flex items-center justify-between gap-4">
         <h1 className="min-w-0 text-large-title font-bold tracking-tight text-balance">

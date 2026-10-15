@@ -32,7 +32,7 @@ async function saveDay(page: Page, classId: string, day: string) {
   await page.goto(`/turmas/${classId}/chamada?data=${day}`);
   await expect(page.getByLabel("Dia da aula")).toHaveValue(day);
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await expect(page).not.toHaveURL(/chamada/);
 }
 
 test("a teacher takes attendance with a checklist and a note", async ({
@@ -66,8 +66,9 @@ test("a teacher takes attendance with a checklist and a note", async ({
   }).toPass();
   await page.getByLabel("Observação (opcional)").fill("Aula de revisão");
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await expect(page).toHaveURL("/");
 
+  await page.goto(`/turmas/${classId}`);
   await page.getByRole("link", { name: "Chamadas" }).click();
   const history = page.getByRole("region", { name: "Chamadas feitas" });
   await expect(history).toContainText("1 presente, 1 falta");
@@ -122,7 +123,7 @@ test("three absences in a row raise an alert until someone calls the family", as
   await page.goto(`/turmas/${classId}/chamada`);
   await expect(page.getByText("2 faltas seguidas")).toBeVisible();
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await expect(page).not.toHaveURL(/chamada/);
 
   await page.goto("/");
   const attention = page.getByRole("region", { name: "Precisam de atenção" });
@@ -141,14 +142,17 @@ test("three absences in a row raise an alert until someone calls the family", as
     .getByLabel("O que aconteceu")
     .fill("Liguei, ele mudou de turno no trabalho.");
   await page.getByRole("button", { name: "Salvar anotação" }).click();
+  await expect(page.getByText("Anotação salva")).toBeVisible();
   await expect(
     page.getByText("Liguei, ele mudou de turno no trabalho."),
   ).toBeVisible();
 
-  await page.goto("/");
-  await expect(
-    page.getByRole("region", { name: "Precisam de atenção" }),
-  ).not.toContainText(caio);
+  await expect(async () => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("region", { name: "Precisam de atenção" }),
+    ).not.toContainText(caio, { timeout: 2000 });
+  }).toPass();
 });
 
 test("a wrong day of attendance can be deleted", async ({ page, browser }) => {
@@ -163,7 +167,7 @@ test("a wrong day of attendance can be deleted", async ({ page, browser }) => {
   await dialog
     .getByRole("button", { name: "Apagar chamada deste dia" })
     .click();
-  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await expect(page).not.toHaveURL(/chamada/);
   await page.goto(`/turmas/${classId}/chamadas`);
   await expect(page.getByText("Nenhuma chamada ainda.")).toBeVisible();
 });

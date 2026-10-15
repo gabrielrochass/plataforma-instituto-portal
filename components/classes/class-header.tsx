@@ -14,7 +14,7 @@ export function ClassHeader({ row }: { row: ClassSummary }) {
       <PageHeader
         title={row.name}
         subtitle={row.unit_name}
-        back={{ href: "/turmas", label: m.classes.title }}
+        back={{ href: "/turmas" }}
         action={
           row.operable && row.status === "open" ? (
             <Link

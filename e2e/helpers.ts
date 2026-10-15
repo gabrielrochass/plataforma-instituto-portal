@@ -138,7 +138,7 @@ export async function takeAttendance(
   await page.goto(`/turmas/${classId}/chamada${day ? `?data=${day}` : ""}`);
   await markAllPresent(page);
   await page.getByRole("button", { name: "Salvar chamada" }).click();
-  await expect(page).toHaveURL(`/turmas/${classId}`);
+  await expect(page).not.toHaveURL(/chamada/);
 }
 
 export async function useTheme(page: Page, theme: "light" | "dark") {

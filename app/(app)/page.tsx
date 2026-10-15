@@ -115,7 +115,7 @@ export default async function HomePage() {
               ].map(([label, value]) => (
                 <div
                   key={String(label)}
-                  className="flex flex-col-reverse gap-1 rounded-2xl bg-card p-4"
+                  className="flex flex-col-reverse justify-end gap-1 rounded-2xl bg-card p-4"
                 >
                   <dt className="text-footnote text-muted-foreground">
                     {label}

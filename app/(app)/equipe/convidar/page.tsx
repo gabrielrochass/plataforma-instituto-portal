@@ -37,7 +37,7 @@ export default async function InvitePage({
         title={
           kinds.length > 1 ? m.team.inviteTitle : m.team.kindTitles.teacher
         }
-        back={{ href: "/equipe", label: m.team.title }}
+        back={{ href: "/equipe" }}
       />
       <InviteForm
         kinds={kinds}

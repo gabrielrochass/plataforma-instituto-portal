@@ -1,11 +1,11 @@
 "use client";
 
 import { CircleAlertIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState, useTransition } from "react";
 import { AuthField } from "@/components/auth/auth-field";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { password } from "@/lib/credentials";
 import { m } from "@/lib/i18n";
@@ -15,7 +15,7 @@ type Errors = { current?: string; next?: string; form?: string };
 
 export function ChangePasswordForm({ email }: { email: string }) {
   const [errors, setErrors] = useState<Errors>({});
-  const router = useRouter();
+  const finish = useFinish("/conta");
   const [pending, startTransition] = useTransition();
   const currentRef = useRef<HTMLInputElement>(null);
   const nextRef = useRef<HTMLInputElement>(null);
@@ -65,7 +65,7 @@ export function ChangePasswordForm({ email }: { email: string }) {
       }
       await auth.signOut({ scope: "others" });
       toast.add({ title: m.account.passwordChanged, type: "success" });
-      router.replace("/conta");
+      finish();
     });
   }
 

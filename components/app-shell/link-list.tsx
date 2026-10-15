@@ -1,8 +1,6 @@
 import { ChevronRightIcon, type LucideIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { swatch } from "@/lib/palette";
-import { cn } from "@/lib/utils";
 
 export type ListLink = {
   href: Route;
@@ -15,20 +13,13 @@ export type ListLink = {
 export function LinkList({ links }: { links: readonly ListLink[] }) {
   return (
     <ul className="divide-y overflow-hidden rounded-2xl bg-card">
-      {links.map(({ href, title, hint, icon: Icon, color }) => (
+      {links.map(({ href, title, hint, icon: Icon }) => (
         <li key={href}>
           <Link
             href={href}
             className="flex min-h-15 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/60 focus-visible:-outline-offset-2!"
           >
-            <span
-              className={cn(
-                "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                color
-                  ? cn("text-swatch-foreground", swatch(color))
-                  : "bg-muted text-muted-foreground",
-              )}
-            >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
               <Icon aria-hidden="true" className="size-5" />
             </span>
             <span className="flex min-w-0 flex-1 flex-col">

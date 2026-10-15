@@ -710,7 +710,7 @@ export const m = {
     situations: {
       active: "Com turma ativa",
       all: "Todos",
-      pending: "Ficha social pendente",
+      pending: "Ficha pendente",
     },
     age: (years: number) => (years === 1 ? "1 ano" : `${years} anos`),
     activeClasses: (count: number) =>

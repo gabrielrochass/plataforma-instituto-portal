@@ -1,6 +1,5 @@
-import { ChevronLeftIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
-import Link from "next/link";
+import { BackLink } from "@/components/app-shell/back-link";
 import { PrintButton } from "@/components/app-shell/print-button";
 import { PortalLogo } from "@/components/brand/portal-logo";
 import { ClassRanking } from "@/components/impact/class-ranking";
@@ -38,13 +37,7 @@ export default async function ImpactReportPage({
   return (
     <article className="mx-auto flex max-w-[210mm] flex-col gap-8 print:max-w-none">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <Link
-          href={`/impacto?${query}` as Route}
-          className="-ml-1 flex min-h-11 items-center gap-0.5 text-body text-link"
-        >
-          <ChevronLeftIcon aria-hidden="true" className="size-5" />
-          {i.backToPanel}
-        </Link>
+        <BackLink href={`/impacto?${query}` as Route} />
         <PrintButton />
       </div>
       <header className="flex items-start gap-4 border-b pb-4">

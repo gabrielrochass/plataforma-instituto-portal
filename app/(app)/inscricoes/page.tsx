@@ -46,6 +46,7 @@ export default async function RequestsPage({
   return (
     <div data-wide className="flex flex-col">
       <PageHeader
+        back={{ href: "/mais", mobileOnly: true }}
         title={m.requests.title}
         action={
           <Link

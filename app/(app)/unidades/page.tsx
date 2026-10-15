@@ -17,7 +17,7 @@ export default async function UnitsPage() {
     <>
       <PageHeader
         title={m.units.title}
-        back={{ href: "/mais", label: m.nav.more }}
+        back={{ href: "/mais", mobileOnly: true }}
       />
       <div className="flex flex-col gap-8">
         <LinkList

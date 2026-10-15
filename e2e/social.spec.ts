@@ -49,7 +49,8 @@ test("coordination keeps a versioned social profile with consent and audit", asy
   await expect(page.getByText("Termo registrado")).toBeVisible();
   await expectNoAxeViolations(page);
 
-  await page.goto(`/alunos/${studentId}/ficha/nova`);
+  await page.getByRole("link", { name: "Ficha social" }).click();
+  await page.getByRole("link", { name: "Nova avaliação" }).click();
   await page.getByLabel("Renda total da família por mês").fill("250000");
   await page.getByLabel("Cor ou raça (IBGE)").selectOption({ label: "Preta" });
   await page.getByRole("button", { name: "Salvar ficha" }).click();

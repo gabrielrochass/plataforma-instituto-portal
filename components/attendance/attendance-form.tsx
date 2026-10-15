@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { deleteAttendance, takeAttendance } from "@/lib/actions/attendance";
 import { attempt, failed } from "@/lib/attempt";
 import { alertStreak } from "@/lib/attendance";
@@ -73,6 +74,7 @@ export function AttendanceForm({
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
   const back = `/turmas/${classId}` as Route;
+  const finish = useFinish(back);
 
   function toggle(enrollmentId: string, checked: boolean) {
     setStatus("");
@@ -118,7 +120,7 @@ export function AttendanceForm({
         return;
       }
       toast.add({ title: a.saved, type: "success" });
-      router.replace(back);
+      finish();
     });
   }
 
@@ -134,7 +136,7 @@ export function AttendanceForm({
         return;
       }
       toast.add({ title: a.deleted, type: "success" });
-      router.replace(back);
+      finish();
     });
   }
 

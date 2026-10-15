@@ -11,10 +11,7 @@ export default async function ChangePasswordPage() {
 
   return (
     <>
-      <PageHeader
-        title={m.account.changePassword}
-        back={{ href: "/conta", label: m.account.title }}
-      />
+      <PageHeader title={m.account.changePassword} back={{ href: "/conta" }} />
       <div className="flex flex-col gap-6">
         <p className="text-body text-muted-foreground">
           {m.account.changePasswordIntro}

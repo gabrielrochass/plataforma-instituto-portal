@@ -75,7 +75,7 @@ export default async function RequestPage({
       <PageHeader
         title={name}
         subtitle={`${course}, ${offer.units?.name ?? ""}, ${m.requests.status[request.status]}`}
-        back={{ href: "/inscricoes", label: m.requests.title }}
+        back={{ href: "/inscricoes" }}
       />
       <div className="flex flex-col gap-8">
         <dl className="divide-y overflow-hidden rounded-2xl bg-card">

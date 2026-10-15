@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { tabLinkClass } from "./filter-links";
 
 export function SegmentedNav({
   label,
@@ -14,14 +15,15 @@ export function SegmentedNav({
   const pathname = usePathname();
 
   return (
-    <nav aria-label={label} className="-mx-1 overflow-x-auto px-1 pb-6">
-      <ul className="flex w-max gap-1 rounded-full bg-secondary p-1">
+    <nav aria-label={label} className="-mx-1 mb-6 overflow-x-auto px-1">
+      <ul className="flex w-max min-w-full gap-5 border-b">
         {items.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
+              replace
               aria-current={pathname === item.href ? "page" : undefined}
-              className="flex min-h-10 items-center rounded-full px-4 text-subhead font-medium text-secondary-foreground transition-colors hover:bg-card/60 aria-[current=page]:bg-card aria-[current=page]:font-semibold"
+              className={tabLinkClass}
             >
               {item.label}
             </Link>

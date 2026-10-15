@@ -32,6 +32,7 @@ export default async function ImpactPage({
   return (
     <div data-wide className="flex flex-col">
       <PageHeader
+        back={{ href: "/mais", mobileOnly: true }}
         title={i.title}
         subtitle={i.intro}
         action={

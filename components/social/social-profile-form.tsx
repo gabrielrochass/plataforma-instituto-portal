@@ -2,7 +2,6 @@
 
 import { LockIcon } from "lucide-react";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   FlowBar,
@@ -16,6 +15,7 @@ import { TextAreaField, TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { useToday } from "@/hooks/use-today";
 import { type ProfileInput, saveSocialProfile } from "@/lib/actions/social";
 import { attempt, failed } from "@/lib/attempt";
@@ -123,7 +123,7 @@ export function SocialProfileForm({
   latest: SocialProfile | null;
   consent: boolean;
 }) {
-  const router = useRouter();
+  const finish = useFinish(`/alunos/${studentId}/ficha` as Route);
   const today = useToday();
   const [value, setValue] = useState<
     Omit<ProfileInput, "studentId" | "assessedOn">
@@ -178,7 +178,7 @@ export function SocialProfileForm({
         return;
       }
       toast.add({ title: s.saved, type: "success" });
-      router.replace(`/alunos/${studentId}/ficha` as Route);
+      finish();
     });
   }
 

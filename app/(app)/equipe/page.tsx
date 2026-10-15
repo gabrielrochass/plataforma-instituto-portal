@@ -30,6 +30,7 @@ export default async function TeamPage() {
   return (
     <>
       <PageHeader
+        back={{ href: "/mais", mobileOnly: true }}
         title={m.team.title}
         action={
           <Link

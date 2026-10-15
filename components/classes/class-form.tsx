@@ -13,6 +13,7 @@ import { ChoiceChips } from "@/components/forms/choice-chips";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { useToday } from "@/hooks/use-today";
 import { createClass, updateClass } from "@/lib/actions/classes";
 import { attempt, failed } from "@/lib/attempt";
@@ -81,6 +82,7 @@ export function ClassForm({
   const [status, setStatus] = useState("");
   const [pending, startTransition] = useTransition();
   const editing = classId !== undefined;
+  const finish = useFinish(`/turmas/${id}` as Route);
   const viewerTeaches = !editing && teacherUnitIds.includes(value.unitId);
   const staff = (staffByUnit[value.unitId] ?? []).filter(
     (person) => !viewerTeaches || person.id !== viewerId,
@@ -167,7 +169,8 @@ export function ClassForm({
         title: editing ? m.classes.saved : m.classes.created(value.name.trim()),
         type: "success",
       });
-      router.replace(`/turmas/${id}` as Route);
+      if (editing) finish();
+      else router.replace(`/turmas/${id}` as Route);
     });
   }
 

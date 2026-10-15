@@ -1,6 +1,5 @@
 import {
   AccessibilityIcon,
-  ChevronLeftIcon,
   ClipboardListIcon,
   MessageCircleIcon,
   PencilIcon,
@@ -8,6 +7,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { BackLink } from "@/components/app-shell/back-link";
 import { PersonAvatar } from "@/components/app-shell/person-avatar";
 import { SegmentedNav } from "@/components/app-shell/segmented-nav";
 import { buttonVariants } from "@/components/ui/button";
@@ -46,13 +46,7 @@ export function StudentHeader({
 
   return (
     <>
-      <Link
-        href="/alunos"
-        className="-ml-1 flex w-fit min-h-11 items-center gap-0.5 text-body text-link"
-      >
-        <ChevronLeftIcon aria-hidden="true" className="size-5" />
-        {m.students.title}
-      </Link>
+      <BackLink href="/alunos" />
       <header className="flex flex-col gap-4 pb-6">
         <div className="flex items-start gap-4">
           <PersonAvatar
@@ -79,14 +73,17 @@ export function StudentHeader({
                 </span>
               )}
               {accessibility && (
-                <span className="inline-flex items-center gap-1 text-link">
+                <span className="inline-flex items-center gap-1">
                   <AccessibilityIcon aria-hidden="true" className="size-4" />
                   {m.students.accessibility}
                 </span>
               )}
               {showSocial && !student.last_assessed_on && (
-                <span className="inline-flex items-center gap-1 text-warning">
-                  <ClipboardListIcon aria-hidden="true" className="size-4" />
+                <span className="inline-flex items-center gap-1">
+                  <ClipboardListIcon
+                    aria-hidden="true"
+                    className="size-4 text-warning"
+                  />
                   {m.students.pendingSocial}
                 </span>
               )}

@@ -1,9 +1,8 @@
-import { ChevronLeftIcon } from "lucide-react";
 import type { Metadata, Route } from "next";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { BackLink } from "@/components/app-shell/back-link";
 import { PrintButton } from "@/components/app-shell/print-button";
 import { CertificateSheet } from "@/components/certificates/certificate-sheet";
 import { normalizeCertificateCode } from "@/lib/certificate";
@@ -33,13 +32,7 @@ export default async function PrintCertificatesPage({
   return (
     <div className="flex flex-col gap-6 print:gap-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <Link
-          href={`/turmas/${id}/certificados` as Route}
-          className="-ml-1 flex min-h-11 items-center gap-0.5 text-body text-link"
-        >
-          <ChevronLeftIcon aria-hidden="true" className="size-5" />
-          {m.certificates.backToClass}
-        </Link>
+        <BackLink href={`/turmas/${id}/certificados` as Route} />
         <PrintButton />
       </div>
       <h1 className="sr-only">

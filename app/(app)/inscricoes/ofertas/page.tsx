@@ -35,7 +35,7 @@ export default async function OffersPage() {
       <PageHeader
         title={m.requests.offers}
         subtitle={m.requests.offersHint}
-        back={{ href: "/inscricoes", label: m.requests.title }}
+        back={{ href: "/inscricoes" }}
       />
       <div className="flex flex-col gap-8">
         <PublicOffersLink />

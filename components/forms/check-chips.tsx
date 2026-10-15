@@ -35,7 +35,7 @@ export function CheckChips({
           return (
             <label
               key={option.value}
-              className="flex min-h-11 max-w-full min-w-0 cursor-pointer items-center gap-2 rounded-full bg-secondary px-4 text-subhead font-medium text-secondary-foreground transition-colors select-none has-checked:bg-foreground has-checked:text-background has-disabled:cursor-not-allowed has-disabled:opacity-60 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring forced-colors:border forced-colors:has-checked:forced-color-adjust-none forced-colors:has-checked:bg-[Highlight] forced-colors:has-checked:text-[HighlightText]"
+              className="flex min-h-11 max-w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-4 text-subhead font-medium text-foreground transition-colors select-none hover:bg-muted/60 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-disabled:cursor-not-allowed has-disabled:opacity-60 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ring forced-colors:border forced-colors:has-checked:forced-color-adjust-none forced-colors:has-checked:bg-[Highlight] forced-colors:has-checked:text-[HighlightText]"
             >
               <input
                 type="checkbox"

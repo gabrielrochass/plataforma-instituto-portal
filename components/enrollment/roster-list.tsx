@@ -71,13 +71,16 @@ export function RosterList({
               <span className="flex flex-wrap items-center gap-x-2 text-footnote text-muted-foreground">
                 {row.detail}
                 {row.warning && (
-                  <span className="inline-flex items-center gap-1 text-warning">
-                    <CircleAlertIcon aria-hidden="true" className="size-4" />
+                  <span className="inline-flex items-center gap-1">
+                    <CircleAlertIcon
+                      aria-hidden="true"
+                      className="size-4 text-warning"
+                    />
                     {row.warning}
                   </span>
                 )}
                 {row.accessibility && (
-                  <span className="inline-flex items-center gap-1 text-link">
+                  <span className="inline-flex items-center gap-1">
                     <AccessibilityIcon aria-hidden="true" className="size-4" />
                     {m.students.accessibility}
                   </span>

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   FlowBar,
@@ -12,6 +11,7 @@ import { CheckChips } from "@/components/forms/check-chips";
 import { TextAreaField, TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { useToday } from "@/hooks/use-today";
 import { fieldErrors } from "@/lib/action-result";
 import { updateStudent } from "@/lib/actions/students";
@@ -23,7 +23,7 @@ import { accessibilityKinds, studentUpdateInput } from "@/lib/schemas/students";
 import { type GuardianDraft, GuardianFields } from "./guardian-fields";
 
 export function StudentEditForm({ student }: { student: Student }) {
-  const router = useRouter();
+  const finish = useFinish(`/alunos/${student.id}` as Route);
   const today = useToday();
   const [fullName, setFullName] = useState(student.full_name);
   const [socialName, setSocialName] = useState(student.social_name ?? "");
@@ -96,7 +96,7 @@ export function StudentEditForm({ student }: { student: Student }) {
         return;
       }
       toast.add({ title: m.students.saved, type: "success" });
-      router.replace(`/alunos/${student.id}` as Route);
+      finish();
     });
   }
 

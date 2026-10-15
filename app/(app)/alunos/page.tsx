@@ -126,7 +126,7 @@ export default async function StudentsPage({
                           {`${m.students.age(ageOn(student.birth_date, today))}, ${student.unit_code}, ${m.students.activeClasses(student.active_count)}`}
                         </span>
                         {student.needs_accessibility && (
-                          <span className="inline-flex items-center gap-1 text-link">
+                          <span className="inline-flex items-center gap-1">
                             <AccessibilityIcon
                               aria-hidden="true"
                               className="size-4"
@@ -135,10 +135,10 @@ export default async function StudentsPage({
                           </span>
                         )}
                         {admin && student.social_pending && (
-                          <span className="inline-flex items-center gap-1 text-warning">
+                          <span className="inline-flex items-center gap-1">
                             <ClipboardListIcon
                               aria-hidden="true"
-                              className="size-4"
+                              className="size-4 text-warning"
                             />
                             {m.students.pendingSocial}
                           </span>

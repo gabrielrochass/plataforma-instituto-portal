@@ -1,7 +1,6 @@
 "use client";
 
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import {
   FlowBar,
@@ -13,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
+import { useFinish } from "@/hooks/use-finish";
 import { saveGrades } from "@/lib/actions/grades";
 import { attempt, failed } from "@/lib/attempt";
 import {
@@ -50,7 +50,7 @@ export function GradeEntryForm({
   concepts: readonly string[];
   rows: readonly GradeRow[];
 }) {
-  const router = useRouter();
+  const finish = useFinish(`/turmas/${classId}/notas` as Route);
   const max = maxScore[scheme];
   const [entries, setEntries] = useState<Record<string, Entry>>(() =>
     Object.fromEntries(
@@ -113,7 +113,7 @@ export function GradeEntryForm({
         return;
       }
       toast.add({ title: m.grades.saved, type: "success" });
-      router.replace(`/turmas/${classId}/notas` as Route);
+      finish();
     });
   }
 

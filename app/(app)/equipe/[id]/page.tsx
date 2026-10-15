@@ -35,7 +35,7 @@ export default async function MemberPage({
       <PageHeader
         title={member.display_name ?? member.email}
         subtitle={member.email}
-        back={{ href: "/equipe", label: m.team.title }}
+        back={{ href: "/equipe" }}
       />
       <section aria-labelledby="turmas" className="mb-8 flex flex-col gap-3">
         <h2 id="turmas" className="px-1 text-title3 font-semibold">

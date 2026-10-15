@@ -155,14 +155,14 @@ select throws_ok(
 select lives_ok(
   $$ select public.transfer_enrollment(
        'e1000000-0000-4000-8000-000000000001', 'e3000000-0000-4000-8000-000000000001',
-       'c3000000-0000-4000-8000-000000000003', '2026-10-14', 'schedule'
+       'c3000000-0000-4000-8000-000000000003', private.today(), 'schedule'
      ) $$,
   'a teacher moves a student between their classes'
 );
 select lives_ok(
   $$ select public.transfer_enrollment(
        'e1000000-0000-4000-8000-000000000001', 'e3000000-0000-4000-8000-000000000001',
-       'c3000000-0000-4000-8000-000000000003', '2026-10-14', 'schedule'
+       'c3000000-0000-4000-8000-000000000003', private.today(), 'schedule'
      ) $$,
   'repeating the transfer is harmless'
 );
@@ -179,12 +179,12 @@ select is(
 select throws_ok(
   $$ select public.transfer_enrollment(
        'e1000000-0000-4000-8000-000000000002', gen_random_uuid(),
-       'c2000000-0000-4000-8000-000000000002', '2026-10-14', 'moved'
+       'c2000000-0000-4000-8000-000000000002', private.today(), 'moved'
      ) $$,
   '42501', null, 'a teacher cannot move a student into a class they do not teach'
 );
 select lives_ok(
-  $$ select public.end_enrollment(p_enrollment_id => 'e1000000-0000-4000-8000-000000000002', p_status => 'dropped_out', p_reason => 'work', p_note => ' Arrumou emprego ', p_on => '2026-10-14') $$,
+  $$ select public.end_enrollment(p_enrollment_id => 'e1000000-0000-4000-8000-000000000002', p_status => 'dropped_out', p_reason => 'work', p_note => ' Arrumou emprego ', p_on => private.today()) $$,
   'a teacher records a drop out with its reason'
 );
 select lives_ok(

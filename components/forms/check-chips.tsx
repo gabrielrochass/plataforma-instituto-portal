@@ -9,8 +9,10 @@ export function CheckChips({
   onChange,
   error,
   disabled,
+  hideLegend,
 }: {
   legend: string;
+  hideLegend?: boolean;
   name: string;
   options: readonly ChoiceOption[];
   values: readonly string[];
@@ -26,7 +28,13 @@ export function CheckChips({
       aria-describedby={error ? errorId : undefined}
       className="flex min-w-0 flex-col gap-2"
     >
-      <legend className="mb-2 text-footnote font-medium text-muted-foreground">
+      <legend
+        className={
+          hideLegend
+            ? "sr-only"
+            : "mb-2 text-footnote font-medium text-muted-foreground"
+        }
+      >
         {legend}
       </legend>
       <div className="flex flex-wrap gap-2">

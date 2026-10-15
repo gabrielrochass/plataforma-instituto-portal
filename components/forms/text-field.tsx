@@ -58,8 +58,12 @@ export function TextField({
       <Input
         {...props}
         id={id}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy(id, hint, error) || undefined}
+        aria-invalid={error || props["aria-invalid"] ? true : undefined}
+        aria-describedby={
+          [describedBy(id, hint, error), props["aria-describedby"]]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         className="bg-card dark:bg-card"
       />
       <FieldText id={id} hint={hint} error={error} />

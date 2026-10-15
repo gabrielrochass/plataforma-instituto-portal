@@ -2,7 +2,7 @@
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import {
   FlowBar,
   FlowHeader,
@@ -63,6 +63,7 @@ export function ClassForm({
 }) {
   const router = useRouter();
   const today = useToday();
+  const sectionId = useId();
   const [id] = useState(() => classId ?? crypto.randomUUID());
   const [value, setValue] = useState<ClassFormValue>(
     () =>
@@ -82,6 +83,7 @@ export function ClassForm({
   const [status, setStatus] = useState("");
   const [pending, startTransition] = useTransition();
   const editing = classId !== undefined;
+  const periodError = errors.startsOn ?? errors.endsOn;
   const finish = useFinish(`/turmas/${id}` as Route);
   const viewerTeaches = !editing && teacherUnitIds.includes(value.unitId);
   const staff = (staffByUnit[value.unitId] ?? []).filter(
@@ -93,7 +95,11 @@ export function ClassForm({
     next: ClassFormValue[K],
   ) {
     setStatus("");
-    setErrors((current) => ({ ...current, [key]: undefined }));
+    setErrors((current) =>
+      key === "startsOn" || key === "endsOn"
+        ? { ...current, startsOn: undefined, endsOn: undefined }
+        : { ...current, [key]: undefined },
+    );
     setValue((current) => ({ ...current, [key]: next }));
   }
 
@@ -101,13 +107,12 @@ export function ClassForm({
     const found: Record<string, string | undefined> = {};
     if (!value.unitId) found.unitId = f.errors.unit;
     if (!value.name.trim()) found.name = f.errors.name;
-    if (!value.startsOn) found.startsOn = f.errors.dates;
-    if (
-      !value.endsOn ||
-      value.endsOn < value.startsOn ||
-      value.endsOn > addDays(value.startsOn || today, 730)
-    ) {
+    if (!value.startsOn) found.startsOn = f.errors.startsOn;
+    if (!value.endsOn) found.endsOn = f.errors.endsOn;
+    else if (value.startsOn && value.endsOn < value.startsOn) {
       found.endsOn = f.errors.dates;
+    } else if (value.endsOn > addDays(value.startsOn || today, 730)) {
+      found.endsOn = f.errors.tooLong;
     }
     if (value.weekdays.length === 0) found.weekdays = f.errors.days;
     const hours = Number(value.workloadHours);
@@ -187,117 +192,170 @@ export function ClassForm({
         title={editing ? f.editTitle : f.newTitle}
         fallback={(editing ? `/turmas/${id}` : "/turmas") as Route}
       />
-      <div className="flex flex-1 flex-col gap-6 px-4 pt-4 pb-40">
-        {!editing && units.length > 1 && (
-          <ChoiceChips
-            legend={f.unit}
-            name="unidade"
-            value={value.unitId}
-            onChange={(next) => {
-              set("unitId", next);
-              set("teacherIds", []);
-            }}
-            options={units.map((unit) => ({
-              value: unit.id,
-              label: unit.name,
-            }))}
-            error={errors.unitId}
-          />
-        )}
-        <TextField
-          label={f.name}
-          hint={f.nameHint}
-          value={value.name}
-          maxLength={80}
-          autoComplete="off"
-          onChange={(event) => set("name", event.target.value)}
-          error={errors.name}
-        />
-        <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-1 flex-col gap-8 px-4 pt-4 pb-40">
+        <section
+          aria-labelledby={`${sectionId}-about`}
+          className="flex flex-col gap-5"
+        >
+          <h2 id={`${sectionId}-about`} className="text-title3 font-semibold">
+            {f.aboutSection}
+          </h2>
+          {!editing && units.length > 1 && (
+            <ChoiceChips
+              legend={f.unit}
+              name="unidade"
+              value={value.unitId}
+              onChange={(next) => {
+                set("unitId", next);
+                set("teacherIds", []);
+              }}
+              options={units.map((unit) => ({
+                value: unit.id,
+                label: unit.name,
+              }))}
+              error={errors.unitId}
+            />
+          )}
           <TextField
-            label={f.startsOn}
-            type="date"
-            value={value.startsOn}
-            onChange={(event) => set("startsOn", event.target.value)}
-            error={errors.startsOn}
+            label={f.name}
+            hint={f.nameHint}
+            value={value.name}
+            maxLength={80}
+            autoComplete="off"
+            onChange={(event) => set("name", event.target.value)}
+            error={errors.name}
           />
-          <TextField
-            label={f.endsOn}
-            type="date"
-            min={value.startsOn || undefined}
-            value={value.endsOn}
-            onChange={(event) => set("endsOn", event.target.value)}
-            error={errors.endsOn}
-          />
-        </div>
-        <CheckChips
-          legend={f.days}
-          name="dias"
-          values={value.weekdays.map(String)}
-          onChange={(next) =>
-            set("weekdays", next.map(Number).sort((a, b) => a - b) as Weekday[])
-          }
-          options={weekdays.map((day) => ({
-            value: String(day),
-            label: m.schedule.weekdaysShort[day - 1],
-          }))}
-          error={errors.weekdays}
-        />
-        <div className="grid grid-cols-2 gap-4">
-          <TextField
-            label={f.workload}
-            hint={f.workloadHint}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={2000}
-            value={value.workloadHours}
-            onChange={(event) => set("workloadHours", event.target.value)}
-            error={errors.workloadHours}
-          />
-          <TextField
-            label={f.capacity}
-            hint={f.capacityHint}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={500}
-            value={value.capacity}
-            onChange={(event) => set("capacity", event.target.value)}
-            error={errors.capacity}
-          />
-        </div>
-        {viewerTeaches && (
-          <p className="rounded-2xl bg-card p-4 text-subhead">{f.youTeach}</p>
-        )}
-        {value.unitId && (
-          <TeacherPicker
-            name="professores"
-            staff={staff}
-            values={value.teacherIds}
-            onChange={(next) => set("teacherIds", next)}
-          />
-        )}
-        <details className="group rounded-2xl bg-card">
-          <summary className="flex min-h-15 cursor-pointer flex-col justify-center gap-0.5 px-4 py-3">
-            <span className="text-footnote font-medium text-muted-foreground">
-              {f.grading}
-            </span>
-            <span className="text-body">{ruleSentence(value.rules)}</span>
-            <span className="text-subhead text-link group-open:hidden">
-              {f.moreRules}
-            </span>
-          </summary>
-          <div className="px-4 pt-2 pb-4">
-            <GradingFields
-              value={value.rules}
-              onChange={(next) => set("rules", next)}
+          <div className="grid items-start gap-5 sm:grid-cols-2 sm:gap-4">
+            <TextField
+              label={f.workload}
+              hint={f.workloadHint}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={2000}
+              value={value.workloadHours}
+              onChange={(event) => set("workloadHours", event.target.value)}
+              error={errors.workloadHours}
+            />
+            <TextField
+              label={f.capacity}
+              hint={f.capacityHint}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={500}
+              value={value.capacity}
+              onChange={(event) => set("capacity", event.target.value)}
+              error={errors.capacity}
             />
           </div>
-        </details>
-        {errors.rules && (
-          <p className="text-footnote text-destructive">{errors.rules}</p>
+        </section>
+        <section
+          aria-labelledby={`${sectionId}-when`}
+          className="flex flex-col gap-5"
+        >
+          <h2 id={`${sectionId}-when`} className="text-title3 font-semibold">
+            {f.whenSection}
+          </h2>
+          <div className="flex flex-col gap-2">
+            <div className="grid items-start gap-3 min-[360px]:grid-cols-2">
+              <TextField
+                label={f.startsOn}
+                type="date"
+                value={value.startsOn}
+                onChange={(event) => set("startsOn", event.target.value)}
+                aria-invalid={errors.startsOn ? true : undefined}
+                aria-describedby={
+                  periodError ? `${sectionId}-period` : undefined
+                }
+              />
+              <TextField
+                label={f.endsOn}
+                type="date"
+                min={value.startsOn || undefined}
+                value={value.endsOn}
+                onChange={(event) => set("endsOn", event.target.value)}
+                aria-invalid={errors.endsOn ? true : undefined}
+                aria-describedby={
+                  periodError ? `${sectionId}-period` : undefined
+                }
+              />
+            </div>
+            {periodError && (
+              <p
+                id={`${sectionId}-period`}
+                className="text-footnote text-destructive"
+              >
+                {periodError}
+              </p>
+            )}
+          </div>
+          <CheckChips
+            legend={f.days}
+            name="dias"
+            values={value.weekdays.map(String)}
+            onChange={(next) =>
+              set(
+                "weekdays",
+                next.map(Number).sort((a, b) => a - b) as Weekday[],
+              )
+            }
+            options={weekdays.map((day) => ({
+              value: String(day),
+              label: m.schedule.weekdaysShort[day - 1],
+            }))}
+            error={errors.weekdays}
+          />
+        </section>
+        {value.unitId && (
+          <section
+            aria-labelledby={`${sectionId}-teachers`}
+            className="flex flex-col gap-5"
+          >
+            <h2
+              id={`${sectionId}-teachers`}
+              className="text-title3 font-semibold"
+            >
+              {f.teachersSection}
+            </h2>
+            {viewerTeaches && (
+              <p className="rounded-2xl bg-card p-4 text-subhead">
+                {f.youTeach}
+              </p>
+            )}
+            <TeacherPicker
+              name="professores"
+              staff={staff}
+              values={value.teacherIds}
+              onChange={(next) => set("teacherIds", next)}
+            />
+          </section>
         )}
+        <section
+          aria-labelledby={`${sectionId}-grading`}
+          className="flex flex-col gap-5"
+        >
+          <h2 id={`${sectionId}-grading`} className="text-title3 font-semibold">
+            {f.grading}
+          </h2>
+          <details className="group rounded-2xl bg-card">
+            <summary className="flex min-h-15 cursor-pointer flex-col justify-center gap-1 px-4 py-3">
+              <span className="text-body">{ruleSentence(value.rules)}</span>
+              <span className="text-subhead text-link group-open:hidden">
+                {f.moreRules}
+              </span>
+            </summary>
+            <div className="px-4 pt-2 pb-4">
+              <GradingFields
+                value={value.rules}
+                onChange={(next) => set("rules", next)}
+              />
+            </div>
+          </details>
+          {errors.rules && (
+            <p className="text-footnote text-destructive">{errors.rules}</p>
+          )}
+        </section>
       </div>
       <FlowBar status={status}>
         <Button

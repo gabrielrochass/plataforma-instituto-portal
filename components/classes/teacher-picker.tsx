@@ -27,6 +27,7 @@ export function TeacherPicker({
     <div className="flex flex-col gap-2">
       <CheckChips
         legend={m.classes.teachers}
+        hideLegend
         name={name}
         values={values}
         onChange={onChange}

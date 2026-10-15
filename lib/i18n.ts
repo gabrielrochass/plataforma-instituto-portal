@@ -607,6 +607,9 @@ export const m = {
   classForm: {
     newTitle: "Nova turma",
     editTitle: "Editar turma",
+    aboutSection: "Sobre a turma",
+    whenSection: "Quando acontece",
+    teachersSection: "Quem dá aula",
     name: "Nome da turma",
     nameHint: "Algo fácil de reconhecer, como Informática Manhã 2027",
     unit: "Unidade",
@@ -628,7 +631,10 @@ export const m = {
     errors: {
       unit: "Escolha a unidade",
       name: "Dê um nome à turma",
+      startsOn: "Escolha a data de início",
+      endsOn: "Escolha a data de fim",
       dates: "O fim precisa vir depois do início",
+      tooLong: "A turma pode durar até 2 anos",
       days: "Escolha ao menos um dia",
       workload: "Use um número de 1 a 2000",
       capacity: "Use um número de 1 a 500",
